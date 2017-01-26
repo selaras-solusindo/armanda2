@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ew-language date="2017/1/24" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
+<ew-language date="2017/1/26" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
   <!-- 
 	*** Important Notes:
 	1. Language ID should follow: https://developers.google.com/recaptcha/docs/language,
@@ -583,6 +583,9 @@
   <project>
     <phrase id="bodytitle" value="Armanda" />
     <phrase id="footertext" value="&amp;copy;2016 e.World Technology Ltd. All rights reserved." />
+    <menu id="14">
+      <phrase id="menutext" value="v invoice pelaksanaan" />
+    </menu>
     <menu id="1">
       <phrase id="menutext" value="audittrail" />
     </menu>
@@ -597,9 +600,6 @@
     </menu>
     <menu id="9">
       <phrase id="menutext" value="v invoice fee" />
-    </menu>
-    <menu id="10">
-      <phrase id="menutext" value="v invoice pelaksanaan" />
     </menu>
     <menu id="11">
       <phrase id="menutext" value="Home" />
@@ -621,6 +621,42 @@
     </menu>
     <menu id="4">
       <phrase id="menutext" value="Invoice" />
+    </menu>
+    <menu id="10001">
+      <phrase id="menutext" value="audittrail" />
+    </menu>
+    <menu id="10002">
+      <phrase id="menutext" value="t customer" />
+    </menu>
+    <menu id="10003">
+      <phrase id="menutext" value="t fee" />
+    </menu>
+    <menu id="10004">
+      <phrase id="menutext" value="t invoice" />
+    </menu>
+    <menu id="10005">
+      <phrase id="menutext" value="t invoice fee" />
+    </menu>
+    <menu id="10006">
+      <phrase id="menutext" value="t invoice pelaksanaan" />
+    </menu>
+    <menu id="10007">
+      <phrase id="menutext" value="t tmp invoice all" />
+    </menu>
+    <menu id="10008">
+      <phrase id="menutext" value="t user" />
+    </menu>
+    <menu id="10009">
+      <phrase id="menutext" value="v invoice fee" />
+    </menu>
+    <menu id="10010">
+      <phrase id="menutext" value="v invoice pelaksanaan" />
+    </menu>
+    <menu id="10012">
+      <phrase id="menutext" value="Laporan" />
+    </menu>
+    <menu id="10011">
+      <phrase id="menutext" value="Rekap Invoice (ALL)" />
     </menu>
     <table id="audittrail">
       <phrase id="tblcaption" value="audittrail" />
@@ -912,6 +948,9 @@
         <phrase id="fldcaption" value="keterangan 1" />
       </field>
     </table>
+    <table id="home_php">
+      <phrase id="tblcaption" value="Home" />
+    </table>
     <table id="v_invoice_pelaksanaan">
       <phrase id="tblcaption" value="v invoice pelaksanaan" />
       <field id="invoice_id">
@@ -920,9 +959,6 @@
       <field id="tanggal">
         <phrase id="fldcaption" value="tanggal" />
       </field>
-    </table>
-    <table id="home_php">
-      <phrase id="tblcaption" value="Home" />
     </table>
   </project>
 </ew-language>
