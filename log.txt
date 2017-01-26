@@ -1,0 +1,54 @@
+12:50 PM 1/23/2017
+05. laporan - rekap - invoice (all)
+	- tgl invoice
+	- customer
+	- no. kwitansi
+	- no. invoice
+	- no. sertifikat
+	- tgl. pelaksanaan
+	- jumlah
+	truncate table t_tmp_invoice_all
+	insert into t_tmp_invoice_all SELECT null, tanggal, nama, no_kwitansi, nomor, no_sertifikat, null, total_ppn FROM t_invoice a left join t_customer b on a.customer_id = b.customer_id
+
+
+
+11:24 AM 1/23/2017
+04. done
+05. rekap all
+
+
+
+11:04 AM 1/23/2017
+03. done
+04. cetak kwitansi
+
+
+
+5:04 PM 1/22/2017
+02. done
+03. cetak invoice
+
+
+
+2:14 PM 1/22/2017
+- generate
+- sequence number
+- search quick
+- extended
+- view
+- add
+- copy
+- delete
+- edit
+- audit trail
+ 
+
+
+1:48 PM 1/21/2017
+02. buat modul transaksi - invoice;
+01. done;
+
+
+
+1:44 PM 1/21/2017
+01. buat struktur t_invoice_detail;
