@@ -781,6 +781,7 @@ class cv_invoice_fee_list extends cv_invoice_fee {
 		$sFilterList = ew_Concat($sFilterList, $this->satuan->AdvancedSearch->ToJSON(), ","); // Field satuan
 		$sFilterList = ew_Concat($sFilterList, $this->jumlah->AdvancedSearch->ToJSON(), ","); // Field jumlah
 		$sFilterList = ew_Concat($sFilterList, $this->keterangan1->AdvancedSearch->ToJSON(), ","); // Field keterangan1
+		$sFilterList = ew_Concat($sFilterList, $this->tgl_pelaksanaan->AdvancedSearch->ToJSON(), ","); // Field tgl_pelaksanaan
 		if ($this->BasicSearch->Keyword <> "") {
 			$sWrk = "\"" . EW_TABLE_BASIC_SEARCH . "\":\"" . ew_JsEncode2($this->BasicSearch->Keyword) . "\",\"" . EW_TABLE_BASIC_SEARCH_TYPE . "\":\"" . ew_JsEncode2($this->BasicSearch->Type) . "\"";
 			$sFilterList = ew_Concat($sFilterList, $sWrk, ",");
@@ -1032,6 +1033,14 @@ class cv_invoice_fee_list extends cv_invoice_fee {
 		$this->keterangan1->AdvancedSearch->SearchValue2 = @$filter["y_keterangan1"];
 		$this->keterangan1->AdvancedSearch->SearchOperator2 = @$filter["w_keterangan1"];
 		$this->keterangan1->AdvancedSearch->Save();
+
+		// Field tgl_pelaksanaan
+		$this->tgl_pelaksanaan->AdvancedSearch->SearchValue = @$filter["x_tgl_pelaksanaan"];
+		$this->tgl_pelaksanaan->AdvancedSearch->SearchOperator = @$filter["z_tgl_pelaksanaan"];
+		$this->tgl_pelaksanaan->AdvancedSearch->SearchCondition = @$filter["v_tgl_pelaksanaan"];
+		$this->tgl_pelaksanaan->AdvancedSearch->SearchValue2 = @$filter["y_tgl_pelaksanaan"];
+		$this->tgl_pelaksanaan->AdvancedSearch->SearchOperator2 = @$filter["w_tgl_pelaksanaan"];
+		$this->tgl_pelaksanaan->AdvancedSearch->Save();
 		$this->BasicSearch->setKeyword(@$filter[EW_TABLE_BASIC_SEARCH]);
 		$this->BasicSearch->setType(@$filter[EW_TABLE_BASIC_SEARCH_TYPE]);
 	}
@@ -1055,11 +1064,13 @@ class cv_invoice_fee_list extends cv_invoice_fee {
 		$this->BuildBasicSearchSQL($sWhere, $this->jenis, $arKeywords, $type);
 		$this->BuildBasicSearchSQL($sWhere, $this->satuan, $arKeywords, $type);
 		$this->BuildBasicSearchSQL($sWhere, $this->keterangan1, $arKeywords, $type);
+		$this->BuildBasicSearchSQL($sWhere, $this->tgl_pelaksanaan, $arKeywords, $type);
 		return $sWhere;
 	}
 
 	// Build basic search SQL
 	function BuildBasicSearchSQL(&$Where, &$Fld, $arKeywords, $type) {
+		global $EW_BASIC_SEARCH_IGNORE_PATTERN;
 		$sDefCond = ($type == "OR") ? "OR" : "AND";
 		$arSQL = array(); // Array for SQL parts
 		$arCond = array(); // Array for search conditions
@@ -1068,8 +1079,8 @@ class cv_invoice_fee_list extends cv_invoice_fee {
 		for ($i = 0; $i < $cnt; $i++) {
 			$Keyword = $arKeywords[$i];
 			$Keyword = trim($Keyword);
-			if (EW_BASIC_SEARCH_IGNORE_PATTERN <> "") {
-				$Keyword = preg_replace(EW_BASIC_SEARCH_IGNORE_PATTERN, "\\", $Keyword);
+			if ($EW_BASIC_SEARCH_IGNORE_PATTERN <> "") {
+				$Keyword = preg_replace($EW_BASIC_SEARCH_IGNORE_PATTERN, "\\", $Keyword);
 				$ar = explode("\\", $Keyword);
 			} else {
 				$ar = array($Keyword);
@@ -1696,6 +1707,7 @@ class cv_invoice_fee_list extends cv_invoice_fee {
 		$this->satuan->setDbValue($rs->fields('satuan'));
 		$this->jumlah->setDbValue($rs->fields('jumlah'));
 		$this->keterangan1->setDbValue($rs->fields('keterangan1'));
+		$this->tgl_pelaksanaan->setDbValue($rs->fields('tgl_pelaksanaan'));
 	}
 
 	// Load DbValue from recordset
@@ -1728,6 +1740,7 @@ class cv_invoice_fee_list extends cv_invoice_fee {
 		$this->satuan->DbValue = $row['satuan'];
 		$this->jumlah->DbValue = $row['jumlah'];
 		$this->keterangan1->DbValue = $row['keterangan1'];
+		$this->tgl_pelaksanaan->DbValue = $row['tgl_pelaksanaan'];
 	}
 
 	// Load old record
@@ -1811,6 +1824,7 @@ class cv_invoice_fee_list extends cv_invoice_fee {
 		// satuan
 		// jumlah
 		// keterangan1
+		// tgl_pelaksanaan
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 

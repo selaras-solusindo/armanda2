@@ -280,14 +280,14 @@ class cdefault {
 			$this->Page_Terminate("t_invoice_feelist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't_invoice_pelaksanaan'))
 			$this->Page_Terminate("t_invoice_pelaksanaanlist.php");
-		if ($Security->AllowList(CurrentProjectID() . 't_tmp_invoice_all'))
-			$this->Page_Terminate("t_tmp_invoice_alllist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't_user'))
 			$this->Page_Terminate("t_userlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 'v_invoice_fee'))
 			$this->Page_Terminate("v_invoice_feelist.php");
 		if ($Security->AllowList(CurrentProjectID() . 'v_invoice_pelaksanaan'))
 			$this->Page_Terminate("v_invoice_pelaksanaanlist.php");
+		if ($Security->AllowList(CurrentProjectID() . 'v_rekap_invoice_all'))
+			$this->Page_Terminate("v_rekap_invoice_alllist.php");
 		if ($Security->IsLoggedIn()) {
 			$this->setFailureMessage(ew_DeniedMsg() . "<br><br><a href=\"logout.php\">" . $Language->Phrase("BackToLogin") . "</a>");
 		} else {

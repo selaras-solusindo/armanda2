@@ -411,8 +411,7 @@ class cv_invoice_pelaksanaan_list extends cv_invoice_pelaksanaan {
 		// Setup export options
 		$this->SetupExportOptions();
 		$this->invoice_id->SetVisibility();
-		$this->invoice_id->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
-		$this->tanggal->SetVisibility();
+		$this->tgl_pelaksanaan->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -688,7 +687,7 @@ class cv_invoice_pelaksanaan_list extends cv_invoice_pelaksanaan {
 			$this->CurrentOrder = ew_StripSlashes(@$_GET["order"]);
 			$this->CurrentOrderType = @$_GET["ordertype"];
 			$this->UpdateSort($this->invoice_id); // invoice_id
-			$this->UpdateSort($this->tanggal); // tanggal
+			$this->UpdateSort($this->tgl_pelaksanaan); // tgl_pelaksanaan
 			$this->setStartRecordNumber(1); // Reset start position
 		}
 	}
@@ -718,7 +717,7 @@ class cv_invoice_pelaksanaan_list extends cv_invoice_pelaksanaan {
 				$sOrderBy = "";
 				$this->setSessionOrderBy($sOrderBy);
 				$this->invoice_id->setSort("");
-				$this->tanggal->setSort("");
+				$this->tgl_pelaksanaan->setSort("");
 			}
 
 			// Reset start position
@@ -1083,7 +1082,7 @@ class cv_invoice_pelaksanaan_list extends cv_invoice_pelaksanaan {
 		$row = &$rs->fields;
 		$this->Row_Selected($row);
 		$this->invoice_id->setDbValue($rs->fields('invoice_id'));
-		$this->tanggal->setDbValue($rs->fields('tanggal'));
+		$this->tgl_pelaksanaan->setDbValue($rs->fields('tgl_pelaksanaan'));
 	}
 
 	// Load DbValue from recordset
@@ -1091,7 +1090,7 @@ class cv_invoice_pelaksanaan_list extends cv_invoice_pelaksanaan {
 		if (!$rs || !is_array($rs) && $rs->EOF) return;
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->invoice_id->DbValue = $row['invoice_id'];
-		$this->tanggal->DbValue = $row['tanggal'];
+		$this->tgl_pelaksanaan->DbValue = $row['tgl_pelaksanaan'];
 	}
 
 	// Load old record
@@ -1134,7 +1133,7 @@ class cv_invoice_pelaksanaan_list extends cv_invoice_pelaksanaan {
 
 		// Common render codes for all row types
 		// invoice_id
-		// tanggal
+		// tgl_pelaksanaan
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -1142,20 +1141,20 @@ class cv_invoice_pelaksanaan_list extends cv_invoice_pelaksanaan {
 		$this->invoice_id->ViewValue = $this->invoice_id->CurrentValue;
 		$this->invoice_id->ViewCustomAttributes = "";
 
-		// tanggal
-		$this->tanggal->ViewValue = $this->tanggal->CurrentValue;
-		$this->tanggal->ViewValue = ew_FormatDateTime($this->tanggal->ViewValue, 0);
-		$this->tanggal->ViewCustomAttributes = "";
+		// tgl_pelaksanaan
+		$this->tgl_pelaksanaan->ViewValue = $this->tgl_pelaksanaan->CurrentValue;
+		$this->tgl_pelaksanaan->ViewValue = ew_FormatDateTime($this->tgl_pelaksanaan->ViewValue, 0);
+		$this->tgl_pelaksanaan->ViewCustomAttributes = "";
 
 			// invoice_id
 			$this->invoice_id->LinkCustomAttributes = "";
 			$this->invoice_id->HrefValue = "";
 			$this->invoice_id->TooltipValue = "";
 
-			// tanggal
-			$this->tanggal->LinkCustomAttributes = "";
-			$this->tanggal->HrefValue = "";
-			$this->tanggal->TooltipValue = "";
+			// tgl_pelaksanaan
+			$this->tgl_pelaksanaan->LinkCustomAttributes = "";
+			$this->tgl_pelaksanaan->HrefValue = "";
+			$this->tgl_pelaksanaan->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -1709,12 +1708,12 @@ $v_invoice_pelaksanaan_list->ListOptions->Render("header", "left");
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
-<?php if ($v_invoice_pelaksanaan->tanggal->Visible) { // tanggal ?>
-	<?php if ($v_invoice_pelaksanaan->SortUrl($v_invoice_pelaksanaan->tanggal) == "") { ?>
-		<th data-name="tanggal"><div id="elh_v_invoice_pelaksanaan_tanggal" class="v_invoice_pelaksanaan_tanggal"><div class="ewTableHeaderCaption"><?php echo $v_invoice_pelaksanaan->tanggal->FldCaption() ?></div></div></th>
+<?php if ($v_invoice_pelaksanaan->tgl_pelaksanaan->Visible) { // tgl_pelaksanaan ?>
+	<?php if ($v_invoice_pelaksanaan->SortUrl($v_invoice_pelaksanaan->tgl_pelaksanaan) == "") { ?>
+		<th data-name="tgl_pelaksanaan"><div id="elh_v_invoice_pelaksanaan_tgl_pelaksanaan" class="v_invoice_pelaksanaan_tgl_pelaksanaan"><div class="ewTableHeaderCaption"><?php echo $v_invoice_pelaksanaan->tgl_pelaksanaan->FldCaption() ?></div></div></th>
 	<?php } else { ?>
-		<th data-name="tanggal"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $v_invoice_pelaksanaan->SortUrl($v_invoice_pelaksanaan->tanggal) ?>',1);"><div id="elh_v_invoice_pelaksanaan_tanggal" class="v_invoice_pelaksanaan_tanggal">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $v_invoice_pelaksanaan->tanggal->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($v_invoice_pelaksanaan->tanggal->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($v_invoice_pelaksanaan->tanggal->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+		<th data-name="tgl_pelaksanaan"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $v_invoice_pelaksanaan->SortUrl($v_invoice_pelaksanaan->tgl_pelaksanaan) ?>',1);"><div id="elh_v_invoice_pelaksanaan_tgl_pelaksanaan" class="v_invoice_pelaksanaan_tgl_pelaksanaan">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $v_invoice_pelaksanaan->tgl_pelaksanaan->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($v_invoice_pelaksanaan->tgl_pelaksanaan->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($v_invoice_pelaksanaan->tgl_pelaksanaan->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
@@ -1791,11 +1790,11 @@ $v_invoice_pelaksanaan_list->ListOptions->Render("body", "left", $v_invoice_pela
 </span>
 <a id="<?php echo $v_invoice_pelaksanaan_list->PageObjName . "_row_" . $v_invoice_pelaksanaan_list->RowCnt ?>"></a></td>
 	<?php } ?>
-	<?php if ($v_invoice_pelaksanaan->tanggal->Visible) { // tanggal ?>
-		<td data-name="tanggal"<?php echo $v_invoice_pelaksanaan->tanggal->CellAttributes() ?>>
-<span id="el<?php echo $v_invoice_pelaksanaan_list->RowCnt ?>_v_invoice_pelaksanaan_tanggal" class="v_invoice_pelaksanaan_tanggal">
-<span<?php echo $v_invoice_pelaksanaan->tanggal->ViewAttributes() ?>>
-<?php echo $v_invoice_pelaksanaan->tanggal->ListViewValue() ?></span>
+	<?php if ($v_invoice_pelaksanaan->tgl_pelaksanaan->Visible) { // tgl_pelaksanaan ?>
+		<td data-name="tgl_pelaksanaan"<?php echo $v_invoice_pelaksanaan->tgl_pelaksanaan->CellAttributes() ?>>
+<span id="el<?php echo $v_invoice_pelaksanaan_list->RowCnt ?>_v_invoice_pelaksanaan_tgl_pelaksanaan" class="v_invoice_pelaksanaan_tgl_pelaksanaan">
+<span<?php echo $v_invoice_pelaksanaan->tgl_pelaksanaan->ViewAttributes() ?>>
+<?php echo $v_invoice_pelaksanaan->tgl_pelaksanaan->ListViewValue() ?></span>
 </span>
 </td>
 	<?php } ?>

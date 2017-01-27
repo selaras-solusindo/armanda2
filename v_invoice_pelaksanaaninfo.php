@@ -8,7 +8,7 @@ $v_invoice_pelaksanaan = NULL;
 //
 class cv_invoice_pelaksanaan extends cTable {
 	var $invoice_id;
-	var $tanggal;
+	var $tgl_pelaksanaan;
 
 	//
 	// Table class constructor
@@ -46,11 +46,11 @@ class cv_invoice_pelaksanaan extends cTable {
 		$this->invoice_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['invoice_id'] = &$this->invoice_id;
 
-		// tanggal
-		$this->tanggal = new cField('v_invoice_pelaksanaan', 'v_invoice_pelaksanaan', 'x_tanggal', 'tanggal', '`tanggal`', ew_CastDateFieldForLike('`tanggal`', 0, "DB"), 133, 0, FALSE, '`tanggal`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->tanggal->Sortable = TRUE; // Allow sort
-		$this->tanggal->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_FORMAT"], $Language->Phrase("IncorrectDate"));
-		$this->fields['tanggal'] = &$this->tanggal;
+		// tgl_pelaksanaan
+		$this->tgl_pelaksanaan = new cField('v_invoice_pelaksanaan', 'v_invoice_pelaksanaan', 'x_tgl_pelaksanaan', 'tgl_pelaksanaan', '`tgl_pelaksanaan`', '`tgl_pelaksanaan`', 201, 0, FALSE, '`tgl_pelaksanaan`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->tgl_pelaksanaan->Sortable = TRUE; // Allow sort
+		$this->tgl_pelaksanaan->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_FORMAT"], $Language->Phrase("IncorrectDate"));
+		$this->fields['tgl_pelaksanaan'] = &$this->tgl_pelaksanaan;
 	}
 
 	// Set Field Visibility
@@ -534,7 +534,7 @@ class cv_invoice_pelaksanaan extends cTable {
 	// Load row values from recordset
 	function LoadListRowValues(&$rs) {
 		$this->invoice_id->setDbValue($rs->fields('invoice_id'));
-		$this->tanggal->setDbValue($rs->fields('tanggal'));
+		$this->tgl_pelaksanaan->setDbValue($rs->fields('tgl_pelaksanaan'));
 	}
 
 	// Render list row values
@@ -546,26 +546,26 @@ class cv_invoice_pelaksanaan extends cTable {
 
    // Common render codes
 		// invoice_id
-		// tanggal
+		// tgl_pelaksanaan
 		// invoice_id
 
 		$this->invoice_id->ViewValue = $this->invoice_id->CurrentValue;
 		$this->invoice_id->ViewCustomAttributes = "";
 
-		// tanggal
-		$this->tanggal->ViewValue = $this->tanggal->CurrentValue;
-		$this->tanggal->ViewValue = ew_FormatDateTime($this->tanggal->ViewValue, 0);
-		$this->tanggal->ViewCustomAttributes = "";
+		// tgl_pelaksanaan
+		$this->tgl_pelaksanaan->ViewValue = $this->tgl_pelaksanaan->CurrentValue;
+		$this->tgl_pelaksanaan->ViewValue = ew_FormatDateTime($this->tgl_pelaksanaan->ViewValue, 0);
+		$this->tgl_pelaksanaan->ViewCustomAttributes = "";
 
 		// invoice_id
 		$this->invoice_id->LinkCustomAttributes = "";
 		$this->invoice_id->HrefValue = "";
 		$this->invoice_id->TooltipValue = "";
 
-		// tanggal
-		$this->tanggal->LinkCustomAttributes = "";
-		$this->tanggal->HrefValue = "";
-		$this->tanggal->TooltipValue = "";
+		// tgl_pelaksanaan
+		$this->tgl_pelaksanaan->LinkCustomAttributes = "";
+		$this->tgl_pelaksanaan->HrefValue = "";
+		$this->tgl_pelaksanaan->TooltipValue = "";
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -584,11 +584,11 @@ class cv_invoice_pelaksanaan extends cTable {
 		$this->invoice_id->EditValue = $this->invoice_id->CurrentValue;
 		$this->invoice_id->ViewCustomAttributes = "";
 
-		// tanggal
-		$this->tanggal->EditAttrs["class"] = "form-control";
-		$this->tanggal->EditCustomAttributes = "";
-		$this->tanggal->EditValue = ew_FormatDateTime($this->tanggal->CurrentValue, 8);
-		$this->tanggal->PlaceHolder = ew_RemoveHtml($this->tanggal->FldCaption());
+		// tgl_pelaksanaan
+		$this->tgl_pelaksanaan->EditAttrs["class"] = "form-control";
+		$this->tgl_pelaksanaan->EditCustomAttributes = "";
+		$this->tgl_pelaksanaan->EditValue = $this->tgl_pelaksanaan->CurrentValue;
+		$this->tgl_pelaksanaan->PlaceHolder = ew_RemoveHtml($this->tgl_pelaksanaan->FldCaption());
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -618,10 +618,10 @@ class cv_invoice_pelaksanaan extends cTable {
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
 					if ($this->invoice_id->Exportable) $Doc->ExportCaption($this->invoice_id);
-					if ($this->tanggal->Exportable) $Doc->ExportCaption($this->tanggal);
+					if ($this->tgl_pelaksanaan->Exportable) $Doc->ExportCaption($this->tgl_pelaksanaan);
 				} else {
 					if ($this->invoice_id->Exportable) $Doc->ExportCaption($this->invoice_id);
-					if ($this->tanggal->Exportable) $Doc->ExportCaption($this->tanggal);
+					if ($this->tgl_pelaksanaan->Exportable) $Doc->ExportCaption($this->tgl_pelaksanaan);
 				}
 				$Doc->EndExportRow();
 			}
@@ -654,10 +654,10 @@ class cv_invoice_pelaksanaan extends cTable {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
 						if ($this->invoice_id->Exportable) $Doc->ExportField($this->invoice_id);
-						if ($this->tanggal->Exportable) $Doc->ExportField($this->tanggal);
+						if ($this->tgl_pelaksanaan->Exportable) $Doc->ExportField($this->tgl_pelaksanaan);
 					} else {
 						if ($this->invoice_id->Exportable) $Doc->ExportField($this->invoice_id);
-						if ($this->tanggal->Exportable) $Doc->ExportField($this->tanggal);
+						if ($this->tgl_pelaksanaan->Exportable) $Doc->ExportField($this->tgl_pelaksanaan);
 					}
 					$Doc->EndExportRow();
 				}

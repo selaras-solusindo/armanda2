@@ -40,6 +40,12 @@ class ct_user_delete extends ct_user {
 		if ($this->UseTokenInUrl) $PageUrl .= "t=" . $this->TableVar . "&"; // Add page token
 		return $PageUrl;
 	}
+	var $AuditTrailOnAdd = FALSE;
+	var $AuditTrailOnEdit = FALSE;
+	var $AuditTrailOnDelete = TRUE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -282,10 +288,7 @@ class ct_user_delete extends ct_user {
 			}
 		}
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->user_id->SetVisibility();
-		$this->user_id->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
 		$this->username->SetVisibility();
-		$this->password->SetVisibility();
 		$this->userlevel->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
@@ -513,17 +516,9 @@ class ct_user_delete extends ct_user {
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
-		// user_id
-		$this->user_id->ViewValue = $this->user_id->CurrentValue;
-		$this->user_id->ViewCustomAttributes = "";
-
 		// username
 		$this->username->ViewValue = $this->username->CurrentValue;
 		$this->username->ViewCustomAttributes = "";
-
-		// password
-		$this->password->ViewValue = $this->password->CurrentValue;
-		$this->password->ViewCustomAttributes = "";
 
 		// userlevel
 		if ($Security->CanAdmin()) { // System admin
@@ -537,20 +532,10 @@ class ct_user_delete extends ct_user {
 		}
 		$this->userlevel->ViewCustomAttributes = "";
 
-			// user_id
-			$this->user_id->LinkCustomAttributes = "";
-			$this->user_id->HrefValue = "";
-			$this->user_id->TooltipValue = "";
-
 			// username
 			$this->username->LinkCustomAttributes = "";
 			$this->username->HrefValue = "";
 			$this->username->TooltipValue = "";
-
-			// password
-			$this->password->LinkCustomAttributes = "";
-			$this->password->HrefValue = "";
-			$this->password->TooltipValue = "";
 
 			// userlevel
 			$this->userlevel->LinkCustomAttributes = "";
@@ -591,6 +576,7 @@ class ct_user_delete extends ct_user {
 		}
 		$rows = ($rs) ? $rs->GetRows() : array();
 		$conn->BeginTrans();
+		if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteBegin")); // Batch delete begin
 
 		// Clone old rows
 		$rsold = $rows;
@@ -633,8 +619,14 @@ class ct_user_delete extends ct_user {
 		}
 		if ($DeleteRows) {
 			$conn->CommitTrans(); // Commit the changes
+			if ($DeleteRows) {
+				foreach ($rsold as $row)
+					$this->WriteAuditTrailOnDelete($row);
+			}
+			if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteSuccess")); // Batch delete success
 		} else {
 			$conn->RollbackTrans(); // Rollback changes
+			if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteRollback")); // Batch delete rollback
 		}
 
 		// Call Row Deleted event
@@ -677,6 +669,50 @@ class ct_user_delete extends ct_user {
 		global $gsLanguage;
 		$pageId = $pageId ?: $this->PageID;
 		switch ($fld->FldVar) {
+		}
+	}
+
+	// Write Audit Trail start/end for grid update
+	function WriteAuditTrailDummy($typ) {
+		$table = 't_user';
+		$usr = CurrentUserID();
+		ew_WriteAuditTrail("log", ew_StdCurrentDateTime(), ew_ScriptName(), $usr, $typ, $table, "", "", "", "");
+	}
+
+	// Write Audit Trail (delete page)
+	function WriteAuditTrailOnDelete(&$rs) {
+		global $Language;
+		if (!$this->AuditTrailOnDelete) return;
+		$table = 't_user';
+
+		// Get key value
+		$key = "";
+		if ($key <> "")
+			$key .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
+		$key .= $rs['user_id'];
+
+		// Write Audit Trail
+		$dt = ew_StdCurrentDateTime();
+		$id = ew_ScriptName();
+		$curUser = CurrentUserID();
+		foreach (array_keys($rs) as $fldname) {
+			if (array_key_exists($fldname, $this->fields) && $this->fields[$fldname]->FldDataType <> EW_DATATYPE_BLOB) { // Ignore BLOB fields
+				if ($this->fields[$fldname]->FldHtmlTag == "PASSWORD") {
+					$oldvalue = $Language->Phrase("PasswordMask"); // Password Field
+				} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_MEMO) {
+					if (EW_AUDIT_TRAIL_TO_DATABASE)
+						$oldvalue = $rs[$fldname];
+					else
+						$oldvalue = "[MEMO]"; // Memo field
+				} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_XML) {
+					$oldvalue = "[XML]"; // XML field
+				} else {
+					$oldvalue = $rs[$fldname];
+				}
+				if ($fldname == 'password')
+					$oldvalue = $Language->Phrase("PasswordMask");
+				ew_WriteAuditTrail("log", $dt, $id, $curUser, "D", $table, $fldname, $key, $oldvalue, "");
+			}
 		}
 	}
 
@@ -816,14 +852,8 @@ $t_user_delete->ShowMessage();
 <?php echo $t_user->TableCustomInnerHtml ?>
 	<thead>
 	<tr class="ewTableHeader">
-<?php if ($t_user->user_id->Visible) { // user_id ?>
-		<th><span id="elh_t_user_user_id" class="t_user_user_id"><?php echo $t_user->user_id->FldCaption() ?></span></th>
-<?php } ?>
 <?php if ($t_user->username->Visible) { // username ?>
 		<th><span id="elh_t_user_username" class="t_user_username"><?php echo $t_user->username->FldCaption() ?></span></th>
-<?php } ?>
-<?php if ($t_user->password->Visible) { // password ?>
-		<th><span id="elh_t_user_password" class="t_user_password"><?php echo $t_user->password->FldCaption() ?></span></th>
 <?php } ?>
 <?php if ($t_user->userlevel->Visible) { // userlevel ?>
 		<th><span id="elh_t_user_userlevel" class="t_user_userlevel"><?php echo $t_user->userlevel->FldCaption() ?></span></th>
@@ -849,27 +879,11 @@ while (!$t_user_delete->Recordset->EOF) {
 	$t_user_delete->RenderRow();
 ?>
 	<tr<?php echo $t_user->RowAttributes() ?>>
-<?php if ($t_user->user_id->Visible) { // user_id ?>
-		<td<?php echo $t_user->user_id->CellAttributes() ?>>
-<span id="el<?php echo $t_user_delete->RowCnt ?>_t_user_user_id" class="t_user_user_id">
-<span<?php echo $t_user->user_id->ViewAttributes() ?>>
-<?php echo $t_user->user_id->ListViewValue() ?></span>
-</span>
-</td>
-<?php } ?>
 <?php if ($t_user->username->Visible) { // username ?>
 		<td<?php echo $t_user->username->CellAttributes() ?>>
 <span id="el<?php echo $t_user_delete->RowCnt ?>_t_user_username" class="t_user_username">
 <span<?php echo $t_user->username->ViewAttributes() ?>>
 <?php echo $t_user->username->ListViewValue() ?></span>
-</span>
-</td>
-<?php } ?>
-<?php if ($t_user->password->Visible) { // password ?>
-		<td<?php echo $t_user->password->CellAttributes() ?>>
-<span id="el<?php echo $t_user_delete->RowCnt ?>_t_user_password" class="t_user_password">
-<span<?php echo $t_user->password->ViewAttributes() ?>>
-<?php echo $t_user->password->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>

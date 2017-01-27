@@ -80,6 +80,12 @@ class ct_user_list extends ct_user {
 	var $GridEditUrl;
 	var $MultiDeleteUrl;
 	var $MultiUpdateUrl;
+	var $AuditTrailOnAdd = FALSE;
+	var $AuditTrailOnEdit = FALSE;
+	var $AuditTrailOnDelete = FALSE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -410,10 +416,7 @@ class ct_user_list extends ct_user {
 
 		// Setup export options
 		$this->SetupExportOptions();
-		$this->user_id->SetVisibility();
-		$this->user_id->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
 		$this->username->SetVisibility();
-		$this->password->SetVisibility();
 		$this->userlevel->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
@@ -833,6 +836,7 @@ class ct_user_list extends ct_user {
 
 	// Build basic search SQL
 	function BuildBasicSearchSQL(&$Where, &$Fld, $arKeywords, $type) {
+		global $EW_BASIC_SEARCH_IGNORE_PATTERN;
 		$sDefCond = ($type == "OR") ? "OR" : "AND";
 		$arSQL = array(); // Array for SQL parts
 		$arCond = array(); // Array for search conditions
@@ -841,8 +845,8 @@ class ct_user_list extends ct_user {
 		for ($i = 0; $i < $cnt; $i++) {
 			$Keyword = $arKeywords[$i];
 			$Keyword = trim($Keyword);
-			if (EW_BASIC_SEARCH_IGNORE_PATTERN <> "") {
-				$Keyword = preg_replace(EW_BASIC_SEARCH_IGNORE_PATTERN, "\\", $Keyword);
+			if ($EW_BASIC_SEARCH_IGNORE_PATTERN <> "") {
+				$Keyword = preg_replace($EW_BASIC_SEARCH_IGNORE_PATTERN, "\\", $Keyword);
 				$ar = explode("\\", $Keyword);
 			} else {
 				$ar = array($Keyword);
@@ -992,9 +996,7 @@ class ct_user_list extends ct_user {
 		if (@$_GET["order"] <> "") {
 			$this->CurrentOrder = ew_StripSlashes(@$_GET["order"]);
 			$this->CurrentOrderType = @$_GET["ordertype"];
-			$this->UpdateSort($this->user_id); // user_id
 			$this->UpdateSort($this->username); // username
-			$this->UpdateSort($this->password); // password
 			$this->UpdateSort($this->userlevel); // userlevel
 			$this->setStartRecordNumber(1); // Reset start position
 		}
@@ -1028,9 +1030,7 @@ class ct_user_list extends ct_user {
 			if ($this->Command == "resetsort") {
 				$sOrderBy = "";
 				$this->setSessionOrderBy($sOrderBy);
-				$this->user_id->setSort("");
 				$this->username->setSort("");
-				$this->password->setSort("");
 				$this->userlevel->setSort("");
 			}
 
@@ -1090,6 +1090,14 @@ class ct_user_list extends ct_user {
 		$item->ShowInDropDown = FALSE;
 		$item->ShowInButtonGroup = FALSE;
 
+		// "sequence"
+		$item = &$this->ListOptions->Add("sequence");
+		$item->CssStyle = "white-space: nowrap;";
+		$item->Visible = TRUE;
+		$item->OnLeft = TRUE; // Always on left
+		$item->ShowInDropDown = FALSE;
+		$item->ShowInButtonGroup = FALSE;
+
 		// Drop down button for ListOptions
 		$this->ListOptions->UseImageAndText = TRUE;
 		$this->ListOptions->UseDropDownButton = FALSE;
@@ -1110,6 +1118,10 @@ class ct_user_list extends ct_user {
 	function RenderListOptions() {
 		global $Security, $Language, $objForm;
 		$this->ListOptions->LoadDefault();
+
+		// "sequence"
+		$oListOpt = &$this->ListOptions->Items["sequence"];
+		$oListOpt->Body = ew_FormatSeqNo($this->RecCnt);
 
 		// "view"
 		$oListOpt = &$this->ListOptions->Items["view"];
@@ -1552,17 +1564,9 @@ class ct_user_list extends ct_user {
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
-		// user_id
-		$this->user_id->ViewValue = $this->user_id->CurrentValue;
-		$this->user_id->ViewCustomAttributes = "";
-
 		// username
 		$this->username->ViewValue = $this->username->CurrentValue;
 		$this->username->ViewCustomAttributes = "";
-
-		// password
-		$this->password->ViewValue = $this->password->CurrentValue;
-		$this->password->ViewCustomAttributes = "";
 
 		// userlevel
 		if ($Security->CanAdmin()) { // System admin
@@ -1576,20 +1580,10 @@ class ct_user_list extends ct_user {
 		}
 		$this->userlevel->ViewCustomAttributes = "";
 
-			// user_id
-			$this->user_id->LinkCustomAttributes = "";
-			$this->user_id->HrefValue = "";
-			$this->user_id->TooltipValue = "";
-
 			// username
 			$this->username->LinkCustomAttributes = "";
 			$this->username->HrefValue = "";
 			$this->username->TooltipValue = "";
-
-			// password
-			$this->password->LinkCustomAttributes = "";
-			$this->password->HrefValue = "";
-			$this->password->TooltipValue = "";
 
 			// userlevel
 			$this->userlevel->LinkCustomAttributes = "";
@@ -1909,6 +1903,13 @@ class ct_user_list extends ct_user {
 		}
 	}
 
+	// Write Audit Trail start/end for grid update
+	function WriteAuditTrailDummy($typ) {
+		$table = 't_user';
+		$usr = CurrentUserID();
+		ew_WriteAuditTrail("log", ew_StdCurrentDateTime(), ew_ScriptName(), $usr, $typ, $table, "", "", "", "");
+	}
+
 	// Page Load event
 	function Page_Load() {
 
@@ -2129,6 +2130,13 @@ var CurrentSearchForm = ft_userlistsrch = new ew_Form("ft_userlistsrch");
 		else
 			$t_user_list->setWarningMessage($Language->Phrase("NoRecord"));
 	}
+
+	// Audit trail on search
+	if ($t_user_list->AuditTrailOnSearch && $t_user_list->Command == "search" && !$t_user_list->RestoreSearch) {
+		$searchparm = ew_ServerVar("QUERY_STRING");
+		$searchsql = $t_user_list->getSessionWhere();
+		$t_user_list->WriteAuditTrailOnSearch($searchparm, $searchsql);
+	}
 $t_user_list->RenderOtherOptions();
 ?>
 <?php if ($Security->CanSearch()) { ?>
@@ -2188,30 +2196,12 @@ $t_user_list->RenderListOptions();
 // Render list options (header, left)
 $t_user_list->ListOptions->Render("header", "left");
 ?>
-<?php if ($t_user->user_id->Visible) { // user_id ?>
-	<?php if ($t_user->SortUrl($t_user->user_id) == "") { ?>
-		<th data-name="user_id"><div id="elh_t_user_user_id" class="t_user_user_id"><div class="ewTableHeaderCaption"><?php echo $t_user->user_id->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="user_id"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t_user->SortUrl($t_user->user_id) ?>',1);"><div id="elh_t_user_user_id" class="t_user_user_id">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t_user->user_id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t_user->user_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t_user->user_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-        </div></div></th>
-	<?php } ?>
-<?php } ?>		
 <?php if ($t_user->username->Visible) { // username ?>
 	<?php if ($t_user->SortUrl($t_user->username) == "") { ?>
 		<th data-name="username"><div id="elh_t_user_username" class="t_user_username"><div class="ewTableHeaderCaption"><?php echo $t_user->username->FldCaption() ?></div></div></th>
 	<?php } else { ?>
 		<th data-name="username"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t_user->SortUrl($t_user->username) ?>',1);"><div id="elh_t_user_username" class="t_user_username">
 			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t_user->username->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t_user->username->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t_user->username->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-        </div></div></th>
-	<?php } ?>
-<?php } ?>		
-<?php if ($t_user->password->Visible) { // password ?>
-	<?php if ($t_user->SortUrl($t_user->password) == "") { ?>
-		<th data-name="password"><div id="elh_t_user_password" class="t_user_password"><div class="ewTableHeaderCaption"><?php echo $t_user->password->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="password"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t_user->SortUrl($t_user->password) ?>',1);"><div id="elh_t_user_password" class="t_user_password">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t_user->password->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t_user->password->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t_user->password->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
@@ -2289,29 +2279,13 @@ while ($t_user_list->RecCnt < $t_user_list->StopRec) {
 // Render list options (body, left)
 $t_user_list->ListOptions->Render("body", "left", $t_user_list->RowCnt);
 ?>
-	<?php if ($t_user->user_id->Visible) { // user_id ?>
-		<td data-name="user_id"<?php echo $t_user->user_id->CellAttributes() ?>>
-<span id="el<?php echo $t_user_list->RowCnt ?>_t_user_user_id" class="t_user_user_id">
-<span<?php echo $t_user->user_id->ViewAttributes() ?>>
-<?php echo $t_user->user_id->ListViewValue() ?></span>
-</span>
-<a id="<?php echo $t_user_list->PageObjName . "_row_" . $t_user_list->RowCnt ?>"></a></td>
-	<?php } ?>
 	<?php if ($t_user->username->Visible) { // username ?>
 		<td data-name="username"<?php echo $t_user->username->CellAttributes() ?>>
 <span id="el<?php echo $t_user_list->RowCnt ?>_t_user_username" class="t_user_username">
 <span<?php echo $t_user->username->ViewAttributes() ?>>
 <?php echo $t_user->username->ListViewValue() ?></span>
 </span>
-</td>
-	<?php } ?>
-	<?php if ($t_user->password->Visible) { // password ?>
-		<td data-name="password"<?php echo $t_user->password->CellAttributes() ?>>
-<span id="el<?php echo $t_user_list->RowCnt ?>_t_user_password" class="t_user_password">
-<span<?php echo $t_user->password->ViewAttributes() ?>>
-<?php echo $t_user->password->ListViewValue() ?></span>
-</span>
-</td>
+<a id="<?php echo $t_user_list->PageObjName . "_row_" . $t_user_list->RowCnt ?>"></a></td>
 	<?php } ?>
 	<?php if ($t_user->userlevel->Visible) { // userlevel ?>
 		<td data-name="userlevel"<?php echo $t_user->userlevel->CellAttributes() ?>>

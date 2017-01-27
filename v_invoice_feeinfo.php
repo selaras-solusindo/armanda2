@@ -33,6 +33,7 @@ class cv_invoice_fee extends cTable {
 	var $satuan;
 	var $jumlah;
 	var $keterangan1;
+	var $tgl_pelaksanaan;
 
 	//
 	// Table class constructor
@@ -203,6 +204,11 @@ class cv_invoice_fee extends cTable {
 		$this->keterangan1 = new cField('v_invoice_fee', 'v_invoice_fee', 'x_keterangan1', 'keterangan1', '`keterangan1`', '`keterangan1`', 201, -1, FALSE, '`keterangan1`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXTAREA');
 		$this->keterangan1->Sortable = TRUE; // Allow sort
 		$this->fields['keterangan1'] = &$this->keterangan1;
+
+		// tgl_pelaksanaan
+		$this->tgl_pelaksanaan = new cField('v_invoice_fee', 'v_invoice_fee', 'x_tgl_pelaksanaan', 'tgl_pelaksanaan', '`tgl_pelaksanaan`', '`tgl_pelaksanaan`', 201, -1, FALSE, '`tgl_pelaksanaan`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXTAREA');
+		$this->tgl_pelaksanaan->Sortable = TRUE; // Allow sort
+		$this->fields['tgl_pelaksanaan'] = &$this->tgl_pelaksanaan;
 	}
 
 	// Set Field Visibility
@@ -711,6 +717,7 @@ class cv_invoice_fee extends cTable {
 		$this->satuan->setDbValue($rs->fields('satuan'));
 		$this->jumlah->setDbValue($rs->fields('jumlah'));
 		$this->keterangan1->setDbValue($rs->fields('keterangan1'));
+		$this->tgl_pelaksanaan->setDbValue($rs->fields('tgl_pelaksanaan'));
 	}
 
 	// Render list row values
@@ -747,6 +754,7 @@ class cv_invoice_fee extends cTable {
 		// satuan
 		// jumlah
 		// keterangan1
+		// tgl_pelaksanaan
 		// nama
 
 		$this->nama->ViewValue = $this->nama->CurrentValue;
@@ -852,6 +860,10 @@ class cv_invoice_fee extends cTable {
 		// keterangan1
 		$this->keterangan1->ViewValue = $this->keterangan1->CurrentValue;
 		$this->keterangan1->ViewCustomAttributes = "";
+
+		// tgl_pelaksanaan
+		$this->tgl_pelaksanaan->ViewValue = $this->tgl_pelaksanaan->CurrentValue;
+		$this->tgl_pelaksanaan->ViewCustomAttributes = "";
 
 		// nama
 		$this->nama->LinkCustomAttributes = "";
@@ -982,6 +994,11 @@ class cv_invoice_fee extends cTable {
 		$this->keterangan1->LinkCustomAttributes = "";
 		$this->keterangan1->HrefValue = "";
 		$this->keterangan1->TooltipValue = "";
+
+		// tgl_pelaksanaan
+		$this->tgl_pelaksanaan->LinkCustomAttributes = "";
+		$this->tgl_pelaksanaan->HrefValue = "";
+		$this->tgl_pelaksanaan->TooltipValue = "";
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -1154,6 +1171,12 @@ class cv_invoice_fee extends cTable {
 		$this->keterangan1->EditValue = $this->keterangan1->CurrentValue;
 		$this->keterangan1->PlaceHolder = ew_RemoveHtml($this->keterangan1->FldCaption());
 
+		// tgl_pelaksanaan
+		$this->tgl_pelaksanaan->EditAttrs["class"] = "form-control";
+		$this->tgl_pelaksanaan->EditCustomAttributes = "";
+		$this->tgl_pelaksanaan->EditValue = $this->tgl_pelaksanaan->CurrentValue;
+		$this->tgl_pelaksanaan->PlaceHolder = ew_RemoveHtml($this->tgl_pelaksanaan->FldCaption());
+
 		// Call Row Rendered event
 		$this->Row_Rendered();
 	}
@@ -1207,6 +1230,7 @@ class cv_invoice_fee extends cTable {
 					if ($this->satuan->Exportable) $Doc->ExportCaption($this->satuan);
 					if ($this->jumlah->Exportable) $Doc->ExportCaption($this->jumlah);
 					if ($this->keterangan1->Exportable) $Doc->ExportCaption($this->keterangan1);
+					if ($this->tgl_pelaksanaan->Exportable) $Doc->ExportCaption($this->tgl_pelaksanaan);
 				} else {
 					if ($this->nama->Exportable) $Doc->ExportCaption($this->nama);
 					if ($this->kota->Exportable) $Doc->ExportCaption($this->kota);
@@ -1284,6 +1308,7 @@ class cv_invoice_fee extends cTable {
 						if ($this->satuan->Exportable) $Doc->ExportField($this->satuan);
 						if ($this->jumlah->Exportable) $Doc->ExportField($this->jumlah);
 						if ($this->keterangan1->Exportable) $Doc->ExportField($this->keterangan1);
+						if ($this->tgl_pelaksanaan->Exportable) $Doc->ExportField($this->tgl_pelaksanaan);
 					} else {
 						if ($this->nama->Exportable) $Doc->ExportField($this->nama);
 						if ($this->kota->Exportable) $Doc->ExportField($this->kota);

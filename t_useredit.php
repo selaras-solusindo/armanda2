@@ -40,6 +40,12 @@ class ct_user_edit extends ct_user {
 		if ($this->UseTokenInUrl) $PageUrl .= "t=" . $this->TableVar . "&"; // Add page token
 		return $PageUrl;
 	}
+	var $AuditTrailOnAdd = FALSE;
+	var $AuditTrailOnEdit = TRUE;
+	var $AuditTrailOnDelete = FALSE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -285,8 +291,6 @@ class ct_user_edit extends ct_user {
 		// Create form object
 		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->user_id->SetVisibility();
-		$this->user_id->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
 		$this->username->SetVisibility();
 		$this->password->SetVisibility();
 		$this->userlevel->SetVisibility();
@@ -497,8 +501,6 @@ class ct_user_edit extends ct_user {
 
 		// Load from form
 		global $objForm;
-		if (!$this->user_id->FldIsDetailKey)
-			$this->user_id->setFormValue($objForm->GetValue("x_user_id"));
 		if (!$this->username->FldIsDetailKey) {
 			$this->username->setFormValue($objForm->GetValue("x_username"));
 		}
@@ -508,6 +510,8 @@ class ct_user_edit extends ct_user {
 		if (!$this->userlevel->FldIsDetailKey) {
 			$this->userlevel->setFormValue($objForm->GetValue("x_userlevel"));
 		}
+		if (!$this->user_id->FldIsDetailKey)
+			$this->user_id->setFormValue($objForm->GetValue("x_user_id"));
 	}
 
 	// Restore form values
@@ -591,10 +595,6 @@ class ct_user_edit extends ct_user {
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
-		// user_id
-		$this->user_id->ViewValue = $this->user_id->CurrentValue;
-		$this->user_id->ViewCustomAttributes = "";
-
 		// username
 		$this->username->ViewValue = $this->username->CurrentValue;
 		$this->username->ViewCustomAttributes = "";
@@ -615,11 +615,6 @@ class ct_user_edit extends ct_user {
 		}
 		$this->userlevel->ViewCustomAttributes = "";
 
-			// user_id
-			$this->user_id->LinkCustomAttributes = "";
-			$this->user_id->HrefValue = "";
-			$this->user_id->TooltipValue = "";
-
 			// username
 			$this->username->LinkCustomAttributes = "";
 			$this->username->HrefValue = "";
@@ -635,12 +630,6 @@ class ct_user_edit extends ct_user {
 			$this->userlevel->HrefValue = "";
 			$this->userlevel->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
-
-			// user_id
-			$this->user_id->EditAttrs["class"] = "form-control";
-			$this->user_id->EditCustomAttributes = "";
-			$this->user_id->EditValue = $this->user_id->CurrentValue;
-			$this->user_id->ViewCustomAttributes = "";
 
 			// username
 			$this->username->EditAttrs["class"] = "form-control";
@@ -664,12 +653,8 @@ class ct_user_edit extends ct_user {
 			}
 
 			// Edit refer script
-			// user_id
-
-			$this->user_id->LinkCustomAttributes = "";
-			$this->user_id->HrefValue = "";
-
 			// username
+
 			$this->username->LinkCustomAttributes = "";
 			$this->username->HrefValue = "";
 
@@ -786,6 +771,9 @@ class ct_user_edit extends ct_user {
 		// Call Row_Updated event
 		if ($EditRow)
 			$this->Row_Updated($rsold, $rsnew);
+		if ($EditRow) {
+			$this->WriteAuditTrailOnEdit($rsold, $rsnew);
+		}
 		$rs->Close();
 		return $EditRow;
 	}
@@ -821,6 +809,64 @@ class ct_user_edit extends ct_user {
 		global $gsLanguage;
 		$pageId = $pageId ?: $this->PageID;
 		switch ($fld->FldVar) {
+		}
+	}
+
+	// Write Audit Trail start/end for grid update
+	function WriteAuditTrailDummy($typ) {
+		$table = 't_user';
+		$usr = CurrentUserID();
+		ew_WriteAuditTrail("log", ew_StdCurrentDateTime(), ew_ScriptName(), $usr, $typ, $table, "", "", "", "");
+	}
+
+	// Write Audit Trail (edit page)
+	function WriteAuditTrailOnEdit(&$rsold, &$rsnew) {
+		global $Language;
+		if (!$this->AuditTrailOnEdit) return;
+		$table = 't_user';
+
+		// Get key value
+		$key = "";
+		if ($key <> "") $key .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
+		$key .= $rsold['user_id'];
+
+		// Write Audit Trail
+		$dt = ew_StdCurrentDateTime();
+		$id = ew_ScriptName();
+		$usr = CurrentUserID();
+		foreach (array_keys($rsnew) as $fldname) {
+			if ($this->fields[$fldname]->FldDataType <> EW_DATATYPE_BLOB) { // Ignore BLOB fields
+				if ($this->fields[$fldname]->FldDataType == EW_DATATYPE_DATE) { // DateTime field
+					$modified = (ew_FormatDateTime($rsold[$fldname], 0) <> ew_FormatDateTime($rsnew[$fldname], 0));
+				} else {
+					$modified = !ew_CompareValue($rsold[$fldname], $rsnew[$fldname]);
+				}
+				if ($modified) {
+					if ($this->fields[$fldname]->FldHtmlTag == "PASSWORD") { // Password Field
+						$oldvalue = $Language->Phrase("PasswordMask");
+						$newvalue = $Language->Phrase("PasswordMask");
+					} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_MEMO) { // Memo field
+						if (EW_AUDIT_TRAIL_TO_DATABASE) {
+							$oldvalue = $rsold[$fldname];
+							$newvalue = $rsnew[$fldname];
+						} else {
+							$oldvalue = "[MEMO]";
+							$newvalue = "[MEMO]";
+						}
+					} elseif ($this->fields[$fldname]->FldDataType == EW_DATATYPE_XML) { // XML field
+						$oldvalue = "[XML]";
+						$newvalue = "[XML]";
+					} else {
+						$oldvalue = $rsold[$fldname];
+						$newvalue = $rsnew[$fldname];
+					}
+					if ($fldname == 'password') {
+						$oldvalue = $Language->Phrase("PasswordMask");
+						$newvalue = $Language->Phrase("PasswordMask");
+					}
+					ew_WriteAuditTrail("log", $dt, $id, $usr, "U", $table, $fldname, $key, $oldvalue, $newvalue);
+				}
+			}
 		}
 	}
 
@@ -1010,18 +1056,6 @@ $t_user_edit->ShowMessage();
 <input class="hidden" type="text" name="<?php echo ew_Encrypt(ew_Random()) ?>">
 <input class="hidden" type="password" name="<?php echo ew_Encrypt(ew_Random()) ?>">
 <div>
-<?php if ($t_user->user_id->Visible) { // user_id ?>
-	<div id="r_user_id" class="form-group">
-		<label id="elh_t_user_user_id" class="col-sm-2 control-label ewLabel"><?php echo $t_user->user_id->FldCaption() ?></label>
-		<div class="col-sm-10"><div<?php echo $t_user->user_id->CellAttributes() ?>>
-<span id="el_t_user_user_id">
-<span<?php echo $t_user->user_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t_user->user_id->EditValue ?></p></span>
-</span>
-<input type="hidden" data-table="t_user" data-field="x_user_id" name="x_user_id" id="x_user_id" value="<?php echo ew_HtmlEncode($t_user->user_id->CurrentValue) ?>">
-<?php echo $t_user->user_id->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
 <?php if ($t_user->username->Visible) { // username ?>
 	<div id="r_username" class="form-group">
 		<label id="elh_t_user_username" for="x_username" class="col-sm-2 control-label ewLabel"><?php echo $t_user->username->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
@@ -1070,6 +1104,7 @@ $t_user_edit->ShowMessage();
 	</div>
 <?php } ?>
 </div>
+<input type="hidden" data-table="t_user" data-field="x_user_id" name="x_user_id" id="x_user_id" value="<?php echo ew_HtmlEncode($t_user->user_id->CurrentValue) ?>">
 <?php if (!$t_user_edit->IsModal) { ?>
 <div class="form-group">
 	<div class="col-sm-offset-2 col-sm-10">

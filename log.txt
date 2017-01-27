@@ -1,3 +1,28 @@
+7:11 AM 1/27/2017
+05. done
+06. rekap invoice ppn
+
+
+
+9:11 PM 1/26/2017
+05. create view v_invoice_pelaksanaan as
+SELECT 
+		invoice_id, 
+		group_concat(date_format(tanggal, '%d-%m-%Y') separator ', ') as tgl_pelaksanaan
+	FROM 
+		`t_invoice_pelaksanaan` 
+	group by 
+		invoice_id
+05.	SELECT 
+		invoice_id, 
+		group_concat(date_format(tanggal, '%d-%m-%Y')) 
+	FROM 
+		`t_invoice_pelaksanaan` 
+	group by 
+		invoice_id
+
+
+
 11:24 AM 1/26/2017
 05. ini mencoba modul cetak invoice (all), tapi diakal untuk memodifikasi tabel t_tmp_invoice_all,
 	- memodifikasinya dengan cara :: saat akan proses cetak :: tabel dikosongi, lalu diisi dengan data invoice_fee dan 

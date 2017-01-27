@@ -72,6 +72,12 @@ class ct_user_view extends ct_user {
 	var $GridEditUrl;
 	var $MultiDeleteUrl;
 	var $MultiUpdateUrl;
+	var $AuditTrailOnAdd = FALSE;
+	var $AuditTrailOnEdit = FALSE;
+	var $AuditTrailOnDelete = FALSE;
+	var $AuditTrailOnView = FALSE;
+	var $AuditTrailOnViewData = FALSE;
+	var $AuditTrailOnSearch = FALSE;
 
 	// Message
 	function getMessage() {
@@ -383,10 +389,7 @@ class ct_user_view extends ct_user {
 
 		// Setup export options
 		$this->SetupExportOptions();
-		$this->user_id->SetVisibility();
-		$this->user_id->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
 		$this->username->SetVisibility();
-		$this->password->SetVisibility();
 		$this->userlevel->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
@@ -673,6 +676,7 @@ class ct_user_view extends ct_user {
 		// Call Row Selected event
 		$row = &$rs->fields;
 		$this->Row_Selected($row);
+		if ($this->AuditTrailOnView) $this->WriteAuditTrailOnView($row);
 		$this->user_id->setDbValue($rs->fields('user_id'));
 		$this->username->setDbValue($rs->fields('username'));
 		$this->password->setDbValue($rs->fields('password'));
@@ -712,17 +716,9 @@ class ct_user_view extends ct_user {
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
-		// user_id
-		$this->user_id->ViewValue = $this->user_id->CurrentValue;
-		$this->user_id->ViewCustomAttributes = "";
-
 		// username
 		$this->username->ViewValue = $this->username->CurrentValue;
 		$this->username->ViewCustomAttributes = "";
-
-		// password
-		$this->password->ViewValue = $this->password->CurrentValue;
-		$this->password->ViewCustomAttributes = "";
 
 		// userlevel
 		if ($Security->CanAdmin()) { // System admin
@@ -736,20 +732,10 @@ class ct_user_view extends ct_user {
 		}
 		$this->userlevel->ViewCustomAttributes = "";
 
-			// user_id
-			$this->user_id->LinkCustomAttributes = "";
-			$this->user_id->HrefValue = "";
-			$this->user_id->TooltipValue = "";
-
 			// username
 			$this->username->LinkCustomAttributes = "";
 			$this->username->HrefValue = "";
 			$this->username->TooltipValue = "";
-
-			// password
-			$this->password->LinkCustomAttributes = "";
-			$this->password->HrefValue = "";
-			$this->password->TooltipValue = "";
 
 			// userlevel
 			$this->userlevel->LinkCustomAttributes = "";
@@ -1043,6 +1029,13 @@ class ct_user_view extends ct_user {
 		}
 	}
 
+	// Write Audit Trail start/end for grid update
+	function WriteAuditTrailDummy($typ) {
+		$table = 't_user';
+		$usr = CurrentUserID();
+		ew_WriteAuditTrail("log", ew_StdCurrentDateTime(), ew_ScriptName(), $usr, $typ, $table, "", "", "", "");
+	}
+
 	// Page Load event
 	function Page_Load() {
 
@@ -1215,17 +1208,6 @@ $t_user_view->ShowMessage();
 <input type="hidden" name="modal" value="1">
 <?php } ?>
 <table class="table table-bordered table-striped ewViewTable">
-<?php if ($t_user->user_id->Visible) { // user_id ?>
-	<tr id="r_user_id">
-		<td><span id="elh_t_user_user_id"><?php echo $t_user->user_id->FldCaption() ?></span></td>
-		<td data-name="user_id"<?php echo $t_user->user_id->CellAttributes() ?>>
-<span id="el_t_user_user_id">
-<span<?php echo $t_user->user_id->ViewAttributes() ?>>
-<?php echo $t_user->user_id->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
 <?php if ($t_user->username->Visible) { // username ?>
 	<tr id="r_username">
 		<td><span id="elh_t_user_username"><?php echo $t_user->username->FldCaption() ?></span></td>
@@ -1233,17 +1215,6 @@ $t_user_view->ShowMessage();
 <span id="el_t_user_username">
 <span<?php echo $t_user->username->ViewAttributes() ?>>
 <?php echo $t_user->username->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t_user->password->Visible) { // password ?>
-	<tr id="r_password">
-		<td><span id="elh_t_user_password"><?php echo $t_user->password->FldCaption() ?></span></td>
-		<td data-name="password"<?php echo $t_user->password->CellAttributes() ?>>
-<span id="el_t_user_password">
-<span<?php echo $t_user->password->ViewAttributes() ?>>
-<?php echo $t_user->password->ViewValue ?></span>
 </span>
 </td>
 	</tr>

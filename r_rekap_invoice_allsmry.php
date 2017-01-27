@@ -409,12 +409,12 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 		$item = &$this->SearchOptions->Add("searchtoggle");
 		$SearchToggleClass = $this->FilterApplied ? " active" : " active";
 		$item->Body = "<button type=\"button\" class=\"btn btn-default ewSearchToggle" . $SearchToggleClass . "\" title=\"" . $ReportLanguage->Phrase("SearchBtn", TRUE) . "\" data-caption=\"" . $ReportLanguage->Phrase("SearchBtn", TRUE) . "\" data-toggle=\"button\" data-form=\"fr_rekap_invoice_allsummary\">" . $ReportLanguage->Phrase("SearchBtn") . "</button>";
-		$item->Visible = FALSE;
+		$item->Visible = TRUE;
 
 		// Reset filter
 		$item = &$this->SearchOptions->Add("resetfilter");
 		$item->Body = "<button type=\"button\" class=\"btn btn-default\" title=\"" . ewr_HtmlEncode($ReportLanguage->Phrase("ResetAllFilter", TRUE)) . "\" data-caption=\"" . ewr_HtmlEncode($ReportLanguage->Phrase("ResetAllFilter", TRUE)) . "\" onclick=\"location='" . ewr_CurrentPage() . "?cmd=reset'\">" . $ReportLanguage->Phrase("ResetAllFilter") . "</button>";
-		$item->Visible = FALSE && $this->FilterApplied;
+		$item->Visible = TRUE && $this->FilterApplied;
 
 		// Button group for reset filter
 		$this->SearchOptions->UseButtonGroup = TRUE;
@@ -537,20 +537,18 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 		global $ReportLanguage;
 
 		// Set field visibility for detail fields
-		$this->temp_id->SetVisibility();
 		$this->nama->SetVisibility();
 		$this->no_kwitansi->SetVisibility();
 		$this->nomor->SetVisibility();
 		$this->no_sertifikat->SetVisibility();
 		$this->tgl_pelaksanaan->SetVisibility();
 		$this->total_ppn->SetVisibility();
-		$this->invoice_id->SetVisibility();
 
 		// Aggregate variables
 		// 1st dimension = no of groups (level 0 used for grand total)
 		// 2nd dimension = no of fields
 
-		$nDtls = 9;
+		$nDtls = 7;
 		$nGrps = 2;
 		$this->Val = &ewr_InitArray($nDtls, 0);
 		$this->Cnt = &ewr_Init2DArray($nGrps, $nDtls, 0);
@@ -563,7 +561,7 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 		$this->GrandMx = &ewr_InitArray($nDtls, NULL);
 
 		// Set up array if accumulation required: array(Accum, SkipNullOrZero)
-		$this->Col = array(array(FALSE, FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(TRUE,FALSE), array(FALSE,FALSE));
+		$this->Col = array(array(FALSE, FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(TRUE,FALSE));
 
 		// Set up groups per page dynamically
 		$this->SetUpDisplayGrps();
@@ -571,6 +569,12 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 		// Set up Breadcrumb
 		if ($this->Export == "")
 			$this->SetupBreadcrumb();
+
+		// Check if search command
+		$this->SearchCommand = (@$_GET["cmd"] == "search");
+
+		// Load default filter values
+		$this->LoadDefaultFilters();
 
 		// Load custom filters
 		$this->Page_FilterLoad();
@@ -587,16 +591,21 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 		// Extended filter
 		$sExtendedFilter = "";
 
+		// Restore filter list
+		$this->RestoreFilterList();
+
+		// Build extended filter
+		$sExtendedFilter = $this->GetExtendedFilter();
+		ewr_AddFilter($this->Filter, $sExtendedFilter);
+
 		// Build popup filter
 		$sPopupFilter = $this->GetPopupFilter();
 
 		//ewr_SetDebugMsg("popup filter: " . $sPopupFilter);
 		ewr_AddFilter($this->Filter, $sPopupFilter);
 
-		// No filter
-		$this->FilterApplied = FALSE;
-		$this->FilterOptions->GetItem("savecurrentfilter")->Visible = FALSE;
-		$this->FilterOptions->GetItem("deletefilter")->Visible = FALSE;
+		// Check if filter applied
+		$this->FilterApplied = $this->CheckFilter();
 
 		// Call Page Selecting event
 		$this->Page_Selecting($this->Filter);
@@ -834,7 +843,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 			$rs->MoveFirst(); // Move first
 			if ($this->GrpCount == 1) {
 				$this->FirstRowData = array();
-				$this->FirstRowData['temp_id'] = ewr_Conv($rs->fields('temp_id'), 3);
 				$this->FirstRowData['tanggal'] = ewr_Conv($rs->fields('tanggal'), 133);
 				$this->FirstRowData['nama'] = ewr_Conv($rs->fields('nama'), 200);
 				$this->FirstRowData['no_kwitansi'] = ewr_Conv($rs->fields('no_kwitansi'), 200);
@@ -846,7 +854,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 			$rs->MoveNext();
 		}
 		if (!$rs->EOF) {
-			$this->temp_id->setDbValue($rs->fields('temp_id'));
 			if ($opt <> 1) {
 				if (is_array($this->tanggal->GroupDbValues))
 					$this->tanggal->setDbValue(@$this->tanggal->GroupDbValues[$rs->fields('tanggal')]);
@@ -860,16 +867,13 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 			$this->tgl_pelaksanaan->setDbValue($rs->fields('tgl_pelaksanaan'));
 			$this->total_ppn->setDbValue($rs->fields('total_ppn'));
 			$this->invoice_id->setDbValue($rs->fields('invoice_id'));
-			$this->Val[1] = $this->temp_id->CurrentValue;
-			$this->Val[2] = $this->nama->CurrentValue;
-			$this->Val[3] = $this->no_kwitansi->CurrentValue;
-			$this->Val[4] = $this->nomor->CurrentValue;
-			$this->Val[5] = $this->no_sertifikat->CurrentValue;
-			$this->Val[6] = $this->tgl_pelaksanaan->CurrentValue;
-			$this->Val[7] = $this->total_ppn->CurrentValue;
-			$this->Val[8] = $this->invoice_id->CurrentValue;
+			$this->Val[1] = $this->nama->CurrentValue;
+			$this->Val[2] = $this->no_kwitansi->CurrentValue;
+			$this->Val[3] = $this->nomor->CurrentValue;
+			$this->Val[4] = $this->no_sertifikat->CurrentValue;
+			$this->Val[5] = $this->tgl_pelaksanaan->CurrentValue;
+			$this->Val[6] = $this->total_ppn->CurrentValue;
 		} else {
-			$this->temp_id->setDbValue("");
 			$this->tanggal->setDbValue("");
 			$this->nama->setDbValue("");
 			$this->no_kwitansi->setDbValue("");
@@ -927,6 +931,20 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 	// Load group db values if necessary
 	function LoadGroupDbValues() {
 		$conn = &$this->Connection();
+
+		// Set up tanggal GroupDbValues
+		$sSql = ewr_BuildReportSql($this->tanggal->SqlSelect, $this->getSqlWhere(), $this->getSqlGroupBy(), $this->getSqlHaving(), $this->tanggal->SqlOrderBy, "", "");
+		$rswrk = $conn->Execute($sSql);
+		while ($rswrk && !$rswrk->EOF) {
+			$this->tanggal->setDbValue($rswrk->fields[0]);
+			if (!is_null($this->tanggal->CurrentValue) && $this->tanggal->CurrentValue <> "") {
+				$grpval = $rswrk->fields('ew_report_groupvalue');
+				$this->tanggal->GroupDbValues[$this->tanggal->CurrentValue] = $grpval;
+			}
+			$rswrk->MoveNext();
+		}
+		if ($rswrk)
+			$rswrk->Close();
 	}
 
 	// Process Ajax popup
@@ -966,6 +984,13 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 					$arValues = ewr_StripSlashes($_POST["sel_$sName"]);
 					if (trim($arValues[0]) == "") // Select all
 						$arValues = EWR_INIT_VALUE;
+					$this->PopupName = $sName;
+					if (ewr_IsAdvancedFilterValue($arValues) || $arValues == EWR_INIT_VALUE)
+						$this->PopupValue = $arValues;
+					if (!ewr_MatchedArray($arValues, $_SESSION["sel_$sName"])) {
+						if ($this->HasSessionFilterValues($sName))
+							$this->ClearExtFilter = $sName; // Clear extended filter for this field
+					}
 					$_SESSION["sel_$sName"] = $arValues;
 					$_SESSION["rf_$sName"] = ewr_StripSlashes(@$_POST["rf_$sName"]);
 					$_SESSION["rt_$sName"] = ewr_StripSlashes(@$_POST["rt_$sName"]);
@@ -1049,9 +1074,7 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 				$this->GrandCnt[4] = $this->TotCount;
 				$this->GrandCnt[5] = $this->TotCount;
 				$this->GrandCnt[6] = $this->TotCount;
-				$this->GrandCnt[7] = $this->TotCount;
-				$this->GrandSmry[7] = $rsagg->fields("sum_total_ppn");
-				$this->GrandCnt[8] = $this->TotCount;
+				$this->GrandSmry[6] = $rsagg->fields("sum_total_ppn");
 				$rsagg->Close();
 				$bGotSummary = TRUE;
 			}
@@ -1085,7 +1108,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 
 			// tanggal
 			$this->tanggal->GroupViewValue = $this->tanggal->GroupOldValue();
-			$this->tanggal->GroupViewValue = ewr_FormatDateTime($this->tanggal->GroupViewValue, 0);
 			$this->tanggal->CellAttrs["class"] = ($this->RowGroupLevel == 1) ? "ewRptGrpSummary1" : "ewRptGrpField1";
 			$this->tanggal->GroupViewValue = ewr_DisplayGroupValue($this->tanggal, $this->tanggal->GroupViewValue);
 			$this->tanggal->GroupSummaryOldValue = $this->tanggal->GroupSummaryValue;
@@ -1094,14 +1116,12 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 
 			// total_ppn
 			$this->total_ppn->SumViewValue = $this->total_ppn->SumValue;
-			$this->total_ppn->SumViewValue = ewr_FormatNumber($this->total_ppn->SumViewValue, $this->total_ppn->DefaultDecimalPrecision, -1, 0, 0);
+			$this->total_ppn->SumViewValue = ewr_FormatNumber($this->total_ppn->SumViewValue, 0, -2, -2, -1);
+			$this->total_ppn->CellAttrs["style"] = "text-align:right;";
 			$this->total_ppn->CellAttrs["class"] = ($this->RowTotalType == EWR_ROWTOTAL_PAGE || $this->RowTotalType == EWR_ROWTOTAL_GRAND) ? "ewRptGrpAggregate" : "ewRptGrpSummary" . $this->RowGroupLevel;
 
 			// tanggal
 			$this->tanggal->HrefValue = "";
-
-			// temp_id
-			$this->temp_id->HrefValue = "";
 
 			// nama
 			$this->nama->HrefValue = "";
@@ -1120,9 +1140,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 
 			// total_ppn
 			$this->total_ppn->HrefValue = "";
-
-			// invoice_id
-			$this->invoice_id->HrefValue = "";
 		} else {
 			if ($this->RowTotalType == EWR_ROWTOTAL_GROUP && $this->RowTotalSubType == EWR_ROWTOTAL_HEADER) {
 			$this->RowAttrs["data-group"] = $this->tanggal->GroupValue(); // Set up group attribute
@@ -1132,15 +1149,10 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 
 			// tanggal
 			$this->tanggal->GroupViewValue = $this->tanggal->GroupValue();
-			$this->tanggal->GroupViewValue = ewr_FormatDateTime($this->tanggal->GroupViewValue, 0);
 			$this->tanggal->CellAttrs["class"] = "ewRptGrpField1";
 			$this->tanggal->GroupViewValue = ewr_DisplayGroupValue($this->tanggal, $this->tanggal->GroupViewValue);
 			if ($this->tanggal->GroupValue() == $this->tanggal->GroupOldValue() && !$this->ChkLvlBreak(1))
 				$this->tanggal->GroupViewValue = "&nbsp;";
-
-			// temp_id
-			$this->temp_id->ViewValue = $this->temp_id->CurrentValue;
-			$this->temp_id->CellAttrs["class"] = ($this->RecCount % 2 <> 1) ? "ewTableAltRow" : "ewTableRow";
 
 			// nama
 			$this->nama->ViewValue = $this->nama->CurrentValue;
@@ -1162,22 +1174,15 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 			$this->tgl_pelaksanaan->ViewValue = $this->tgl_pelaksanaan->CurrentValue;
 			$this->tgl_pelaksanaan->ViewValue = ewr_FormatDateTime($this->tgl_pelaksanaan->ViewValue, 0);
 			$this->tgl_pelaksanaan->CellAttrs["class"] = ($this->RecCount % 2 <> 1) ? "ewTableAltRow" : "ewTableRow";
-			$this->tgl_pelaksanaan->CellAttrs["style"] = "width: 200px;";
 
 			// total_ppn
 			$this->total_ppn->ViewValue = $this->total_ppn->CurrentValue;
-			$this->total_ppn->ViewValue = ewr_FormatNumber($this->total_ppn->ViewValue, $this->total_ppn->DefaultDecimalPrecision, -1, 0, 0);
+			$this->total_ppn->ViewValue = ewr_FormatNumber($this->total_ppn->ViewValue, 0, -2, -2, -1);
 			$this->total_ppn->CellAttrs["class"] = ($this->RecCount % 2 <> 1) ? "ewTableAltRow" : "ewTableRow";
-
-			// invoice_id
-			$this->invoice_id->ViewValue = $this->invoice_id->CurrentValue;
-			$this->invoice_id->CellAttrs["class"] = ($this->RecCount % 2 <> 1) ? "ewTableAltRow" : "ewTableRow";
+			$this->total_ppn->CellAttrs["style"] = "text-align:right;";
 
 			// tanggal
 			$this->tanggal->HrefValue = "";
-
-			// temp_id
-			$this->temp_id->HrefValue = "";
 
 			// nama
 			$this->nama->HrefValue = "";
@@ -1196,9 +1201,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 
 			// total_ppn
 			$this->total_ppn->HrefValue = "";
-
-			// invoice_id
-			$this->invoice_id->HrefValue = "";
 		}
 
 		// Call Cell_Rendered event
@@ -1231,15 +1233,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 			$HrefValue = &$this->tanggal->HrefValue;
 			$LinkAttrs = &$this->tanggal->LinkAttrs;
 			$this->Cell_Rendered($this->tanggal, $CurrentValue, $ViewValue, $ViewAttrs, $CellAttrs, $HrefValue, $LinkAttrs);
-
-			// temp_id
-			$CurrentValue = $this->temp_id->CurrentValue;
-			$ViewValue = &$this->temp_id->ViewValue;
-			$ViewAttrs = &$this->temp_id->ViewAttrs;
-			$CellAttrs = &$this->temp_id->CellAttrs;
-			$HrefValue = &$this->temp_id->HrefValue;
-			$LinkAttrs = &$this->temp_id->LinkAttrs;
-			$this->Cell_Rendered($this->temp_id, $CurrentValue, $ViewValue, $ViewAttrs, $CellAttrs, $HrefValue, $LinkAttrs);
 
 			// nama
 			$CurrentValue = $this->nama->CurrentValue;
@@ -1294,15 +1287,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 			$HrefValue = &$this->total_ppn->HrefValue;
 			$LinkAttrs = &$this->total_ppn->LinkAttrs;
 			$this->Cell_Rendered($this->total_ppn, $CurrentValue, $ViewValue, $ViewAttrs, $CellAttrs, $HrefValue, $LinkAttrs);
-
-			// invoice_id
-			$CurrentValue = $this->invoice_id->CurrentValue;
-			$ViewValue = &$this->invoice_id->ViewValue;
-			$ViewAttrs = &$this->invoice_id->ViewAttrs;
-			$CellAttrs = &$this->invoice_id->CellAttrs;
-			$HrefValue = &$this->invoice_id->HrefValue;
-			$LinkAttrs = &$this->invoice_id->LinkAttrs;
-			$this->Cell_Rendered($this->invoice_id, $CurrentValue, $ViewValue, $ViewAttrs, $CellAttrs, $HrefValue, $LinkAttrs);
 		}
 
 		// Call Row_Rendered event
@@ -1316,14 +1300,12 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 		$this->SubGrpColumnCount = 0;
 		$this->DtlColumnCount = 0;
 		if ($this->tanggal->Visible) $this->GrpColumnCount += 1;
-		if ($this->temp_id->Visible) $this->DtlColumnCount += 1;
 		if ($this->nama->Visible) $this->DtlColumnCount += 1;
 		if ($this->no_kwitansi->Visible) $this->DtlColumnCount += 1;
 		if ($this->nomor->Visible) $this->DtlColumnCount += 1;
 		if ($this->no_sertifikat->Visible) $this->DtlColumnCount += 1;
 		if ($this->tgl_pelaksanaan->Visible) $this->DtlColumnCount += 1;
 		if ($this->total_ppn->Visible) $this->DtlColumnCount += 1;
-		if ($this->invoice_id->Visible) $this->DtlColumnCount += 1;
 	}
 
 	// Set up Breadcrumb
@@ -1346,6 +1328,479 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 		$url = $this->ExportPdfUrl;
 		$item->Body = "<a title=\"" . ewr_HtmlEncode($ReportLanguage->Phrase("ExportToPDF", TRUE)) . "\" data-caption=\"" . ewr_HtmlEncode($ReportLanguage->Phrase("ExportToPDF", TRUE)) . "\" href=\"javascript:void(0);\" onclick=\"ewr_ExportCharts(this, '" . $url . "', '" . $exportid . "');\">" . $ReportLanguage->Phrase("ExportToPDF") . "</a>";
 		$ReportOptions["ReportTypes"] = $ReportTypes;
+	}
+
+	// Return extended filter
+	function GetExtendedFilter() {
+		global $gsFormError;
+		$sFilter = "";
+		if ($this->DrillDown)
+			return "";
+		$bPostBack = ewr_IsHttpPost();
+		$bRestoreSession = TRUE;
+		$bSetupFilter = FALSE;
+
+		// Reset extended filter if filter changed
+		if ($bPostBack) {
+
+		// Reset search command
+		} elseif (@$_GET["cmd"] == "reset") {
+
+			// Load default values
+			$this->SetSessionDropDownValue($this->tanggal->DropDownValue, $this->tanggal->SearchOperator, 'tanggal'); // Field tanggal
+
+			//$bSetupFilter = TRUE; // No need to set up, just use default
+		} else {
+			$bRestoreSession = !$this->SearchCommand;
+
+			// Field tanggal
+			if ($this->GetDropDownValue($this->tanggal)) {
+				$bSetupFilter = TRUE;
+			} elseif ($this->tanggal->DropDownValue <> EWR_INIT_VALUE && !isset($_SESSION['sv_r_rekap_invoice_all_tanggal'])) {
+				$bSetupFilter = TRUE;
+			}
+			if (!$this->ValidateForm()) {
+				$this->setFailureMessage($gsFormError);
+				return $sFilter;
+			}
+		}
+
+		// Restore session
+		if ($bRestoreSession) {
+			$this->GetSessionDropDownValue($this->tanggal); // Field tanggal
+		}
+
+		// Call page filter validated event
+		$this->Page_FilterValidated();
+
+		// Build SQL
+		$this->BuildDropDownFilter($this->tanggal, $sFilter, $this->tanggal->SearchOperator, FALSE, TRUE); // Field tanggal
+
+		// Save parms to session
+		$this->SetSessionDropDownValue($this->tanggal->DropDownValue, $this->tanggal->SearchOperator, 'tanggal'); // Field tanggal
+
+		// Setup filter
+		if ($bSetupFilter) {
+		}
+
+		// Field tanggal
+		ewr_LoadDropDownList($this->tanggal->DropDownList, $this->tanggal->DropDownValue);
+		return $sFilter;
+	}
+
+	// Build dropdown filter
+	function BuildDropDownFilter(&$fld, &$FilterClause, $FldOpr, $Default = FALSE, $SaveFilter = FALSE) {
+		$FldVal = ($Default) ? $fld->DefaultDropDownValue : (is_array($fld->DropDownValue)) ? $fld->DropDownValue : explode(",", $fld->DropDownValue);
+		$sSql = "";
+		if (is_array($FldVal)) {
+			foreach ($FldVal as $val) {
+				$sWrk = $this->GetDropDownFilter($fld, $val, $FldOpr);
+
+				// Call Page Filtering event
+				if (substr($val, 0, 2) <> "@@") $this->Page_Filtering($fld, $sWrk, "dropdown", $FldOpr, $val);
+				if ($sWrk <> "") {
+					if ($sSql <> "")
+						$sSql .= " OR " . $sWrk;
+					else
+						$sSql = $sWrk;
+				}
+			}
+		} else {
+			$sSql = $this->GetDropDownFilter($fld, $FldVal, $FldOpr);
+
+			// Call Page Filtering event
+			if (substr($FldVal, 0, 2) <> "@@") $this->Page_Filtering($fld, $sSql, "dropdown", $FldOpr, $FldVal);
+		}
+		if ($sSql <> "") {
+			ewr_AddFilter($FilterClause, $sSql);
+			if ($SaveFilter) $fld->CurrentFilter = $sSql;
+		}
+	}
+
+	function GetDropDownFilter(&$fld, $FldVal, $FldOpr) {
+		$FldName = $fld->FldName;
+		$FldExpression = $fld->FldExpression;
+		$FldDataType = $fld->FldDataType;
+		$FldDelimiter = $fld->FldDelimiter;
+		$FldVal = strval($FldVal);
+		if ($FldOpr == "") $FldOpr = "=";
+		$sWrk = "";
+		if ($FldVal == EWR_NULL_VALUE) {
+			$sWrk = $FldExpression . " IS NULL";
+		} elseif ($FldVal == EWR_NOT_NULL_VALUE) {
+			$sWrk = $FldExpression . " IS NOT NULL";
+		} elseif ($FldVal == EWR_EMPTY_VALUE) {
+			$sWrk = $FldExpression . " = ''";
+		} elseif ($FldVal == EWR_ALL_VALUE) {
+			$sWrk = "1 = 1";
+		} else {
+			if (substr($FldVal, 0, 2) == "@@") {
+				$sWrk = $this->GetCustomFilter($fld, $FldVal, $this->DBID);
+			} elseif ($FldDelimiter <> "" && trim($FldVal) <> "") {
+				$sWrk = ewr_GetMultiSearchSql($FldExpression, trim($FldVal), $this->DBID);
+			} else {
+				if ($FldVal <> "" && $FldVal <> EWR_INIT_VALUE) {
+					if ($FldDataType == EWR_DATATYPE_DATE && $FldOpr <> "") {
+						$sWrk = ewr_DateFilterString($FldExpression, $FldOpr, $FldVal, $FldDataType, $this->DBID);
+					} else {
+						$sWrk = ewr_FilterString($FldOpr, $FldVal, $FldDataType, $this->DBID);
+						if ($sWrk <> "") $sWrk = $FldExpression . $sWrk;
+					}
+				}
+			}
+		}
+		return $sWrk;
+	}
+
+	// Get custom filter
+	function GetCustomFilter(&$fld, $FldVal, $dbid = 0) {
+		$sWrk = "";
+		if (is_array($fld->AdvancedFilters)) {
+			foreach ($fld->AdvancedFilters as $filter) {
+				if ($filter->ID == $FldVal && $filter->Enabled) {
+					$sFld = $fld->FldExpression;
+					$sFn = $filter->FunctionName;
+					$wrkid = (substr($filter->ID,0,2) == "@@") ? substr($filter->ID,2) : $filter->ID;
+					if ($sFn <> "")
+						$sWrk = $sFn($sFld, $dbid);
+					else
+						$sWrk = "";
+					$this->Page_Filtering($fld, $sWrk, "custom", $wrkid);
+					break;
+				}
+			}
+		}
+		return $sWrk;
+	}
+
+	// Build extended filter
+	function BuildExtendedFilter(&$fld, &$FilterClause, $Default = FALSE, $SaveFilter = FALSE) {
+		$sWrk = ewr_GetExtendedFilter($fld, $Default, $this->DBID);
+		if (!$Default)
+			$this->Page_Filtering($fld, $sWrk, "extended", $fld->SearchOperator, $fld->SearchValue, $fld->SearchCondition, $fld->SearchOperator2, $fld->SearchValue2);
+		if ($sWrk <> "") {
+			ewr_AddFilter($FilterClause, $sWrk);
+			if ($SaveFilter) $fld->CurrentFilter = $sWrk;
+		}
+	}
+
+	// Get drop down value from querystring
+	function GetDropDownValue(&$fld) {
+		$parm = substr($fld->FldVar, 2);
+		if (ewr_IsHttpPost())
+			return FALSE; // Skip post back
+		if (isset($_GET["so_$parm"]))
+			$fld->SearchOperator = ewr_StripSlashes(@$_GET["so_$parm"]);
+		if (isset($_GET["sv_$parm"])) {
+			$fld->DropDownValue = ewr_StripSlashes(@$_GET["sv_$parm"]);
+			if (is_array($fld->DropDownValue)) $fld->DropDownValue = implode(",", $fld->DropDownValue);
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	// Get filter values from querystring
+	function GetFilterValues(&$fld) {
+		$parm = substr($fld->FldVar, 2);
+		if (ewr_IsHttpPost())
+			return; // Skip post back
+		$got = FALSE;
+		if (isset($_GET["sv_$parm"])) {
+			$fld->SearchValue = ewr_StripSlashes(@$_GET["sv_$parm"]);
+			$got = TRUE;
+		}
+		if (isset($_GET["so_$parm"])) {
+			$fld->SearchOperator = ewr_StripSlashes(@$_GET["so_$parm"]);
+			$got = TRUE;
+		}
+		if (isset($_GET["sc_$parm"])) {
+			$fld->SearchCondition = ewr_StripSlashes(@$_GET["sc_$parm"]);
+			$got = TRUE;
+		}
+		if (isset($_GET["sv2_$parm"])) {
+			$fld->SearchValue2 = ewr_StripSlashes(@$_GET["sv2_$parm"]);
+			$got = TRUE;
+		}
+		if (isset($_GET["so2_$parm"])) {
+			$fld->SearchOperator2 = ewr_StripSlashes($_GET["so2_$parm"]);
+			$got = TRUE;
+		}
+		return $got;
+	}
+
+	// Set default ext filter
+	function SetDefaultExtFilter(&$fld, $so1, $sv1, $sc, $so2, $sv2) {
+		$fld->DefaultSearchValue = $sv1; // Default ext filter value 1
+		$fld->DefaultSearchValue2 = $sv2; // Default ext filter value 2 (if operator 2 is enabled)
+		$fld->DefaultSearchOperator = $so1; // Default search operator 1
+		$fld->DefaultSearchOperator2 = $so2; // Default search operator 2 (if operator 2 is enabled)
+		$fld->DefaultSearchCondition = $sc; // Default search condition (if operator 2 is enabled)
+	}
+
+	// Apply default ext filter
+	function ApplyDefaultExtFilter(&$fld) {
+		$fld->SearchValue = $fld->DefaultSearchValue;
+		$fld->SearchValue2 = $fld->DefaultSearchValue2;
+		$fld->SearchOperator = $fld->DefaultSearchOperator;
+		$fld->SearchOperator2 = $fld->DefaultSearchOperator2;
+		$fld->SearchCondition = $fld->DefaultSearchCondition;
+	}
+
+	// Check if Text Filter applied
+	function TextFilterApplied(&$fld) {
+		return (strval($fld->SearchValue) <> strval($fld->DefaultSearchValue) ||
+			strval($fld->SearchValue2) <> strval($fld->DefaultSearchValue2) ||
+			(strval($fld->SearchValue) <> "" &&
+				strval($fld->SearchOperator) <> strval($fld->DefaultSearchOperator)) ||
+			(strval($fld->SearchValue2) <> "" &&
+				strval($fld->SearchOperator2) <> strval($fld->DefaultSearchOperator2)) ||
+			strval($fld->SearchCondition) <> strval($fld->DefaultSearchCondition));
+	}
+
+	// Check if Non-Text Filter applied
+	function NonTextFilterApplied(&$fld) {
+		if (is_array($fld->DropDownValue)) {
+			if (is_array($fld->DefaultDropDownValue)) {
+				if (count($fld->DefaultDropDownValue) <> count($fld->DropDownValue))
+					return TRUE;
+				else
+					return (count(array_diff($fld->DefaultDropDownValue, $fld->DropDownValue)) <> 0);
+			} else {
+				return TRUE;
+			}
+		} else {
+			if (is_array($fld->DefaultDropDownValue))
+				return TRUE;
+			else
+				$v1 = strval($fld->DefaultDropDownValue);
+			if ($v1 == EWR_INIT_VALUE)
+				$v1 = "";
+			$v2 = strval($fld->DropDownValue);
+			if ($v2 == EWR_INIT_VALUE || $v2 == EWR_ALL_VALUE)
+				$v2 = "";
+			return ($v1 <> $v2);
+		}
+	}
+
+	// Get dropdown value from session
+	function GetSessionDropDownValue(&$fld) {
+		$parm = substr($fld->FldVar, 2);
+		$this->GetSessionValue($fld->DropDownValue, 'sv_r_rekap_invoice_all_' . $parm);
+		$this->GetSessionValue($fld->SearchOperator, 'so_r_rekap_invoice_all_' . $parm);
+	}
+
+	// Get filter values from session
+	function GetSessionFilterValues(&$fld) {
+		$parm = substr($fld->FldVar, 2);
+		$this->GetSessionValue($fld->SearchValue, 'sv_r_rekap_invoice_all_' . $parm);
+		$this->GetSessionValue($fld->SearchOperator, 'so_r_rekap_invoice_all_' . $parm);
+		$this->GetSessionValue($fld->SearchCondition, 'sc_r_rekap_invoice_all_' . $parm);
+		$this->GetSessionValue($fld->SearchValue2, 'sv2_r_rekap_invoice_all_' . $parm);
+		$this->GetSessionValue($fld->SearchOperator2, 'so2_r_rekap_invoice_all_' . $parm);
+	}
+
+	// Get value from session
+	function GetSessionValue(&$sv, $sn) {
+		if (array_key_exists($sn, $_SESSION))
+			$sv = $_SESSION[$sn];
+	}
+
+	// Set dropdown value to session
+	function SetSessionDropDownValue($sv, $so, $parm) {
+		$_SESSION['sv_r_rekap_invoice_all_' . $parm] = $sv;
+		$_SESSION['so_r_rekap_invoice_all_' . $parm] = $so;
+	}
+
+	// Set filter values to session
+	function SetSessionFilterValues($sv1, $so1, $sc, $sv2, $so2, $parm) {
+		$_SESSION['sv_r_rekap_invoice_all_' . $parm] = $sv1;
+		$_SESSION['so_r_rekap_invoice_all_' . $parm] = $so1;
+		$_SESSION['sc_r_rekap_invoice_all_' . $parm] = $sc;
+		$_SESSION['sv2_r_rekap_invoice_all_' . $parm] = $sv2;
+		$_SESSION['so2_r_rekap_invoice_all_' . $parm] = $so2;
+	}
+
+	// Check if has Session filter values
+	function HasSessionFilterValues($parm) {
+		return ((@$_SESSION['sv_' . $parm] <> "" && @$_SESSION['sv_' . $parm] <> EWR_INIT_VALUE) ||
+			(@$_SESSION['sv_' . $parm] <> "" && @$_SESSION['sv_' . $parm] <> EWR_INIT_VALUE) ||
+			(@$_SESSION['sv2_' . $parm] <> "" && @$_SESSION['sv2_' . $parm] <> EWR_INIT_VALUE));
+	}
+
+	// Dropdown filter exist
+	function DropDownFilterExist(&$fld, $FldOpr) {
+		$sWrk = "";
+		$this->BuildDropDownFilter($fld, $sWrk, $FldOpr);
+		return ($sWrk <> "");
+	}
+
+	// Extended filter exist
+	function ExtendedFilterExist(&$fld) {
+		$sExtWrk = "";
+		$this->BuildExtendedFilter($fld, $sExtWrk);
+		return ($sExtWrk <> "");
+	}
+
+	// Validate form
+	function ValidateForm() {
+		global $ReportLanguage, $gsFormError;
+
+		// Initialize form error message
+		$gsFormError = "";
+
+		// Check if validation required
+		if (!EWR_SERVER_VALIDATE)
+			return ($gsFormError == "");
+
+		// Return validate result
+		$ValidateForm = ($gsFormError == "");
+
+		// Call Form_CustomValidate event
+		$sFormCustomError = "";
+		$ValidateForm = $ValidateForm && $this->Form_CustomValidate($sFormCustomError);
+		if ($sFormCustomError <> "") {
+			$gsFormError .= ($gsFormError <> "") ? "<p>&nbsp;</p>" : "";
+			$gsFormError .= $sFormCustomError;
+		}
+		return $ValidateForm;
+	}
+
+	// Clear selection stored in session
+	function ClearSessionSelection($parm) {
+		$_SESSION["sel_r_rekap_invoice_all_$parm"] = "";
+		$_SESSION["rf_r_rekap_invoice_all_$parm"] = "";
+		$_SESSION["rt_r_rekap_invoice_all_$parm"] = "";
+	}
+
+	// Load selection from session
+	function LoadSelectionFromSession($parm) {
+		$fld = &$this->fields($parm);
+		$fld->SelectionList = @$_SESSION["sel_r_rekap_invoice_all_$parm"];
+		$fld->RangeFrom = @$_SESSION["rf_r_rekap_invoice_all_$parm"];
+		$fld->RangeTo = @$_SESSION["rt_r_rekap_invoice_all_$parm"];
+	}
+
+	// Load default value for filters
+	function LoadDefaultFilters() {
+		/**
+		* Set up default values for non Text filters
+		*/
+
+		// Field tanggal
+		$this->tanggal->DefaultDropDownValue = EWR_INIT_VALUE;
+		if (!$this->SearchCommand) $this->tanggal->DropDownValue = $this->tanggal->DefaultDropDownValue;
+		/**
+		* Set up default values for extended filters
+		* function SetDefaultExtFilter(&$fld, $so1, $sv1, $sc, $so2, $sv2)
+		* Parameters:
+		* $fld - Field object
+		* $so1 - Default search operator 1
+		* $sv1 - Default ext filter value 1
+		* $sc - Default search condition (if operator 2 is enabled)
+		* $so2 - Default search operator 2 (if operator 2 is enabled)
+		* $sv2 - Default ext filter value 2 (if operator 2 is enabled)
+		*/
+		/**
+		* Set up default values for popup filters
+		*/
+	}
+
+	// Check if filter applied
+	function CheckFilter() {
+
+		// Check tanggal extended filter
+		if ($this->NonTextFilterApplied($this->tanggal))
+			return TRUE;
+		return FALSE;
+	}
+
+	// Show list of filters
+	function ShowFilterList($showDate = FALSE) {
+		global $ReportLanguage;
+
+		// Initialize
+		$sFilterList = "";
+
+		// Field tanggal
+		$sExtWrk = "";
+		$sWrk = "";
+		$this->BuildDropDownFilter($this->tanggal, $sExtWrk, $this->tanggal->SearchOperator);
+		$sFilter = "";
+		if ($sExtWrk <> "")
+			$sFilter .= "<span class=\"ewFilterValue\">$sExtWrk</span>";
+		elseif ($sWrk <> "")
+			$sFilter .= "<span class=\"ewFilterValue\">$sWrk</span>";
+		if ($sFilter <> "")
+			$sFilterList .= "<div><span class=\"ewFilterCaption\">" . $this->tanggal->FldCaption() . "</span>" . $sFilter . "</div>";
+		$divstyle = "";
+		$divdataclass = "";
+
+		// Show Filters
+		if ($sFilterList <> "" || $showDate) {
+			$sMessage = "<div" . $divstyle . $divdataclass . "><div id=\"ewrFilterList\" class=\"alert alert-info ewDisplayTable\">";
+			if ($showDate)
+				$sMessage .= "<div id=\"ewrCurrentDate\">" . $ReportLanguage->Phrase("ReportGeneratedDate") . ewr_FormatDateTime(date("Y-m-d H:i:s"), 1) . "</div>";
+			if ($sFilterList <> "")
+				$sMessage .= "<div id=\"ewrCurrentFilters\">" . $ReportLanguage->Phrase("CurrentFilters") . "</div>" . $sFilterList;
+			$sMessage .= "</div></div>";
+			$this->Message_Showing($sMessage, "");
+			echo $sMessage;
+		}
+	}
+
+	// Get list of filters
+	function GetFilterList() {
+
+		// Initialize
+		$sFilterList = "";
+
+		// Field tanggal
+		$sWrk = "";
+		$sWrk = ($this->tanggal->DropDownValue <> EWR_INIT_VALUE) ? $this->tanggal->DropDownValue : "";
+		if (is_array($sWrk))
+			$sWrk = implode("||", $sWrk);
+		if ($sWrk <> "")
+			$sWrk = "\"sv_tanggal\":\"" . ewr_JsEncode2($sWrk) . "\"";
+		if ($sWrk <> "") {
+			if ($sFilterList <> "") $sFilterList .= ",";
+			$sFilterList .= $sWrk;
+		}
+
+		// Return filter list in json
+		if ($sFilterList <> "")
+			return "{" . $sFilterList . "}";
+		else
+			return "null";
+	}
+
+	// Restore list of filters
+	function RestoreFilterList() {
+
+		// Return if not reset filter
+		if (@$_POST["cmd"] <> "resetfilter")
+			return FALSE;
+		$filter = json_decode(ewr_StripSlashes(@$_POST["filter"]), TRUE);
+		return $this->SetupFilterList($filter);
+	}
+
+	// Setup list of filters
+	function SetupFilterList($filter) {
+		if (!is_array($filter))
+			return FALSE;
+
+		// Field tanggal
+		$bRestoreFilter = FALSE;
+		if (array_key_exists("sv_tanggal", $filter)) {
+			$sWrk = $filter["sv_tanggal"];
+			if (strpos($sWrk, "||") !== FALSE)
+				$sWrk = explode("||", $sWrk);
+			$this->SetSessionDropDownValue($sWrk, @$filter["so_tanggal"], "tanggal");
+			$bRestoreFilter = TRUE;
+		}
+		if (!$bRestoreFilter) { // Clear filter
+			$this->SetSessionDropDownValue(EWR_INIT_VALUE, "", "tanggal");
+		}
+		return TRUE;
 	}
 
 	// Return popup filter
@@ -1372,14 +1827,12 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 			$this->setOrderBy("");
 			$this->setStartGroup(1);
 			$this->tanggal->setSort("");
-			$this->temp_id->setSort("");
 			$this->nama->setSort("");
 			$this->no_kwitansi->setSort("");
 			$this->nomor->setSort("");
 			$this->no_sertifikat->setSort("");
 			$this->tgl_pelaksanaan->setSort("");
 			$this->total_ppn->setSort("");
-			$this->invoice_id->setSort("");
 
 		// Check for an Order parameter
 		} elseif ($orderBy <> "") {
@@ -1599,45 +2052,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 	function Page_Load() {
 
 		//echo "Page Load";
-		//truncate table t_tmp_invoice_all
-
-		ewr_Execute("truncate table t_tmp_invoice_all");
-
-		//insert into t_tmp_invoice_all SELECT null, tanggal, nama, no_kwitansi, nomor, no_sertifikat, null, total_ppn FROM t_invoice a left join t_customer b on a.customer_id = b.customer_id
-		ewr_Execute("insert into t_tmp_invoice_all SELECT null, invoice_id, tanggal, nama, no_kwitansi, nomor, no_sertifikat, null, total_ppn FROM t_invoice a left join t_customer b on a.customer_id = b.customer_id");
-
-		//$row = ewr_ExecuteRow("SELECT * FROM t_invoice_pelaksanaan");
-		//var_dump($row);
-		//$rs = ReportConn()->Execute("SELECT * FROM t_invoice_pelaksanaan"); // execute a SELECT statement and get recordset object
-
-		$rs = ewr_Execute("SELECT * FROM t_invoice_pelaksanaan"); // execute a SELECT statement and get recordset object
-
-		//var_dump($rs);
-		//foreach($rs as $row_detail) {
-		//	ewr_Execute("UPDATE t_tmp_invoice_all SET tgl_pelaksanaan = concat(tgl_pelaksanaan, '".date("d-m-Y", $row_detail->fields["tanggal"]).", '".") WHERE invoice_id = '".$row_detail->fields["invoice_id"]."'");
-		//}
-
-		$sql = "SELECT * FROM t_invoice_pelaksanaan";
-		$rs = ewr_Execute($sql);
-		if ($rs->RecordCount() > 0) {
-			$rs->MoveFirst();
-			$sData = "";
-			while ($rs && !$rs->EOF) {
-
-				//$field_one = $rs->fields[0]; // get the value of first field
-				//$sData .= $field_one . ",";
-
-				ewr_Execute("UPDATE t_tmp_invoice_all SET tgl_pelaksanaan = concat(tgl_pelaksanaan, '".$rs->fields["tanggal"].", '".") WHERE invoice_id = '".$rs->fields["invoice_id"]."'");
-				$rs->MoveNext();
-			}
-
-			//echo $sData;
-			$rs->Close();
-		}
-		else {
-
-			//$this->setFailureMessage("No records are found.");
-		}
 	}
 
 	// Page Unload event
@@ -1742,6 +2156,39 @@ r_rekap_invoice_all_summary.Chart_Rendered =
 </script>
 <?php } ?>
 <?php if ($Page->Export == "" && !$Page->DrillDown) { ?>
+<script type="text/javascript">
+
+// Form object
+var CurrentForm = fr_rekap_invoice_allsummary = new ewr_Form("fr_rekap_invoice_allsummary");
+
+// Validate method
+fr_rekap_invoice_allsummary.Validate = function() {
+	if (!this.ValidateRequired)
+		return true; // Ignore validation
+	var $ = jQuery, fobj = this.GetForm(), $fobj = $(fobj);
+
+	// Call Form Custom Validate event
+	if (!this.Form_CustomValidate(fobj))
+		return false;
+	return true;
+}
+
+// Form_CustomValidate method
+fr_rekap_invoice_allsummary.Form_CustomValidate = 
+ function(fobj) { // DO NOT CHANGE THIS LINE!
+
+ 	// Your custom validation code here, return false if invalid.
+ 	return true;
+ }
+<?php if (EWR_CLIENT_VALIDATE) { ?>
+fr_rekap_invoice_allsummary.ValidateRequired = true; // Uses JavaScript validation
+<?php } else { ?>
+fr_rekap_invoice_allsummary.ValidateRequired = false; // No JavaScript validation
+<?php } ?>
+
+// Use Ajax
+fr_rekap_invoice_allsummary.Lists["sv_tanggal"] = {"LinkField":"sv_tanggal","Ajax":true,"DisplayFields":["sv_tanggal","","",""],"ParentFields":[],"FilterFields":[],"Options":[],"Template":""};
+</script>
 <?php } ?>
 <?php if ($Page->Export == "" && !$Page->DrillDown) { ?>
 <script type="text/javascript">
@@ -1796,6 +2243,59 @@ if (!$Page->DrillDownInPanel) {
 <!-- summary report starts -->
 <?php if ($Page->Export <> "pdf") { ?>
 <div id="report_summary">
+<?php } ?>
+<?php if ($Page->Export == "" && !$Page->DrillDown) { ?>
+<!-- Search form (begin) -->
+<form name="fr_rekap_invoice_allsummary" id="fr_rekap_invoice_allsummary" class="form-inline ewForm ewExtFilterForm" action="<?php echo ewr_CurrentPage() ?>">
+<?php $SearchPanelClass = ($Page->Filter <> "") ? " in" : " in"; ?>
+<div id="fr_rekap_invoice_allsummary_SearchPanel" class="ewSearchPanel collapse<?php echo $SearchPanelClass ?>">
+<input type="hidden" name="cmd" value="search">
+<div id="r_1" class="ewRow">
+<div id="c_tanggal" class="ewCell form-group">
+	<label for="sv_tanggal" class="ewSearchCaption ewLabel"><?php echo $Page->tanggal->FldCaption() ?></label>
+	<span class="ewSearchField">
+<?php $Page->tanggal->EditAttrs["onchange"] = "ewrForms(this).Submit(); " . @$Page->tanggal->EditAttrs["onchange"]; ?>
+<?php ewr_PrependClass($Page->tanggal->EditAttrs["class"], "form-control"); ?>
+<select data-table="r_rekap_invoice_all" data-field="x_tanggal" data-value-separator="<?php echo ewr_HtmlEncode(is_array($Page->tanggal->DisplayValueSeparator) ? json_encode($Page->tanggal->DisplayValueSeparator) : $Page->tanggal->DisplayValueSeparator) ?>" id="sv_tanggal" name="sv_tanggal"<?php echo $Page->tanggal->EditAttributes() ?>>
+<option value=""><?php echo $ReportLanguage->Phrase("PleaseSelect") ?></option>
+<?php
+	$cntf = is_array($Page->tanggal->AdvancedFilters) ? count($Page->tanggal->AdvancedFilters) : 0;
+	$cntd = is_array($Page->tanggal->DropDownList) ? count($Page->tanggal->DropDownList) : 0;
+	$totcnt = $cntf + $cntd;
+	$wrkcnt = 0;
+	if ($cntf > 0) {
+		foreach ($Page->tanggal->AdvancedFilters as $filter) {
+			if ($filter->Enabled) {
+				$selwrk = ewr_MatchedFilterValue($Page->tanggal->DropDownValue, $filter->ID) ? " selected" : "";
+?>
+<option value="<?php echo $filter->ID ?>"<?php echo $selwrk ?>><?php echo $filter->Name ?></option>
+<?php
+				$wrkcnt += 1;
+			}
+		}
+	}
+	for ($i = 0; $i < $cntd; $i++) {
+		$selwrk = " selected";
+?>
+<option value="<?php echo $Page->tanggal->DropDownList[$i] ?>"<?php echo $selwrk ?>><?php echo ewr_DropDownDisplayValue($Page->tanggal->DropDownList[$i], "date", 7) ?></option>
+<?php
+		$wrkcnt += 1;
+	}
+?>
+</select>
+<input type="hidden" name="s_sv_tanggal" id="s_sv_tanggal" value="<?php echo $Page->tanggal->LookupFilterQuery() ?>"></span>
+</div>
+</div>
+</div>
+</form>
+<script type="text/javascript">
+fr_rekap_invoice_allsummary.Init();
+fr_rekap_invoice_allsummary.FilterList = <?php echo $Page->GetFilterList() ?>;
+</script>
+<!-- Search form (end) -->
+<?php } ?>
+<?php if ($Page->ShowCurrentFilter) { ?>
+<?php $Page->ShowFilterList() ?>
 <?php } ?>
 <?php
 
@@ -1879,24 +2379,6 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <?php } ?>
 	<?php } ?>
 <?php } ?>
-<?php if ($Page->temp_id->Visible) { ?>
-<?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
-	<td data-field="temp_id"><div class="r_rekap_invoice_all_temp_id"><span class="ewTableHeaderCaption"><?php echo $Page->temp_id->FldCaption() ?></span></div></td>
-<?php } else { ?>
-	<td data-field="temp_id">
-<?php if ($Page->SortUrl($Page->temp_id) == "") { ?>
-		<div class="ewTableHeaderBtn r_rekap_invoice_all_temp_id">
-			<span class="ewTableHeaderCaption"><?php echo $Page->temp_id->FldCaption() ?></span>
-		</div>
-<?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_all_temp_id" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->temp_id) ?>',0);">
-			<span class="ewTableHeaderCaption"><?php echo $Page->temp_id->FldCaption() ?></span>
-			<span class="ewTableHeaderSort"><?php if ($Page->temp_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->temp_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
-		</div>
-<?php } ?>
-	</td>
-<?php } ?>
-<?php } ?>
 <?php if ($Page->nama->Visible) { ?>
 <?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
 	<td data-field="nama"><div class="r_rekap_invoice_all_nama"><span class="ewTableHeaderCaption"><?php echo $Page->nama->FldCaption() ?></span></div></td>
@@ -1971,15 +2453,15 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <?php } ?>
 <?php if ($Page->tgl_pelaksanaan->Visible) { ?>
 <?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
-	<td data-field="tgl_pelaksanaan"><div class="r_rekap_invoice_all_tgl_pelaksanaan" style="width: 200px;"><span class="ewTableHeaderCaption"><?php echo $Page->tgl_pelaksanaan->FldCaption() ?></span></div></td>
+	<td data-field="tgl_pelaksanaan"><div class="r_rekap_invoice_all_tgl_pelaksanaan"><span class="ewTableHeaderCaption"><?php echo $Page->tgl_pelaksanaan->FldCaption() ?></span></div></td>
 <?php } else { ?>
 	<td data-field="tgl_pelaksanaan">
 <?php if ($Page->SortUrl($Page->tgl_pelaksanaan) == "") { ?>
-		<div class="ewTableHeaderBtn r_rekap_invoice_all_tgl_pelaksanaan" style="width: 200px;">
+		<div class="ewTableHeaderBtn r_rekap_invoice_all_tgl_pelaksanaan">
 			<span class="ewTableHeaderCaption"><?php echo $Page->tgl_pelaksanaan->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_all_tgl_pelaksanaan" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->tgl_pelaksanaan) ?>',0);" style="width: 200px;">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_all_tgl_pelaksanaan" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->tgl_pelaksanaan) ?>',0);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->tgl_pelaksanaan->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->tgl_pelaksanaan->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->tgl_pelaksanaan->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -1989,35 +2471,17 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <?php } ?>
 <?php if ($Page->total_ppn->Visible) { ?>
 <?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
-	<td data-field="total_ppn"><div class="r_rekap_invoice_all_total_ppn"><span class="ewTableHeaderCaption"><?php echo $Page->total_ppn->FldCaption() ?></span></div></td>
+	<td data-field="total_ppn"><div class="r_rekap_invoice_all_total_ppn" style="text-align: right;"><span class="ewTableHeaderCaption"><?php echo $Page->total_ppn->FldCaption() ?></span></div></td>
 <?php } else { ?>
 	<td data-field="total_ppn">
 <?php if ($Page->SortUrl($Page->total_ppn) == "") { ?>
-		<div class="ewTableHeaderBtn r_rekap_invoice_all_total_ppn">
+		<div class="ewTableHeaderBtn r_rekap_invoice_all_total_ppn" style="text-align: right;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->total_ppn->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_all_total_ppn" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->total_ppn) ?>',0);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_all_total_ppn" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->total_ppn) ?>',0);" style="text-align: right;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->total_ppn->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->total_ppn->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->total_ppn->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
-		</div>
-<?php } ?>
-	</td>
-<?php } ?>
-<?php } ?>
-<?php if ($Page->invoice_id->Visible) { ?>
-<?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
-	<td data-field="invoice_id"><div class="r_rekap_invoice_all_invoice_id"><span class="ewTableHeaderCaption"><?php echo $Page->invoice_id->FldCaption() ?></span></div></td>
-<?php } else { ?>
-	<td data-field="invoice_id">
-<?php if ($Page->SortUrl($Page->invoice_id) == "") { ?>
-		<div class="ewTableHeaderBtn r_rekap_invoice_all_invoice_id">
-			<span class="ewTableHeaderCaption"><?php echo $Page->invoice_id->FldCaption() ?></span>
-		</div>
-<?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_all_invoice_id" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->invoice_id) ?>',0);">
-			<span class="ewTableHeaderCaption"><?php echo $Page->invoice_id->FldCaption() ?></span>
-			<span class="ewTableHeaderSort"><?php if ($Page->invoice_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->invoice_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
 <?php } ?>
 	</td>
@@ -2100,10 +2564,6 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <span data-class="tpx<?php echo $Page->GrpCount ?>_r_rekap_invoice_all_tanggal"<?php echo $Page->tanggal->ViewAttributes() ?>><?php echo $Page->tanggal->GroupViewValue ?></span></td>
 	<?php } ?>
 <?php } ?>
-<?php if ($Page->temp_id->Visible) { ?>
-		<td data-field="temp_id"<?php echo $Page->temp_id->CellAttributes() ?>>
-<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_all_temp_id"<?php echo $Page->temp_id->ViewAttributes() ?>><?php echo $Page->temp_id->ListViewValue() ?></span></td>
-<?php } ?>
 <?php if ($Page->nama->Visible) { ?>
 		<td data-field="nama"<?php echo $Page->nama->CellAttributes() ?>>
 <span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_all_nama"<?php echo $Page->nama->ViewAttributes() ?>><?php echo $Page->nama->ListViewValue() ?></span></td>
@@ -2128,10 +2588,6 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 		<td data-field="total_ppn"<?php echo $Page->total_ppn->CellAttributes() ?>>
 <span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_all_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->ListViewValue() ?></span></td>
 <?php } ?>
-<?php if ($Page->invoice_id->Visible) { ?>
-		<td data-field="invoice_id"<?php echo $Page->invoice_id->CellAttributes() ?>>
-<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_all_invoice_id"<?php echo $Page->invoice_id->ViewAttributes() ?>><?php echo $Page->invoice_id->ListViewValue() ?></span></td>
-<?php } ?>
 	</tr>
 <?php
 
@@ -2145,6 +2601,89 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 ?>
 <?php
 	} // End detail records loop
+?>
+<?php
+		if ($Page->tanggal->Visible) {
+?>
+<?php
+			$Page->tanggal->Count = $Page->GetSummaryCount(1, FALSE);
+			$Page->total_ppn->Count = $Page->Cnt[1][6];
+			$Page->total_ppn->SumValue = $Page->Smry[1][6]; // Load SUM
+			$Page->ResetAttrs();
+			$Page->RowType = EWR_ROWTYPE_TOTAL;
+			$Page->RowTotalType = EWR_ROWTOTAL_GROUP;
+			$Page->RowTotalSubType = EWR_ROWTOTAL_FOOTER;
+			$Page->RowGroupLevel = 1;
+			$Page->RenderRow();
+?>
+<?php if ($Page->tanggal->ShowCompactSummaryFooter) { ?>
+	<tr<?php echo $Page->RowAttributes(); ?>>
+<?php if ($Page->tanggal->Visible) { ?>
+		<td data-field="tanggal"<?php echo $Page->tanggal->CellAttributes() ?>>
+	<?php if ($Page->tanggal->ShowGroupHeaderAsRow) { ?>
+		&nbsp;
+	<?php } elseif ($Page->RowGroupLevel <> 1) { ?>
+		&nbsp;
+	<?php } else { ?>
+		<span class="ewSummaryCount"><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptCnt") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><?php echo ewr_FormatNumber($Page->tanggal->Count,0,-2,-2,-2) ?></span></span>
+	<?php } ?>
+		</td>
+<?php } ?>
+<?php if ($Page->nama->Visible) { ?>
+		<td data-field="nama"<?php echo $Page->tanggal->CellAttributes() ?>></td>
+<?php } ?>
+<?php if ($Page->no_kwitansi->Visible) { ?>
+		<td data-field="no_kwitansi"<?php echo $Page->tanggal->CellAttributes() ?>></td>
+<?php } ?>
+<?php if ($Page->nomor->Visible) { ?>
+		<td data-field="nomor"<?php echo $Page->tanggal->CellAttributes() ?>></td>
+<?php } ?>
+<?php if ($Page->no_sertifikat->Visible) { ?>
+		<td data-field="no_sertifikat"<?php echo $Page->tanggal->CellAttributes() ?>></td>
+<?php } ?>
+<?php if ($Page->tgl_pelaksanaan->Visible) { ?>
+		<td data-field="tgl_pelaksanaan"<?php echo $Page->tanggal->CellAttributes() ?>></td>
+<?php } ?>
+<?php if ($Page->total_ppn->Visible) { ?>
+		<td data-field="total_ppn"<?php echo $Page->tanggal->CellAttributes() ?>><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptSum") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><span data-class="tpgs<?php echo $Page->GrpCount ?>_r_rekap_invoice_all_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->SumViewValue ?></span></span></td>
+<?php } ?>
+	</tr>
+<?php } else { ?>
+	<tr<?php echo $Page->RowAttributes(); ?>>
+<?php if ($Page->GrpColumnCount + $Page->DtlColumnCount > 0) { ?>
+		<td colspan="<?php echo ($Page->GrpColumnCount + $Page->DtlColumnCount) ?>"<?php echo $Page->total_ppn->CellAttributes() ?>><?php echo str_replace(array("%v", "%c"), array($Page->tanggal->GroupViewValue, $Page->tanggal->FldCaption()), $ReportLanguage->Phrase("RptSumHead")) ?> <span class="ewDirLtr">(<?php echo ewr_FormatNumber($Page->Cnt[1][0],0,-2,-2,-2) ?><?php echo $ReportLanguage->Phrase("RptDtlRec") ?>)</span></td>
+<?php } ?>
+	</tr>
+	<tr<?php echo $Page->RowAttributes(); ?>>
+<?php if ($Page->GrpColumnCount > 0) { ?>
+		<td colspan="<?php echo ($Page->GrpColumnCount - 0) ?>"<?php echo $Page->tanggal->CellAttributes() ?>><?php echo $ReportLanguage->Phrase("RptSum") ?></td>
+<?php } ?>
+<?php if ($Page->nama->Visible) { ?>
+		<td data-field="nama"<?php echo $Page->tanggal->CellAttributes() ?>>&nbsp;</td>
+<?php } ?>
+<?php if ($Page->no_kwitansi->Visible) { ?>
+		<td data-field="no_kwitansi"<?php echo $Page->tanggal->CellAttributes() ?>>&nbsp;</td>
+<?php } ?>
+<?php if ($Page->nomor->Visible) { ?>
+		<td data-field="nomor"<?php echo $Page->tanggal->CellAttributes() ?>>&nbsp;</td>
+<?php } ?>
+<?php if ($Page->no_sertifikat->Visible) { ?>
+		<td data-field="no_sertifikat"<?php echo $Page->tanggal->CellAttributes() ?>>&nbsp;</td>
+<?php } ?>
+<?php if ($Page->tgl_pelaksanaan->Visible) { ?>
+		<td data-field="tgl_pelaksanaan"<?php echo $Page->tanggal->CellAttributes() ?>>&nbsp;</td>
+<?php } ?>
+<?php if ($Page->total_ppn->Visible) { ?>
+		<td data-field="total_ppn"<?php echo $Page->total_ppn->CellAttributes() ?>>
+<span data-class="tpgs<?php echo $Page->GrpCount ?>_r_rekap_invoice_all_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->SumViewValue ?></span></td>
+<?php } ?>
+	</tr>
+<?php } ?>
+<?php
+
+			// Reset level 1 summary
+			$Page->ResetLevelSummary(1);
+		} // End show footer check
 ?>
 <?php
 
@@ -2170,8 +2709,8 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <tfoot>
 <?php if (($Page->StopGrp - $Page->StartGrp + 1) <> $Page->TotalGrps) { ?>
 <?php
-	$Page->total_ppn->Count = $Page->Cnt[0][7];
-	$Page->total_ppn->SumValue = $Page->Smry[0][7]; // Load SUM
+	$Page->total_ppn->Count = $Page->Cnt[0][6];
+	$Page->total_ppn->SumValue = $Page->Smry[0][6]; // Load SUM
 	$Page->ResetAttrs();
 	$Page->RowType = EWR_ROWTYPE_TOTAL;
 	$Page->RowTotalType = EWR_ROWTOTAL_PAGE;
@@ -2184,9 +2723,6 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 	<tr<?php echo $Page->RowAttributes(); ?>>
 <?php if ($Page->GrpColumnCount > 0) { ?>
 		<td colspan="<?php echo $Page->GrpColumnCount ?>" class="ewRptGrpAggregate">&nbsp;</td>
-<?php } ?>
-<?php if ($Page->temp_id->Visible) { ?>
-		<td data-field="temp_id"<?php echo $Page->temp_id->CellAttributes() ?>></td>
 <?php } ?>
 <?php if ($Page->nama->Visible) { ?>
 		<td data-field="nama"<?php echo $Page->nama->CellAttributes() ?>></td>
@@ -2206,18 +2742,12 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <?php if ($Page->total_ppn->Visible) { ?>
 		<td data-field="total_ppn"<?php echo $Page->total_ppn->CellAttributes() ?>><?php echo $ReportLanguage->Phrase("RptSum") ?>=<span data-class="tpps_r_rekap_invoice_all_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->SumViewValue ?></span></td>
 <?php } ?>
-<?php if ($Page->invoice_id->Visible) { ?>
-		<td data-field="invoice_id"<?php echo $Page->invoice_id->CellAttributes() ?>></td>
-<?php } ?>
 	</tr>
 <?php } else { ?>
 	<tr<?php echo $Page->RowAttributes(); ?>><td colspan="<?php echo ($Page->GrpColumnCount + $Page->DtlColumnCount) ?>"><?php echo $ReportLanguage->Phrase("RptPageSummary") ?> <span class="ewDirLtr">(<?php echo ewr_FormatNumber($Page->Cnt[0][0],0,-2,-2,-2); ?><?php echo $ReportLanguage->Phrase("RptDtlRec") ?>)</span></td></tr>
 	<tr<?php echo $Page->RowAttributes(); ?>>
 <?php if ($Page->GrpColumnCount > 0) { ?>
 		<td colspan="<?php echo $Page->GrpColumnCount ?>" class="ewRptGrpAggregate"><?php echo $ReportLanguage->Phrase("RptSum") ?></td>
-<?php } ?>
-<?php if ($Page->temp_id->Visible) { ?>
-		<td data-field="temp_id"<?php echo $Page->temp_id->CellAttributes() ?>>&nbsp;</td>
 <?php } ?>
 <?php if ($Page->nama->Visible) { ?>
 		<td data-field="nama"<?php echo $Page->nama->CellAttributes() ?>>&nbsp;</td>
@@ -2238,15 +2768,12 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 		<td data-field="total_ppn"<?php echo $Page->total_ppn->CellAttributes() ?>>
 <span data-class="tpps_r_rekap_invoice_all_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->SumViewValue ?></span></td>
 <?php } ?>
-<?php if ($Page->invoice_id->Visible) { ?>
-		<td data-field="invoice_id"<?php echo $Page->invoice_id->CellAttributes() ?>>&nbsp;</td>
-<?php } ?>
 	</tr>
 <?php } ?>
 <?php } ?>
 <?php
-	$Page->total_ppn->Count = $Page->GrandCnt[7];
-	$Page->total_ppn->SumValue = $Page->GrandSmry[7]; // Load SUM
+	$Page->total_ppn->Count = $Page->GrandCnt[6];
+	$Page->total_ppn->SumValue = $Page->GrandSmry[6]; // Load SUM
 	$Page->ResetAttrs();
 	$Page->RowType = EWR_ROWTYPE_TOTAL;
 	$Page->RowTotalType = EWR_ROWTOTAL_GRAND;
@@ -2259,9 +2786,6 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 	<tr<?php echo $Page->RowAttributes() ?>>
 <?php if ($Page->GrpColumnCount > 0) { ?>
 		<td colspan="<?php echo $Page->GrpColumnCount ?>" class="ewRptGrpAggregate">&nbsp;</td>
-<?php } ?>
-<?php if ($Page->temp_id->Visible) { ?>
-		<td data-field="temp_id"<?php echo $Page->temp_id->CellAttributes() ?>></td>
 <?php } ?>
 <?php if ($Page->nama->Visible) { ?>
 		<td data-field="nama"<?php echo $Page->nama->CellAttributes() ?>></td>
@@ -2281,18 +2805,12 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <?php if ($Page->total_ppn->Visible) { ?>
 		<td data-field="total_ppn"<?php echo $Page->total_ppn->CellAttributes() ?>><?php echo $ReportLanguage->Phrase("RptSum") ?>=<span data-class="tpts_r_rekap_invoice_all_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->SumViewValue ?></span></td>
 <?php } ?>
-<?php if ($Page->invoice_id->Visible) { ?>
-		<td data-field="invoice_id"<?php echo $Page->invoice_id->CellAttributes() ?>></td>
-<?php } ?>
 	</tr>
 <?php } else { ?>
 	<tr<?php echo $Page->RowAttributes() ?>><td colspan="<?php echo ($Page->GrpColumnCount + $Page->DtlColumnCount) ?>"><?php echo $ReportLanguage->Phrase("RptGrandSummary") ?> <span class="ewDirLtr">(<?php echo ewr_FormatNumber($Page->TotCount,0,-2,-2,-2); ?><?php echo $ReportLanguage->Phrase("RptDtlRec") ?>)</span></td></tr>
 	<tr<?php echo $Page->RowAttributes() ?>>
 <?php if ($Page->GrpColumnCount > 0) { ?>
 		<td colspan="<?php echo $Page->GrpColumnCount ?>" class="ewRptGrpAggregate"><?php echo $ReportLanguage->Phrase("RptSum") ?></td>
-<?php } ?>
-<?php if ($Page->temp_id->Visible) { ?>
-		<td data-field="temp_id"<?php echo $Page->temp_id->CellAttributes() ?>>&nbsp;</td>
 <?php } ?>
 <?php if ($Page->nama->Visible) { ?>
 		<td data-field="nama"<?php echo $Page->nama->CellAttributes() ?>>&nbsp;</td>
@@ -2312,9 +2830,6 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <?php if ($Page->total_ppn->Visible) { ?>
 		<td data-field="total_ppn"<?php echo $Page->total_ppn->CellAttributes() ?>>
 <span data-class="tpts_r_rekap_invoice_all_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->SumViewValue ?></span></td>
-<?php } ?>
-<?php if ($Page->invoice_id->Visible) { ?>
-		<td data-field="invoice_id"<?php echo $Page->invoice_id->CellAttributes() ?>>&nbsp;</td>
 <?php } ?>
 	</tr>
 <?php } ?>
@@ -2386,7 +2901,9 @@ if ($rs) $rs->Close();
 
 // Write your table-specific startup script here
 // document.write("page loaded");
+//$(".ewRptGrpSummary<n>").has("span.ewDirLtr").parent().hide(); // Replace <n> with the actual summary group (1,2,3,4)
 
+$(".ewSummaryCount").hide(); // Replace <n> with the actual summary group (1,2,3,4)
 </script>
 <?php } ?>
 <?php include_once "phprptinc/footer.php" ?>

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ew-language date="2017/1/26" version="10.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
+<ew-language date="2017/1/27" version="10.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
   <!-- 
 	*** Important Notes:
 	1. Language ID should follow: https://developers.google.com/recaptcha/docs/language,
@@ -350,6 +350,12 @@
   <project>
     <phrase id="bodytitle" value="Armanda" />
     <phrase id="footertext" value="&amp;copy;2017 e.World Technology Ltd. All rights reserved." />
+    <menu id="14">
+      <phrase id="menutext" value="v rekap invoice all" />
+    </menu>
+    <menu id="15">
+      <phrase id="menutext" value="Rekap Invoice (ALL)" />
+    </menu>
     <menu id="1">
       <phrase id="menutext" value="audittrail" />
     </menu>
@@ -368,9 +374,6 @@
     <menu id="6">
       <phrase id="menutext" value="t invoice pelaksanaan" />
     </menu>
-    <menu id="7">
-      <phrase id="menutext" value="t tmp invoice all" />
-    </menu>
     <menu id="8">
       <phrase id="menutext" value="t user" />
     </menu>
@@ -382,9 +385,6 @@
     </menu>
     <menu id="12">
       <phrase id="menutext" value="Laporan" />
-    </menu>
-    <menu id="11">
-      <phrase id="menutext" value="Rekap Invoice (ALL)" />
     </menu>
     <table id="audittrail">
       <phrase id="tblcaption" value="audittrail" />
@@ -539,36 +539,6 @@
         <phrase id="fldcaption" value="tanggal" />
       </field>
     </table>
-    <table id="t_tmp_invoice_all">
-      <phrase id="tblcaption" value="t tmp invoice all" />
-      <field id="temp_id">
-        <phrase id="fldcaption" value="temp id" />
-      </field>
-      <field id="tanggal">
-        <phrase id="fldcaption" value="tanggal" />
-      </field>
-      <field id="nama">
-        <phrase id="fldcaption" value="nama" />
-      </field>
-      <field id="no_kwitansi">
-        <phrase id="fldcaption" value="no kwitansi" />
-      </field>
-      <field id="nomor">
-        <phrase id="fldcaption" value="nomor" />
-      </field>
-      <field id="no_sertifikat">
-        <phrase id="fldcaption" value="no sertifikat" />
-      </field>
-      <field id="tgl_pelaksanaan">
-        <phrase id="fldcaption" value="tgl pelaksanaan" />
-      </field>
-      <field id="total_ppn">
-        <phrase id="fldcaption" value="total ppn" />
-      </field>
-      <field id="invoice_id">
-        <phrase id="fldcaption" value="invoice id" />
-      </field>
-    </table>
     <table id="t_user">
       <phrase id="tblcaption" value="t user" />
       <field id="user_id">
@@ -664,41 +634,68 @@
       <field id="keterangan1">
         <phrase id="fldcaption" value="keterangan 1" />
       </field>
+      <field id="tgl_pelaksanaan">
+        <phrase id="fldcaption" value="tgl pelaksanaan" />
+      </field>
     </table>
     <table id="v_invoice_pelaksanaan">
       <phrase id="tblcaption" value="v invoice pelaksanaan" />
       <field id="invoice_id">
         <phrase id="fldcaption" value="invoice id" />
       </field>
-      <field id="tanggal">
+      <field id="tgl_pelaksanaan">
         <phrase id="fldcaption" value="tanggal" />
       </field>
     </table>
-    <table id="r_rekap_invoice_all">
-      <phrase id="tblcaption" value="r rekap invoice all" />
-      <field id="temp_id">
-        <phrase id="fldcaption" value="temp id" />
-      </field>
-      <field id="tanggal">
-        <phrase id="fldcaption" value="tanggal" />
-      </field>
+    <table id="v_rekap_invoice_all">
+      <phrase id="tblcaption" value="v rekap invoice all" />
       <field id="nama">
         <phrase id="fldcaption" value="nama" />
       </field>
-      <field id="no_kwitansi">
-        <phrase id="fldcaption" value="no kwitansi" />
+      <field id="invoice_id">
+        <phrase id="fldcaption" value="invoice id" />
       </field>
       <field id="nomor">
         <phrase id="fldcaption" value="nomor" />
       </field>
+      <field id="tanggal">
+        <phrase id="fldcaption" value="tanggal" />
+      </field>
       <field id="no_sertifikat">
         <phrase id="fldcaption" value="no sertifikat" />
       </field>
-      <field id="tgl_pelaksanaan">
-        <phrase id="fldcaption" value="tgl pelaksanaan" />
-      </field>
       <field id="total_ppn">
         <phrase id="fldcaption" value="total ppn" />
+      </field>
+      <field id="no_kwitansi">
+        <phrase id="fldcaption" value="no kwitansi" />
+      </field>
+      <field id="tgl_pelaksanaan">
+        <phrase id="fldcaption" value="tanggal" />
+      </field>
+    </table>
+    <table id="r_rekap_invoice_all">
+      <phrase id="tblcaption" value="Rekap Invoice (ALL)" />
+      <field id="tanggal">
+        <phrase id="fldcaption" value="Tgl. INV." />
+      </field>
+      <field id="nama">
+        <phrase id="fldcaption" value="Customer" />
+      </field>
+      <field id="no_kwitansi">
+        <phrase id="fldcaption" value="No. KW." />
+      </field>
+      <field id="nomor">
+        <phrase id="fldcaption" value="No. INV." />
+      </field>
+      <field id="no_sertifikat">
+        <phrase id="fldcaption" value="No. Sertifikat" />
+      </field>
+      <field id="tgl_pelaksanaan">
+        <phrase id="fldcaption" value="Tgl. Pelaksanaan" />
+      </field>
+      <field id="total_ppn">
+        <phrase id="fldcaption" value="Jumlah" />
       </field>
       <field id="invoice_id">
         <phrase id="fldcaption" value="invoice id" />

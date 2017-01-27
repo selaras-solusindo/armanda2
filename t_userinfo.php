@@ -687,14 +687,10 @@ class ct_user extends cTable {
 			if ($Doc->Horizontal) { // Horizontal format, write header
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
-					if ($this->user_id->Exportable) $Doc->ExportCaption($this->user_id);
 					if ($this->username->Exportable) $Doc->ExportCaption($this->username);
-					if ($this->password->Exportable) $Doc->ExportCaption($this->password);
 					if ($this->userlevel->Exportable) $Doc->ExportCaption($this->userlevel);
 				} else {
-					if ($this->user_id->Exportable) $Doc->ExportCaption($this->user_id);
 					if ($this->username->Exportable) $Doc->ExportCaption($this->username);
-					if ($this->password->Exportable) $Doc->ExportCaption($this->password);
 					if ($this->userlevel->Exportable) $Doc->ExportCaption($this->userlevel);
 				}
 				$Doc->EndExportRow();
@@ -727,14 +723,10 @@ class ct_user extends cTable {
 				if (!$Doc->ExportCustom) {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
-						if ($this->user_id->Exportable) $Doc->ExportField($this->user_id);
 						if ($this->username->Exportable) $Doc->ExportField($this->username);
-						if ($this->password->Exportable) $Doc->ExportField($this->password);
 						if ($this->userlevel->Exportable) $Doc->ExportField($this->userlevel);
 					} else {
-						if ($this->user_id->Exportable) $Doc->ExportField($this->user_id);
 						if ($this->username->Exportable) $Doc->ExportField($this->username);
-						if ($this->password->Exportable) $Doc->ExportField($this->password);
 						if ($this->userlevel->Exportable) $Doc->ExportField($this->userlevel);
 					}
 					$Doc->EndExportRow();

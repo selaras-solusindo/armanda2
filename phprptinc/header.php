@@ -55,6 +55,13 @@ ewr_GetCss("<?php echo ewr_CssFile(EWR_PROJECT_STYLESHEET_FILENAME) ?>");
 </style>
 <?php } ?>
 <?php if (@$gsExport == "") { ?>
+<script type="text/javascript">
+if (!window.Calendar) {
+	ewr_GetCss("jscalendar/calendar.css");
+	ewr_GetScript("jscalendar/calendar.min.js");
+	ewr_GetScript("jscalendar/calendar-setup.js");
+}
+</script>
 <?php } ?>
 <?php if (@$gsExport == "" || @$gsExport == "print" || @$gsExport == "email" && @$gsEmailContentType == "url") { ?>
 <script type="text/javascript">if (!window.jQuery) ewr_GetScript("jquery/jquery-1.12.4.min.js");</script>
