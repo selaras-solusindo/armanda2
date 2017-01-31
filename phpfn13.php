@@ -4855,9 +4855,9 @@ function Database_Connecting(&$info) {
 		$info["db"] = "db_armanda2"; // sesuaikan dengan nama database di komputer localhost
 	} else { // setting koneksi database untuk komputer server
 		$info["host"] = "mysql.idhostinger.com";  // sesuaikan dengan ip address atau hostname komputer server
-		$info["user"] = "u814357398_arman"; // sesuaikan dengan username database di komputer server
+		$info["user"] = "u485477426_arman"; // sesuaikan dengan username database di komputer server
 		$info["pass"] = "PresarioCQ43"; // sesuaikan deengan password database di komputer server
-		$info["db"] = "u814357398_arman"; // sesuaikan dengan nama database di komputer server
+		$info["db"] = "u485477426_arman"; // sesuaikan dengan nama database di komputer server
 	}
 }
 
