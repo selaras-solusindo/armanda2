@@ -247,6 +247,9 @@
 	return $tanggal." ".$bulan." ".$tahun;
 }
 
+function ewr_CurrentHost() {
+	return ewr_ServerVar("HTTP_HOST");
+}
 ]]></CustomScript>
   <CustomScript ScriptType="Client" ScriptCodeType="Table" ScriptName="Startup Script" ScriptCtrlID="summary" ScriptL1Key="r_rekap_invoice_all" ScriptL2Key=""><![CDATA[// Write your table-specific startup script here
 // document.write("page loaded");
@@ -278,7 +281,7 @@ function Database_Connecting(&$info) {
 	// $info["db"] = "production_db";
 	// }
 
-	if (ew_CurrentUserIP () == "127.0.0.1"  || ew_CurrentUserIP () == "::1"  || ew_CurrentHost () == "localhost" ) { // testing on local PC
+	if (ewr_CurrentUserIP () == "127.0.0.1"  || ewr_CurrentUserIP () == "::1"  || ewr_CurrentHost () == "localhost" ) { // testing on local PC
 		$info["host"] = "localhost";
 		$info["user"] = "root"; // sesuaikan dengan username database di komputer localhost
 		$info["pass"] = "admin"; // sesuaikan dengan password database di komputer localhost

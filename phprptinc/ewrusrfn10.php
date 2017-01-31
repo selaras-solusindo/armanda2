@@ -60,4 +60,8 @@ function tgl_indo($tgl) {
 	$tahun = date("Y", $tgl_data);
 	return $tanggal." ".$bulan." ".$tahun;
 }
+
+function ewr_CurrentHost() {
+	return ewr_ServerVar("HTTP_HOST");
+}
 ?>
