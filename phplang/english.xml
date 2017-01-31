@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ew-language date="2017/1/27" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
+<ew-language date="2017/1/31" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
   <!-- 
 	*** Important Notes:
 	1. Language ID should follow: https://developers.google.com/recaptcha/docs/language,
@@ -583,6 +583,12 @@
   <project>
     <phrase id="bodytitle" value="Armanda" />
     <phrase id="footertext" value="&amp;copy;2016 e.World Technology Ltd. All rights reserved." />
+    <menu id="10022">
+      <phrase id="menutext" value="v rekap hutang" />
+    </menu>
+    <menu id="10014">
+      <phrase id="menutext" value="v rekap invoice ppn" />
+    </menu>
     <menu id="10013">
       <phrase id="menutext" value="v rekap invoice all" />
     </menu>
@@ -622,6 +628,15 @@
     <menu id="4">
       <phrase id="menutext" value="Invoice" />
     </menu>
+    <menu id="10055">
+      <phrase id="menutext" value="Cetak" />
+    </menu>
+    <menu id="10023">
+      <phrase id="menutext" value="Invoice" />
+    </menu>
+    <menu id="10056">
+      <phrase id="menutext" value="Kwitansi" />
+    </menu>
     <menu id="10001">
       <phrase id="menutext" value="audittrail" />
     </menu>
@@ -640,9 +655,6 @@
     <menu id="10006">
       <phrase id="menutext" value="t invoice pelaksanaan" />
     </menu>
-    <menu id="10007">
-      <phrase id="menutext" value="t tmp invoice all" />
-    </menu>
     <menu id="10008">
       <phrase id="menutext" value="t user" />
     </menu>
@@ -657,6 +669,21 @@
     </menu>
     <menu id="10011">
       <phrase id="menutext" value="Rekap Invoice (ALL)" />
+    </menu>
+    <menu id="10018">
+      <phrase id="menutext" value="Rekap Invoice (PPN)" />
+    </menu>
+    <menu id="10021">
+      <phrase id="menutext" value="Rekap Hutang" />
+    </menu>
+    <menu id="10015">
+      <phrase id="menutext" value="v rekap invoice all" />
+    </menu>
+    <menu id="10017">
+      <phrase id="menutext" value="v rekap invoice ppn" />
+    </menu>
+    <menu id="10020">
+      <phrase id="menutext" value="v rekap hutang" />
     </menu>
     <table id="audittrail">
       <phrase id="tblcaption" value="audittrail" />
@@ -778,6 +805,9 @@
       </field>
       <field id="no_kwitansi">
         <phrase id="fldcaption" value="No. Kwitansi" />
+      </field>
+      <field id="periode">
+        <phrase id="fldcaption" value="Periode Proses" />
       </field>
     </table>
     <table id="t_invoice_fee">
@@ -962,6 +992,66 @@
       <field id="tgl_pelaksanaan">
         <phrase id="fldcaption" value="tgl pelaksanaan" />
       </field>
+      <field id="periode">
+        <phrase id="fldcaption" value="periode" />
+      </field>
+    </table>
+    <table id="v_rekap_invoice_ppn">
+      <phrase id="tblcaption" value="v rekap invoice ppn" />
+      <field id="tanggal">
+        <phrase id="fldcaption" value="tanggal" />
+      </field>
+      <field id="nama">
+        <phrase id="fldcaption" value="nama" />
+      </field>
+      <field id="no_kwitansi">
+        <phrase id="fldcaption" value="no kwitansi" />
+      </field>
+      <field id="nomor">
+        <phrase id="fldcaption" value="nomor" />
+      </field>
+      <field id="no_referensi">
+        <phrase id="fldcaption" value="no referensi" />
+      </field>
+      <field id="nilai_ppn">
+        <phrase id="fldcaption" value="nilai ppn" />
+      </field>
+      <field id="total_ppn">
+        <phrase id="fldcaption" value="total ppn" />
+      </field>
+      <field id="invoice_id">
+        <phrase id="fldcaption" value="invoice id" />
+      </field>
+      <field id="periode">
+        <phrase id="fldcaption" value="periode" />
+      </field>
+    </table>
+    <table id="v_rekap_hutang">
+      <phrase id="tblcaption" value="v rekap hutang" />
+      <field id="nama">
+        <phrase id="fldcaption" value="nama" />
+      </field>
+      <field id="tgl_pelaksanaan">
+        <phrase id="fldcaption" value="tgl pelaksanaan" />
+      </field>
+      <field id="no_kwitansi">
+        <phrase id="fldcaption" value="no kwitansi" />
+      </field>
+      <field id="nomor">
+        <phrase id="fldcaption" value="nomor" />
+      </field>
+      <field id="total_ppn">
+        <phrase id="fldcaption" value="total ppn" />
+      </field>
+      <field id="invoice_id">
+        <phrase id="fldcaption" value="invoice id" />
+      </field>
+    </table>
+    <table id="c_invoice01_php">
+      <phrase id="tblcaption" value="Cetak Invoice" />
+    </table>
+    <table id="c_kwitansi01_php">
+      <phrase id="tblcaption" value="Kwitansi" />
     </table>
   </project>
 </ew-language>

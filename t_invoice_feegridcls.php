@@ -542,6 +542,7 @@ class ct_invoice_fee_grid extends ct_invoice_fee {
 	//  Exit inline mode
 	function ClearInlineMode() {
 		$this->harga->FormValue = ""; // Clear form value
+		$this->qty->FormValue = ""; // Clear form value
 		$this->jumlah->FormValue = ""; // Clear form value
 		$this->LastAction = $this->CurrentAction; // Save last action
 		$this->CurrentAction = ""; // Clear action
@@ -1359,6 +1360,10 @@ class ct_invoice_fee_grid extends ct_invoice_fee {
 			$this->harga->CurrentValue = ew_StrToFloat($this->harga->CurrentValue);
 
 		// Convert decimal values if posted back
+		if ($this->qty->FormValue == $this->qty->CurrentValue && is_numeric(ew_StrToFloat($this->qty->CurrentValue)))
+			$this->qty->CurrentValue = ew_StrToFloat($this->qty->CurrentValue);
+
+		// Convert decimal values if posted back
 		if ($this->jumlah->FormValue == $this->jumlah->CurrentValue && is_numeric(ew_StrToFloat($this->jumlah->CurrentValue)))
 			$this->jumlah->CurrentValue = ew_StrToFloat($this->jumlah->CurrentValue);
 
@@ -1420,7 +1425,7 @@ class ct_invoice_fee_grid extends ct_invoice_fee {
 
 		// qty
 		$this->qty->ViewValue = $this->qty->CurrentValue;
-		$this->qty->ViewValue = ew_FormatNumber($this->qty->ViewValue, 0, -2, -2, -1);
+		$this->qty->ViewValue = ew_FormatNumber($this->qty->ViewValue, 4, -2, -2, -1);
 		$this->qty->CellCssStyle .= "text-align: right;";
 		$this->qty->ViewCustomAttributes = "";
 
@@ -1509,6 +1514,10 @@ class ct_invoice_fee_grid extends ct_invoice_fee {
 			$this->qty->EditCustomAttributes = "";
 			$this->qty->EditValue = ew_HtmlEncode($this->qty->CurrentValue);
 			$this->qty->PlaceHolder = ew_RemoveHtml($this->qty->FldCaption());
+			if (strval($this->qty->EditValue) <> "" && is_numeric($this->qty->EditValue)) {
+			$this->qty->EditValue = ew_FormatNumber($this->qty->EditValue, -2, -2, -2, -1);
+			$this->qty->OldValue = $this->qty->EditValue;
+			}
 
 			// satuan
 			$this->satuan->EditAttrs["class"] = "form-control";
@@ -1599,6 +1608,10 @@ class ct_invoice_fee_grid extends ct_invoice_fee {
 			$this->qty->EditCustomAttributes = "";
 			$this->qty->EditValue = ew_HtmlEncode($this->qty->CurrentValue);
 			$this->qty->PlaceHolder = ew_RemoveHtml($this->qty->FldCaption());
+			if (strval($this->qty->EditValue) <> "" && is_numeric($this->qty->EditValue)) {
+			$this->qty->EditValue = ew_FormatNumber($this->qty->EditValue, -2, -2, -2, -1);
+			$this->qty->OldValue = $this->qty->EditValue;
+			}
 
 			// satuan
 			$this->satuan->EditAttrs["class"] = "form-control";
@@ -1678,7 +1691,7 @@ class ct_invoice_fee_grid extends ct_invoice_fee {
 		if (!$this->qty->FldIsDetailKey && !is_null($this->qty->FormValue) && $this->qty->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->qty->FldCaption(), $this->qty->ReqErrMsg));
 		}
-		if (!ew_CheckInteger($this->qty->FormValue)) {
+		if (!ew_CheckNumber($this->qty->FormValue)) {
 			ew_AddMessage($gsFormError, $this->qty->FldErrMsg());
 		}
 		if (!$this->satuan->FldIsDetailKey && !is_null($this->satuan->FormValue) && $this->satuan->FormValue == "") {

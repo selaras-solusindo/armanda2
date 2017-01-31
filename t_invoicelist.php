@@ -433,6 +433,7 @@ class ct_invoice_list extends ct_invoice {
 		$this->terbayar->SetVisibility();
 		$this->pasal23->SetVisibility();
 		$this->no_kwitansi->SetVisibility();
+		$this->periode->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -790,6 +791,7 @@ class ct_invoice_list extends ct_invoice {
 		$sFilterList = ew_Concat($sFilterList, $this->terbayar->AdvancedSearch->ToJSON(), ","); // Field terbayar
 		$sFilterList = ew_Concat($sFilterList, $this->pasal23->AdvancedSearch->ToJSON(), ","); // Field pasal23
 		$sFilterList = ew_Concat($sFilterList, $this->no_kwitansi->AdvancedSearch->ToJSON(), ","); // Field no_kwitansi
+		$sFilterList = ew_Concat($sFilterList, $this->periode->AdvancedSearch->ToJSON(), ","); // Field periode
 		if ($this->BasicSearch->Keyword <> "") {
 			$sWrk = "\"" . EW_TABLE_BASIC_SEARCH . "\":\"" . ew_JsEncode2($this->BasicSearch->Keyword) . "\",\"" . EW_TABLE_BASIC_SEARCH_TYPE . "\":\"" . ew_JsEncode2($this->BasicSearch->Type) . "\"";
 			$sFilterList = ew_Concat($sFilterList, $sWrk, ",");
@@ -961,6 +963,14 @@ class ct_invoice_list extends ct_invoice {
 		$this->no_kwitansi->AdvancedSearch->SearchValue2 = @$filter["y_no_kwitansi"];
 		$this->no_kwitansi->AdvancedSearch->SearchOperator2 = @$filter["w_no_kwitansi"];
 		$this->no_kwitansi->AdvancedSearch->Save();
+
+		// Field periode
+		$this->periode->AdvancedSearch->SearchValue = @$filter["x_periode"];
+		$this->periode->AdvancedSearch->SearchOperator = @$filter["z_periode"];
+		$this->periode->AdvancedSearch->SearchCondition = @$filter["v_periode"];
+		$this->periode->AdvancedSearch->SearchValue2 = @$filter["y_periode"];
+		$this->periode->AdvancedSearch->SearchOperator2 = @$filter["w_periode"];
+		$this->periode->AdvancedSearch->Save();
 		$this->BasicSearch->setKeyword(@$filter[EW_TABLE_BASIC_SEARCH]);
 		$this->BasicSearch->setType(@$filter[EW_TABLE_BASIC_SEARCH_TYPE]);
 	}
@@ -1156,6 +1166,7 @@ class ct_invoice_list extends ct_invoice {
 			$this->UpdateSort($this->terbayar); // terbayar
 			$this->UpdateSort($this->pasal23); // pasal23
 			$this->UpdateSort($this->no_kwitansi); // no_kwitansi
+			$this->UpdateSort($this->periode); // periode
 			$this->setStartRecordNumber(1); // Reset start position
 		}
 	}
@@ -1204,6 +1215,7 @@ class ct_invoice_list extends ct_invoice {
 				$this->terbayar->setSort("");
 				$this->pasal23->setSort("");
 				$this->no_kwitansi->setSort("");
+				$this->periode->setSort("");
 			}
 
 			// Reset start position
@@ -1836,6 +1848,7 @@ class ct_invoice_list extends ct_invoice {
 		$this->terbayar->setDbValue($rs->fields('terbayar'));
 		$this->pasal23->setDbValue($rs->fields('pasal23'));
 		$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
+		$this->periode->setDbValue($rs->fields('periode'));
 	}
 
 	// Load DbValue from recordset
@@ -1858,6 +1871,7 @@ class ct_invoice_list extends ct_invoice {
 		$this->terbayar->DbValue = $row['terbayar'];
 		$this->pasal23->DbValue = $row['pasal23'];
 		$this->no_kwitansi->DbValue = $row['no_kwitansi'];
+		$this->periode->DbValue = $row['periode'];
 	}
 
 	// Load old record
@@ -1923,6 +1937,7 @@ class ct_invoice_list extends ct_invoice {
 		// terbayar
 		// pasal23
 		// no_kwitansi
+		// periode
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -2028,6 +2043,11 @@ class ct_invoice_list extends ct_invoice {
 		$this->no_kwitansi->ViewValue = $this->no_kwitansi->CurrentValue;
 		$this->no_kwitansi->ViewCustomAttributes = "";
 
+		// periode
+		$this->periode->ViewValue = $this->periode->CurrentValue;
+		$this->periode->ViewValue = ew_FormatDateTime($this->periode->ViewValue, 7);
+		$this->periode->ViewCustomAttributes = "";
+
 			// customer_id
 			$this->customer_id->LinkCustomAttributes = "";
 			$this->customer_id->HrefValue = "";
@@ -2102,6 +2122,11 @@ class ct_invoice_list extends ct_invoice {
 			$this->no_kwitansi->LinkCustomAttributes = "";
 			$this->no_kwitansi->HrefValue = "";
 			$this->no_kwitansi->TooltipValue = "";
+
+			// periode
+			$this->periode->LinkCustomAttributes = "";
+			$this->periode->HrefValue = "";
+			$this->periode->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -2839,6 +2864,15 @@ $t_invoice_list->ListOptions->Render("header", "left");
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
+<?php if ($t_invoice->periode->Visible) { // periode ?>
+	<?php if ($t_invoice->SortUrl($t_invoice->periode) == "") { ?>
+		<th data-name="periode"><div id="elh_t_invoice_periode" class="t_invoice_periode"><div class="ewTableHeaderCaption"><?php echo $t_invoice->periode->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="periode"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t_invoice->SortUrl($t_invoice->periode) ?>',1);"><div id="elh_t_invoice_periode" class="t_invoice_periode">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t_invoice->periode->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t_invoice->periode->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t_invoice->periode->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
 <?php
 
 // Render list options (header, right)
@@ -3021,6 +3055,14 @@ $t_invoice_list->ListOptions->Render("body", "left", $t_invoice_list->RowCnt);
 <span id="el<?php echo $t_invoice_list->RowCnt ?>_t_invoice_no_kwitansi" class="t_invoice_no_kwitansi">
 <span<?php echo $t_invoice->no_kwitansi->ViewAttributes() ?>>
 <?php echo $t_invoice->no_kwitansi->ListViewValue() ?></span>
+</span>
+</td>
+	<?php } ?>
+	<?php if ($t_invoice->periode->Visible) { // periode ?>
+		<td data-name="periode"<?php echo $t_invoice->periode->CellAttributes() ?>>
+<span id="el<?php echo $t_invoice_list->RowCnt ?>_t_invoice_periode" class="t_invoice_periode">
+<span<?php echo $t_invoice->periode->ViewAttributes() ?>>
+<?php echo $t_invoice->periode->ListViewValue() ?></span>
 </span>
 </td>
 	<?php } ?>

@@ -625,6 +625,10 @@ class ct_invoice_fee_add extends ct_invoice_fee {
 		if ($this->harga->FormValue == $this->harga->CurrentValue && is_numeric(ew_StrToFloat($this->harga->CurrentValue)))
 			$this->harga->CurrentValue = ew_StrToFloat($this->harga->CurrentValue);
 
+		// Convert decimal values if posted back
+		if ($this->qty->FormValue == $this->qty->CurrentValue && is_numeric(ew_StrToFloat($this->qty->CurrentValue)))
+			$this->qty->CurrentValue = ew_StrToFloat($this->qty->CurrentValue);
+
 		// Call Row_Rendering event
 		$this->Row_Rendering();
 
@@ -683,7 +687,7 @@ class ct_invoice_fee_add extends ct_invoice_fee {
 
 		// qty
 		$this->qty->ViewValue = $this->qty->CurrentValue;
-		$this->qty->ViewValue = ew_FormatNumber($this->qty->ViewValue, 0, -2, -2, -1);
+		$this->qty->ViewValue = ew_FormatNumber($this->qty->ViewValue, 4, -2, -2, -1);
 		$this->qty->CellCssStyle .= "text-align: right;";
 		$this->qty->ViewCustomAttributes = "";
 
@@ -764,6 +768,7 @@ class ct_invoice_fee_add extends ct_invoice_fee {
 			$this->qty->EditCustomAttributes = "";
 			$this->qty->EditValue = ew_HtmlEncode($this->qty->CurrentValue);
 			$this->qty->PlaceHolder = ew_RemoveHtml($this->qty->FldCaption());
+			if (strval($this->qty->EditValue) <> "" && is_numeric($this->qty->EditValue)) $this->qty->EditValue = ew_FormatNumber($this->qty->EditValue, -2, -2, -2, -1);
 
 			// satuan
 			$this->satuan->EditAttrs["class"] = "form-control";
@@ -832,7 +837,7 @@ class ct_invoice_fee_add extends ct_invoice_fee {
 		if (!$this->qty->FldIsDetailKey && !is_null($this->qty->FormValue) && $this->qty->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->qty->FldCaption(), $this->qty->ReqErrMsg));
 		}
-		if (!ew_CheckInteger($this->qty->FormValue)) {
+		if (!ew_CheckNumber($this->qty->FormValue)) {
 			ew_AddMessage($gsFormError, $this->qty->FldErrMsg());
 		}
 		if (!$this->satuan->FldIsDetailKey && !is_null($this->satuan->FormValue) && $this->satuan->FormValue == "") {
@@ -1180,7 +1185,7 @@ ft_invoice_feeadd.Validate = function() {
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t_invoice_fee->qty->FldCaption(), $t_invoice_fee->qty->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_qty");
-			if (elm && !ew_CheckInteger(elm.value))
+			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t_invoice_fee->qty->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_satuan");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))

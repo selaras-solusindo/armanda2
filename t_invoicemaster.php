@@ -15,6 +15,7 @@
 // terbayar
 // pasal23
 // no_kwitansi
+// periode
 
 ?>
 <?php if ($t_invoice->Visible) { ?>
@@ -183,6 +184,17 @@
 <span id="el_t_invoice_no_kwitansi">
 <span<?php echo $t_invoice->no_kwitansi->ViewAttributes() ?>>
 <?php echo $t_invoice->no_kwitansi->ListViewValue() ?></span>
+</span>
+</td>
+		</tr>
+<?php } ?>
+<?php if ($t_invoice->periode->Visible) { // periode ?>
+		<tr id="r_periode">
+			<td><?php echo $t_invoice->periode->FldCaption() ?></td>
+			<td<?php echo $t_invoice->periode->CellAttributes() ?>>
+<span id="el_t_invoice_periode">
+<span<?php echo $t_invoice->periode->ViewAttributes() ?>>
+<?php echo $t_invoice->periode->ListViewValue() ?></span>
 </span>
 </td>
 		</tr>

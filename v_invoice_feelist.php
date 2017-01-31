@@ -1791,6 +1791,10 @@ class cv_invoice_fee_list extends cv_invoice_fee {
 			$this->harga->CurrentValue = ew_StrToFloat($this->harga->CurrentValue);
 
 		// Convert decimal values if posted back
+		if ($this->qty->FormValue == $this->qty->CurrentValue && is_numeric(ew_StrToFloat($this->qty->CurrentValue)))
+			$this->qty->CurrentValue = ew_StrToFloat($this->qty->CurrentValue);
+
+		// Convert decimal values if posted back
 		if ($this->jumlah->FormValue == $this->jumlah->CurrentValue && is_numeric(ew_StrToFloat($this->jumlah->CurrentValue)))
 			$this->jumlah->CurrentValue = ew_StrToFloat($this->jumlah->CurrentValue);
 

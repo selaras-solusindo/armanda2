@@ -9,6 +9,7 @@ $r_rekap_invoice_all = NULL;
 class crr_rekap_invoice_all extends crTableBase {
 	var $ShowGroupHeaderAsRow = FALSE;
 	var $ShowCompactSummaryFooter = TRUE;
+	var $periode;
 	var $tanggal;
 	var $nama;
 	var $no_kwitansi;
@@ -30,20 +31,29 @@ class crr_rekap_invoice_all extends crTableBase {
 		$this->ExportAll = FALSE;
 		$this->ExportPageBreakCount = 0;
 
+		// periode
+		$this->periode = new crField('r_rekap_invoice_all', 'r_rekap_invoice_all', 'x_periode', 'periode', '`periode`', 133, EWR_DATATYPE_DATE, 7);
+		$this->periode->Sortable = TRUE; // Allow sort
+		$this->periode->GroupingFieldId = 1;
+		$this->periode->ShowGroupHeaderAsRow = $this->ShowGroupHeaderAsRow;
+		$this->periode->ShowCompactSummaryFooter = $this->ShowCompactSummaryFooter;
+		$this->periode->FldDefaultErrMsg = $ReportLanguage->Phrase("IncorrectField");
+		$this->fields['periode'] = &$this->periode;
+		$this->periode->DateFilter = "";
+		$this->periode->SqlSelect = "SELECT DISTINCT `periode`, CONCAT(CAST(YEAR(`periode`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`periode`),2,'0') AS CHAR(2))) AS `ew_report_groupvalue` FROM " . $this->getSqlFrom();
+		$this->periode->SqlOrderBy = "CONCAT(CAST(YEAR(`periode`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`periode`),2,'0') AS CHAR(2)))";
+		$this->periode->FldGroupByType = "m";
+		$this->periode->FldGroupInt = "0";
+		$this->periode->FldGroupSql = "CONCAT(CAST(YEAR(%s) AS CHAR(4)), '|', CAST(LPAD(MONTH(%s),2,'0') AS CHAR(2)))";
+
 		// tanggal
 		$this->tanggal = new crField('r_rekap_invoice_all', 'r_rekap_invoice_all', 'x_tanggal', 'tanggal', '`tanggal`', 133, EWR_DATATYPE_DATE, -1);
 		$this->tanggal->Sortable = TRUE; // Allow sort
-		$this->tanggal->GroupingFieldId = 1;
-		$this->tanggal->ShowGroupHeaderAsRow = $this->ShowGroupHeaderAsRow;
-		$this->tanggal->ShowCompactSummaryFooter = $this->ShowCompactSummaryFooter;
 		$this->tanggal->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EWR_DATE_SEPARATOR"], $ReportLanguage->Phrase("IncorrectDateDMY"));
 		$this->fields['tanggal'] = &$this->tanggal;
 		$this->tanggal->DateFilter = "";
-		$this->tanggal->SqlSelect = "SELECT DISTINCT `tanggal`, CONCAT(CAST(YEAR(`tanggal`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`tanggal`),2,'0') AS CHAR(2))) AS `ew_report_groupvalue` FROM " . $this->getSqlFrom();
-		$this->tanggal->SqlOrderBy = "CONCAT(CAST(YEAR(`tanggal`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`tanggal`),2,'0') AS CHAR(2)))";
-		$this->tanggal->FldGroupByType = "m";
-		$this->tanggal->FldGroupInt = "0";
-		$this->tanggal->FldGroupSql = "CONCAT(CAST(YEAR(%s) AS CHAR(4)), '|', CAST(LPAD(MONTH(%s),2,'0') AS CHAR(2)))";
+		$this->tanggal->SqlSelect = "SELECT DISTINCT `tanggal`, `tanggal` AS `DispFld` FROM " . $this->getSqlFrom();
+		$this->tanggal->SqlOrderBy = "`tanggal`";
 
 		// nama
 		$this->nama = new crField('r_rekap_invoice_all', 'r_rekap_invoice_all', 'x_nama', 'nama', '`nama`', 200, EWR_DATATYPE_STRING, -1);
@@ -177,7 +187,7 @@ class crr_rekap_invoice_all extends crTableBase {
 	var $_SqlSelect = "";
 
 	function getSqlSelect() {
-		return ($this->_SqlSelect <> "") ? $this->_SqlSelect : "SELECT *, CONCAT(CAST(YEAR(`tanggal`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`tanggal`),2,'0') AS CHAR(2))) FROM " . $this->getSqlFrom();
+		return ($this->_SqlSelect <> "") ? $this->_SqlSelect : "SELECT *, CONCAT(CAST(YEAR(`periode`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`periode`),2,'0') AS CHAR(2))) FROM " . $this->getSqlFrom();
 	}
 
 	function SqlSelect() { // For backward compatibility
@@ -238,7 +248,7 @@ class crr_rekap_invoice_all extends crTableBase {
 	var $_SqlOrderBy = "";
 
 	function getSqlOrderBy() {
-		return ($this->_SqlOrderBy <> "") ? $this->_SqlOrderBy : "CONCAT(CAST(YEAR(`tanggal`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`tanggal`),2,'0') AS CHAR(2))) ASC";
+		return ($this->_SqlOrderBy <> "") ? $this->_SqlOrderBy : "CONCAT(CAST(YEAR(`periode`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`periode`),2,'0') AS CHAR(2))) ASC";
 	}
 
 	function SqlOrderBy() { // For backward compatibility
@@ -255,7 +265,7 @@ class crr_rekap_invoice_all extends crTableBase {
 	var $_SqlFirstGroupField = "";
 
 	function getSqlFirstGroupField() {
-		return ($this->_SqlFirstGroupField <> "") ? $this->_SqlFirstGroupField : "CONCAT(CAST(YEAR(`tanggal`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`tanggal`),2,'0') AS CHAR(2)))";
+		return ($this->_SqlFirstGroupField <> "") ? $this->_SqlFirstGroupField : "CONCAT(CAST(YEAR(`periode`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`periode`),2,'0') AS CHAR(2)))";
 	}
 
 	function SqlFirstGroupField() { // For backward compatibility
@@ -285,7 +295,7 @@ class crr_rekap_invoice_all extends crTableBase {
 	var $_SqlOrderByGroup = "";
 
 	function getSqlOrderByGroup() {
-		return ($this->_SqlOrderByGroup <> "") ? $this->_SqlOrderByGroup : "CONCAT(CAST(YEAR(`tanggal`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`tanggal`),2,'0') AS CHAR(2))) ASC";
+		return ($this->_SqlOrderByGroup <> "") ? $this->_SqlOrderByGroup : "CONCAT(CAST(YEAR(`periode`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`periode`),2,'0') AS CHAR(2))) ASC";
 	}
 
 	function SqlOrderByGroup() { // For backward compatibility
@@ -365,16 +375,16 @@ class crr_rekap_invoice_all extends crTableBase {
 	function SetupLookupFilters($fld) {
 		global $gsLanguage;
 		switch ($fld->FldVar) {
-		case "x_tanggal":
+		case "x_periode":
 			$sSqlWrk = "";
-		$sSqlWrk = "SELECT DISTINCT CONCAT(CAST(YEAR(`tanggal`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`tanggal`),2,'0') AS CHAR(2))), CONCAT(CAST(YEAR(`tanggal`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`tanggal`),2,'0') AS CHAR(2))) AS `DispFld`, '' AS `DispFld2`, '' AS `DispFld3`, '' AS `DispFld4` FROM `v_rekap_invoice_all`";
+		$sSqlWrk = "SELECT DISTINCT CONCAT(CAST(YEAR(`periode`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`periode`),2,'0') AS CHAR(2))), CONCAT(CAST(YEAR(`periode`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`periode`),2,'0') AS CHAR(2))) AS `DispFld`, '' AS `DispFld2`, '' AS `DispFld3`, '' AS `DispFld4` FROM `v_rekap_invoice_all`";
 		$sWhereWrk = "";
-		$this->tanggal->LookupFilters = array();
-			$fld->LookupFilters += array("s" => $sSqlWrk, "d" => "DB", "f0" => '`tanggal` = {filter_value}', "t0" => "", "fn0" => "", "df0" => "7");
+		$this->periode->LookupFilters = array();
+			$fld->LookupFilters += array("s" => $sSqlWrk, "d" => "DB", "f0" => '`periode` = {filter_value}', "t0" => "", "fn0" => "", "df0" => "7");
 			$sSqlWrk = "";
-		$this->Lookup_Selecting($this->tanggal, $sWhereWrk); // Call Lookup selecting
+		$this->Lookup_Selecting($this->periode, $sWhereWrk); // Call Lookup selecting
 		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-		$sSqlWrk .= " ORDER BY CONCAT(CAST(YEAR(`tanggal`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`tanggal`),2,'0') AS CHAR(2))) ASC";
+		$sSqlWrk .= " ORDER BY CONCAT(CAST(YEAR(`periode`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`periode`),2,'0') AS CHAR(2))) ASC";
 			if ($sSqlWrk <> "")
 				$fld->LookupFilters["s"] .= $sSqlWrk;
 			break;

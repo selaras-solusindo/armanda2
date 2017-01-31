@@ -406,6 +406,7 @@ class ct_invoice_view extends ct_invoice {
 		$this->terbayar->SetVisibility();
 		$this->pasal23->SetVisibility();
 		$this->no_kwitansi->SetVisibility();
+		$this->periode->SetVisibility();
 
 		// Set up detail page object
 		$this->SetupDetailPages();
@@ -828,6 +829,7 @@ class ct_invoice_view extends ct_invoice {
 		$this->terbayar->setDbValue($rs->fields('terbayar'));
 		$this->pasal23->setDbValue($rs->fields('pasal23'));
 		$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
+		$this->periode->setDbValue($rs->fields('periode'));
 	}
 
 	// Load DbValue from recordset
@@ -850,6 +852,7 @@ class ct_invoice_view extends ct_invoice {
 		$this->terbayar->DbValue = $row['terbayar'];
 		$this->pasal23->DbValue = $row['pasal23'];
 		$this->no_kwitansi->DbValue = $row['no_kwitansi'];
+		$this->periode->DbValue = $row['periode'];
 	}
 
 	// Render row values based on field settings
@@ -892,6 +895,7 @@ class ct_invoice_view extends ct_invoice {
 		// terbayar
 		// pasal23
 		// no_kwitansi
+		// periode
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -997,6 +1001,11 @@ class ct_invoice_view extends ct_invoice {
 		$this->no_kwitansi->ViewValue = $this->no_kwitansi->CurrentValue;
 		$this->no_kwitansi->ViewCustomAttributes = "";
 
+		// periode
+		$this->periode->ViewValue = $this->periode->CurrentValue;
+		$this->periode->ViewValue = ew_FormatDateTime($this->periode->ViewValue, 7);
+		$this->periode->ViewCustomAttributes = "";
+
 			// customer_id
 			$this->customer_id->LinkCustomAttributes = "";
 			$this->customer_id->HrefValue = "";
@@ -1071,6 +1080,11 @@ class ct_invoice_view extends ct_invoice {
 			$this->no_kwitansi->LinkCustomAttributes = "";
 			$this->no_kwitansi->HrefValue = "";
 			$this->no_kwitansi->TooltipValue = "";
+
+			// periode
+			$this->periode->LinkCustomAttributes = "";
+			$this->periode->HrefValue = "";
+			$this->periode->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -1782,6 +1796,17 @@ $t_invoice_view->ShowMessage();
 <span id="el_t_invoice_no_kwitansi">
 <span<?php echo $t_invoice->no_kwitansi->ViewAttributes() ?>>
 <?php echo $t_invoice->no_kwitansi->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t_invoice->periode->Visible) { // periode ?>
+	<tr id="r_periode">
+		<td><span id="elh_t_invoice_periode"><?php echo $t_invoice->periode->FldCaption() ?></span></td>
+		<td data-name="periode"<?php echo $t_invoice->periode->CellAttributes() ?>>
+<span id="el_t_invoice_periode">
+<span<?php echo $t_invoice->periode->ViewAttributes() ?>>
+<?php echo $t_invoice->periode->ViewValue ?></span>
 </span>
 </td>
 	</tr>

@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jan 27, 2017 at 07:14 AM
+-- Generation Time: Jan 31, 2017 at 04:13 PM
 -- Server version: 5.1.41
 -- PHP Version: 5.3.1
 
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `audittrail` (
   `oldvalue` longtext,
   `newvalue` longtext,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=51 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=77 ;
 
 --
 -- Dumping data for table `audittrail`
@@ -93,7 +93,33 @@ INSERT INTO `audittrail` (`id`, `datetime`, `script`, `user`, `action`, `table`,
 (47, '2017-01-24 12:25:51', '/armanda2/t_invoice_pelaksanaanadd.php', '3', 'A', 't_invoice_pelaksanaan', 'tanggal', '5', '', '2017-02-03'),
 (48, '2017-01-24 12:25:51', '/armanda2/t_invoice_pelaksanaanadd.php', '3', 'A', 't_invoice_pelaksanaan', 'invoice_id', '5', '', '2'),
 (49, '2017-01-24 12:25:51', '/armanda2/t_invoice_pelaksanaanadd.php', '3', 'A', 't_invoice_pelaksanaan', 'pelaksanaan_id', '5', '', '5'),
-(50, '2017-01-26 13:56:34', '/armanda2/login.php', 'admin', 'login', '::1', '', '', '', '');
+(50, '2017-01-26 13:56:34', '/armanda2/login.php', 'admin', 'login', '::1', '', '', '', ''),
+(51, '2017-01-29 01:51:02', '/armanda2/login.php', 'admin', 'login', '::1', '', '', '', ''),
+(52, '2017-01-29 03:23:10', '/armanda2/login.php', 'admin', 'login', '::1', '', '', '', ''),
+(53, '2017-01-29 03:25:00', '/armanda2/t_invoiceedit.php', '3', '*** Batch update begin ***', 't_invoice_fee', '', '', '', ''),
+(54, '2017-01-29 03:25:00', '/armanda2/t_invoiceedit.php', '3', 'U', 't_invoice_fee', 'qty', '1', '4.0000', '4.5'),
+(55, '2017-01-29 03:25:00', '/armanda2/t_invoiceedit.php', '3', '*** Batch update successful ***', 't_invoice_fee', '', '', '', ''),
+(56, '2017-01-29 03:25:00', '/armanda2/t_invoiceedit.php', '3', '*** Batch update begin ***', 't_invoice_pelaksanaan', '', '', '', ''),
+(57, '2017-01-29 03:25:00', '/armanda2/t_invoiceedit.php', '3', '*** Batch update successful ***', 't_invoice_pelaksanaan', '', '', '', ''),
+(58, '2017-01-29 03:29:06', '/armanda2/t_invoice_feeedit.php', '3', 'U', 't_invoice_fee', 'qty', '1', '4.5000', '4.6'),
+(59, '2017-01-29 03:29:06', '/armanda2/t_invoice_feeedit.php', '3', 'U', 't_invoice_fee', 'jumlah', '1', '6000.00', '6900'),
+(60, '2017-01-29 03:29:22', '/armanda2/t_invoice_feeedit.php', '3', 'U', 't_invoice_fee', 'qty', '1', '4.6000', '4.5'),
+(61, '2017-01-29 03:29:22', '/armanda2/t_invoice_feeedit.php', '3', 'U', 't_invoice_fee', 'jumlah', '1', '6900.00', '6750'),
+(62, '2017-01-31 02:57:32', '/armanda2/login.php', 'admin', 'login', '::1', '', '', '', ''),
+(63, '2017-01-31 04:38:21', '/armanda2/logout.php', 'admin', 'logout', '::1', '', '', '', ''),
+(64, '2017-01-31 04:38:26', '/armanda2/login.php', 'admin', 'login', '::1', '', '', '', ''),
+(65, '2017-01-31 04:50:39', '/armanda2/logout.php', 'admin', 'logout', '::1', '', '', '', ''),
+(66, '2017-01-31 04:50:41', '/armanda2/login.php', 'admin', 'login', '::1', '', '', '', ''),
+(67, '2017-01-31 04:56:58', '/armanda2/logout.php', 'admin', 'logout', '::1', '', '', '', ''),
+(68, '2017-01-31 04:56:59', '/armanda2/login.php', 'admin', 'login', '::1', '', '', '', ''),
+(69, '2017-01-31 06:07:05', '/armanda2/t_invoiceedit.php', '3', 'U', 't_invoice', 'no_kwitansi', '1', '-', '123456'),
+(70, '2017-01-31 08:38:53', '/armanda2/t_invoiceedit.php', '3', 'U', 't_invoice', 'no_kwitansi', '2', '-', '123456'),
+(71, '2017-01-31 09:00:04', '/armanda2/t_invoiceedit.php', '3', '*** Batch update begin ***', 't_invoice_fee', '', '', '', ''),
+(72, '2017-01-31 09:00:04', '/armanda2/t_invoiceedit.php', '3', '*** Batch update successful ***', 't_invoice_fee', '', '', '', ''),
+(73, '2017-01-31 09:00:04', '/armanda2/t_invoiceedit.php', '3', '*** Batch update begin ***', 't_invoice_pelaksanaan', '', '', '', ''),
+(74, '2017-01-31 09:00:04', '/armanda2/t_invoiceedit.php', '3', '*** Batch update successful ***', 't_invoice_pelaksanaan', '', '', '', ''),
+(75, '2017-01-31 09:00:04', '/armanda2/t_invoiceedit.php', '3', 'U', 't_invoice', 'periode', '1', NULL, '2017-01-31'),
+(76, '2017-01-31 09:06:01', '/armanda2/t_invoiceedit.php', '3', 'U', 't_invoice', 'periode', '2', '0000-00-00', '2017-01-31');
 
 -- --------------------------------------------------------
 
@@ -180,6 +206,7 @@ CREATE TABLE IF NOT EXISTS `t_invoice` (
   `terbayar` tinyint(4) NOT NULL,
   `pasal23` tinyint(4) NOT NULL,
   `no_kwitansi` varchar(100) NOT NULL,
+  `periode` date NOT NULL,
   PRIMARY KEY (`invoice_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
@@ -187,9 +214,9 @@ CREATE TABLE IF NOT EXISTS `t_invoice` (
 -- Dumping data for table `t_invoice`
 --
 
-INSERT INTO `t_invoice` (`invoice_id`, `customer_id`, `nomor`, `tanggal`, `no_order`, `no_referensi`, `kegiatan`, `no_sertifikat`, `keterangan`, `total`, `ppn`, `total_ppn`, `terbilang`, `terbayar`, `pasal23`, `no_kwitansi`) VALUES
-(1, 1, 'inv.001', '2017-01-22', 'ord.001', 'ref.001', 'keg', 'serti, serti2', 'ket1, ket2', 16000.00, 10, 17600.00, ' tujuhbelas ribu enam ratus ', 0, 0, '-'),
-(2, 8, 'inv.002', '2017-01-24', 'ord.002', 'ref.002', 'keg.002', 'ser.002', 'ket.002', 34500.00, 10, 37950.00, ' tiga puluh tujuh ribu sembilan ratus lima puluh ', 0, 0, '-');
+INSERT INTO `t_invoice` (`invoice_id`, `customer_id`, `nomor`, `tanggal`, `no_order`, `no_referensi`, `kegiatan`, `no_sertifikat`, `keterangan`, `total`, `ppn`, `total_ppn`, `terbilang`, `terbayar`, `pasal23`, `no_kwitansi`, `periode`) VALUES
+(1, 1, 'inv.001', '2017-01-22', 'ord.001', 'ref.001', 'keg', 'serti, serti2', 'ket1, ket2', 16750.00, 10, 18425.00, ' delapanbelas ribu empat ratus dua puluh lima', 0, 0, '123456', '2017-01-31'),
+(2, 8, 'inv.002', '2017-01-24', 'ord.002', 'ref.002', 'keg.002', 'ser.002', 'ket.002', 34500.00, 10, 37950.00, ' tiga puluh tujuh ribu sembilan ratus lima puluh ', 0, 0, '123456', '2017-01-31');
 
 -- --------------------------------------------------------
 
@@ -202,7 +229,7 @@ CREATE TABLE IF NOT EXISTS `t_invoice_fee` (
   `invoice_id` int(11) NOT NULL,
   `fee_id` int(11) NOT NULL,
   `harga` float(10,2) NOT NULL,
-  `qty` int(11) NOT NULL,
+  `qty` decimal(10,4) NOT NULL,
   `satuan` varchar(100) NOT NULL,
   `jumlah` float(10,2) DEFAULT NULL,
   `keterangan` text NOT NULL,
@@ -214,10 +241,10 @@ CREATE TABLE IF NOT EXISTS `t_invoice_fee` (
 --
 
 INSERT INTO `t_invoice_fee` (`invoice_detail_id`, `invoice_id`, `fee_id`, `harga`, `qty`, `satuan`, `jumlah`, `keterangan`) VALUES
-(1, 1, 1, 1500.00, 4, 'sat', 6000.00, 'ket'),
-(2, 1, 2, 2000.00, 5, 'sat2', 10000.00, 'ket2'),
-(3, 2, 9, 3000.00, 4, 'sat.002.001', 12000.00, 'ket.002.001'),
-(4, 2, 5, 4500.00, 5, 'sat.002.002', 22500.00, 'ket.002.002');
+(1, 1, 1, 1500.00, '4.5000', 'sat', 6750.00, 'ket'),
+(2, 1, 2, 2000.00, '5.0000', 'sat2', 10000.00, 'ket2'),
+(3, 2, 9, 3000.00, '4.0000', 'sat.002.001', 12000.00, 'ket.002.001'),
+(4, 2, 5, 4500.00, '5.0000', 'sat.002.002', 22500.00, 'ket.002.002');
 
 -- --------------------------------------------------------
 
@@ -278,10 +305,10 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 
 INSERT INTO `v_invoice_fee` (`nama`, `alamat`, `kota`, `kodepos`, `npwp`, `invoice_id`, `nomor`, `tanggal`, `no_order`, `no_referensi`, `kegiatan`, `no_sertifikat`, `keterangan`, `total`, `ppn`, `total_ppn`, `terbilang`, `terbayar`, `pasal23`, `no_kwitansi`, `jenis`, `harga`, `qty`, `satuan`, `jumlah`, `keterangan1`, `tgl_pelaksanaan`) VALUES
-('PT. ANEKA RIMBA INDONUSA', 'DS. SUMENGKO KM 30.6 WRINGIN ANOM', 'GRESIK', '61176', '01.874.422.7-641.000', 1, 'inv.001', '2017-01-22', 'ord.001', 'ref.001', 'keg', 'serti, serti2', 'ket1, ket2', 16000.00, 10, 17600.00, ' tujuhbelas ribu enam ratus ', 0, 0, '-', 'ISPM # 15 Dan Fumigasi MB', 1500.00, 4, 'sat', 6000.00, 'ket', '23-01-2017, 24-01-2017'),
-('PT. ANEKA RIMBA INDONUSA', 'DS. SUMENGKO KM 30.6 WRINGIN ANOM', 'GRESIK', '61176', '01.874.422.7-641.000', 1, 'inv.001', '2017-01-22', 'ord.001', 'ref.001', 'keg', 'serti, serti2', 'ket1, ket2', 16000.00, 10, 17600.00, ' tujuhbelas ribu enam ratus ', 0, 0, '-', 'Fumigasi MB IMPORT', 2000.00, 5, 'sat2', 10000.00, 'ket2', '23-01-2017, 24-01-2017'),
-('PT. SUKSES INDOTRAN PERKASA', 'IKAN BELANAK NO. 22 RT.002 RW. 001 PERAK BARAT KREMBANGAN', 'SURABAYA JAWA TIMUR', '60177', '03.120.468.8-605.000', 2, 'inv.002', '2017-01-24', 'ord.002', 'ref.002', 'keg.002', 'ser.002', 'ket.002', 34500.00, 10, 37950.00, ' tiga puluh tujuh ribu sembilan ratus lima puluh ', 0, 0, '-', 'Phytosanitary', 3000.00, 4, 'sat.002.001', 12000.00, 'ket.002.001', '01-02-2017, 02-02-2017, 03-02-2017'),
-('PT. SUKSES INDOTRAN PERKASA', 'IKAN BELANAK NO. 22 RT.002 RW. 001 PERAK BARAT KREMBANGAN', 'SURABAYA JAWA TIMUR', '60177', '03.120.468.8-605.000', 2, 'inv.002', '2017-01-24', 'ord.002', 'ref.002', 'keg.002', 'ser.002', 'ket.002', 34500.00, 10, 37950.00, ' tiga puluh tujuh ribu sembilan ratus lima puluh ', 0, 0, '-', 'Biaya Storage', 4500.00, 5, 'sat.002.002', 22500.00, 'ket.002.002', '01-02-2017, 02-02-2017, 03-02-2017');
+('PT. ANEKA RIMBA INDONUSA', 'DS. SUMENGKO KM 30.6 WRINGIN ANOM', 'GRESIK', '61176', '01.874.422.7-641.000', 1, 'inv.001', '2017-01-22', 'ord.001', 'ref.001', 'keg', 'serti, serti2', 'ket1, ket2', 16750.00, 10, 18425.00, ' delapanbelas ribu empat ratus dua puluh lima', 0, 0, '123456', 'ISPM # 15 Dan Fumigasi MB', 1500.00, '4.5000', 'sat', 6750.00, 'ket', '23-01-2017, 24-01-2017'),
+('PT. ANEKA RIMBA INDONUSA', 'DS. SUMENGKO KM 30.6 WRINGIN ANOM', 'GRESIK', '61176', '01.874.422.7-641.000', 1, 'inv.001', '2017-01-22', 'ord.001', 'ref.001', 'keg', 'serti, serti2', 'ket1, ket2', 16750.00, 10, 18425.00, ' delapanbelas ribu empat ratus dua puluh lima', 0, 0, '123456', 'Fumigasi MB IMPORT', 2000.00, '5.0000', 'sat2', 10000.00, 'ket2', '23-01-2017, 24-01-2017'),
+('PT. SUKSES INDOTRAN PERKASA', 'IKAN BELANAK NO. 22 RT.002 RW. 001 PERAK BARAT KREMBANGAN', 'SURABAYA JAWA TIMUR', '60177', '03.120.468.8-605.000', 2, 'inv.002', '2017-01-24', 'ord.002', 'ref.002', 'keg.002', 'ser.002', 'ket.002', 34500.00, 10, 37950.00, ' tiga puluh tujuh ribu sembilan ratus lima puluh ', 0, 0, '123456', 'Phytosanitary', 3000.00, '4.0000', 'sat.002.001', 12000.00, 'ket.002.001', '01-02-2017, 02-02-2017, 03-02-2017'),
+('PT. SUKSES INDOTRAN PERKASA', 'IKAN BELANAK NO. 22 RT.002 RW. 001 PERAK BARAT KREMBANGAN', 'SURABAYA JAWA TIMUR', '60177', '03.120.468.8-605.000', 2, 'inv.002', '2017-01-24', 'ord.002', 'ref.002', 'keg.002', 'ser.002', 'ket.002', 34500.00, 10, 37950.00, ' tiga puluh tujuh ribu sembilan ratus lima puluh ', 0, 0, '123456', 'Biaya Storage', 4500.00, '5.0000', 'sat.002.002', 22500.00, 'ket.002.002', '01-02-2017, 02-02-2017, 03-02-2017');
 
 -- --------------------------------------------------------
 
@@ -302,18 +329,50 @@ INSERT INTO `v_invoice_pelaksanaan` (`invoice_id`, `tgl_pelaksanaan`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `v_rekap_hutang`
+--
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `db_armanda2`.`v_rekap_hutang` AS select `db_armanda2`.`t_customer`.`nama` AS `nama`,`v_invoice_pelaksanaan`.`tgl_pelaksanaan` AS `tgl_pelaksanaan`,`db_armanda2`.`t_invoice`.`no_kwitansi` AS `no_kwitansi`,`db_armanda2`.`t_invoice`.`nomor` AS `nomor`,`db_armanda2`.`t_invoice`.`total_ppn` AS `total_ppn`,`db_armanda2`.`t_invoice`.`invoice_id` AS `invoice_id` from ((`db_armanda2`.`t_invoice` join `db_armanda2`.`t_customer` on((`db_armanda2`.`t_invoice`.`customer_id` = `db_armanda2`.`t_customer`.`customer_id`))) join `db_armanda2`.`v_invoice_pelaksanaan` on((`db_armanda2`.`t_invoice`.`invoice_id` = `v_invoice_pelaksanaan`.`invoice_id`))) where (`db_armanda2`.`t_invoice`.`terbayar` = 0);
+
+--
+-- Dumping data for table `v_rekap_hutang`
+--
+
+INSERT INTO `v_rekap_hutang` (`nama`, `tgl_pelaksanaan`, `no_kwitansi`, `nomor`, `total_ppn`, `invoice_id`) VALUES
+('PT. ANEKA RIMBA INDONUSA', '23-01-2017, 24-01-2017', '123456', 'inv.001', 18425.00, 1),
+('PT. SUKSES INDOTRAN PERKASA', '01-02-2017, 02-02-2017, 03-02-2017', '123456', 'inv.002', 37950.00, 2);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `v_rekap_invoice_all`
 --
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `db_armanda2`.`v_rekap_invoice_all` AS select `db_armanda2`.`t_customer`.`nama` AS `nama`,`db_armanda2`.`t_invoice`.`invoice_id` AS `invoice_id`,`db_armanda2`.`t_invoice`.`nomor` AS `nomor`,`db_armanda2`.`t_invoice`.`tanggal` AS `tanggal`,`db_armanda2`.`t_invoice`.`no_sertifikat` AS `no_sertifikat`,`db_armanda2`.`t_invoice`.`total_ppn` AS `total_ppn`,`db_armanda2`.`t_invoice`.`no_kwitansi` AS `no_kwitansi`,`v_invoice_pelaksanaan`.`tgl_pelaksanaan` AS `tgl_pelaksanaan` from ((`db_armanda2`.`t_invoice` join `db_armanda2`.`t_customer` on((`db_armanda2`.`t_invoice`.`customer_id` = `db_armanda2`.`t_customer`.`customer_id`))) join `db_armanda2`.`v_invoice_pelaksanaan` on((`db_armanda2`.`t_invoice`.`invoice_id` = `v_invoice_pelaksanaan`.`invoice_id`)));
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `db_armanda2`.`v_rekap_invoice_all` AS select `db_armanda2`.`t_customer`.`nama` AS `nama`,`db_armanda2`.`t_invoice`.`invoice_id` AS `invoice_id`,`db_armanda2`.`t_invoice`.`nomor` AS `nomor`,`db_armanda2`.`t_invoice`.`tanggal` AS `tanggal`,`db_armanda2`.`t_invoice`.`no_sertifikat` AS `no_sertifikat`,`db_armanda2`.`t_invoice`.`total_ppn` AS `total_ppn`,`db_armanda2`.`t_invoice`.`no_kwitansi` AS `no_kwitansi`,`v_invoice_pelaksanaan`.`tgl_pelaksanaan` AS `tgl_pelaksanaan`,`db_armanda2`.`t_invoice`.`periode` AS `periode` from ((`db_armanda2`.`t_invoice` join `db_armanda2`.`t_customer` on((`db_armanda2`.`t_invoice`.`customer_id` = `db_armanda2`.`t_customer`.`customer_id`))) join `db_armanda2`.`v_invoice_pelaksanaan` on((`db_armanda2`.`t_invoice`.`invoice_id` = `v_invoice_pelaksanaan`.`invoice_id`)));
 
 --
 -- Dumping data for table `v_rekap_invoice_all`
 --
 
-INSERT INTO `v_rekap_invoice_all` (`nama`, `invoice_id`, `nomor`, `tanggal`, `no_sertifikat`, `total_ppn`, `no_kwitansi`, `tgl_pelaksanaan`) VALUES
-('PT. ANEKA RIMBA INDONUSA', 1, 'inv.001', '2017-01-22', 'serti, serti2', 17600.00, '-', '23-01-2017, 24-01-2017'),
-('PT. SUKSES INDOTRAN PERKASA', 2, 'inv.002', '2017-01-24', 'ser.002', 37950.00, '-', '01-02-2017, 02-02-2017, 03-02-2017');
+INSERT INTO `v_rekap_invoice_all` (`nama`, `invoice_id`, `nomor`, `tanggal`, `no_sertifikat`, `total_ppn`, `no_kwitansi`, `tgl_pelaksanaan`, `periode`) VALUES
+('PT. ANEKA RIMBA INDONUSA', 1, 'inv.001', '2017-01-22', 'serti, serti2', 18425.00, '123456', '23-01-2017, 24-01-2017', '2017-01-31'),
+('PT. SUKSES INDOTRAN PERKASA', 2, 'inv.002', '2017-01-24', 'ser.002', 37950.00, '123456', '01-02-2017, 02-02-2017, 03-02-2017', '2017-01-31');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `v_rekap_invoice_ppn`
+--
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `db_armanda2`.`v_rekap_invoice_ppn` AS select `db_armanda2`.`t_invoice`.`tanggal` AS `tanggal`,`db_armanda2`.`t_customer`.`nama` AS `nama`,`db_armanda2`.`t_invoice`.`no_kwitansi` AS `no_kwitansi`,`db_armanda2`.`t_invoice`.`nomor` AS `nomor`,`db_armanda2`.`t_invoice`.`no_referensi` AS `no_referensi`,((`db_armanda2`.`t_invoice`.`ppn` / 100) * `db_armanda2`.`t_invoice`.`total`) AS `nilai_ppn`,`db_armanda2`.`t_invoice`.`total_ppn` AS `total_ppn`,`db_armanda2`.`t_invoice`.`invoice_id` AS `invoice_id`,`db_armanda2`.`t_invoice`.`periode` AS `periode` from (`db_armanda2`.`t_invoice` join `db_armanda2`.`t_customer` on((`db_armanda2`.`t_invoice`.`customer_id` = `db_armanda2`.`t_customer`.`customer_id`))) where (`db_armanda2`.`t_invoice`.`ppn` <> 0);
+
+--
+-- Dumping data for table `v_rekap_invoice_ppn`
+--
+
+INSERT INTO `v_rekap_invoice_ppn` (`tanggal`, `nama`, `no_kwitansi`, `nomor`, `no_referensi`, `nilai_ppn`, `total_ppn`, `invoice_id`, `periode`) VALUES
+('2017-01-22', 'PT. ANEKA RIMBA INDONUSA', '123456', 'inv.001', 'ref.001', 1675.0000, 18425.00, 1, '2017-01-31'),
+('2017-01-24', 'PT. SUKSES INDOTRAN PERKASA', '123456', 'inv.002', 'ref.002', 3450.0000, 37950.00, 2, '2017-01-31');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

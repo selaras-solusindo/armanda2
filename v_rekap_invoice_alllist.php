@@ -417,6 +417,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->tanggal->SetVisibility();
 		$this->total_ppn->SetVisibility();
 		$this->no_kwitansi->SetVisibility();
+		$this->periode->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -750,6 +751,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$sFilterList = ew_Concat($sFilterList, $this->total_ppn->AdvancedSearch->ToJSON(), ","); // Field total_ppn
 		$sFilterList = ew_Concat($sFilterList, $this->no_kwitansi->AdvancedSearch->ToJSON(), ","); // Field no_kwitansi
 		$sFilterList = ew_Concat($sFilterList, $this->tgl_pelaksanaan->AdvancedSearch->ToJSON(), ","); // Field tgl_pelaksanaan
+		$sFilterList = ew_Concat($sFilterList, $this->periode->AdvancedSearch->ToJSON(), ","); // Field periode
 		if ($this->BasicSearch->Keyword <> "") {
 			$sWrk = "\"" . EW_TABLE_BASIC_SEARCH . "\":\"" . ew_JsEncode2($this->BasicSearch->Keyword) . "\",\"" . EW_TABLE_BASIC_SEARCH_TYPE . "\":\"" . ew_JsEncode2($this->BasicSearch->Type) . "\"";
 			$sFilterList = ew_Concat($sFilterList, $sWrk, ",");
@@ -857,6 +859,14 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->tgl_pelaksanaan->AdvancedSearch->SearchValue2 = @$filter["y_tgl_pelaksanaan"];
 		$this->tgl_pelaksanaan->AdvancedSearch->SearchOperator2 = @$filter["w_tgl_pelaksanaan"];
 		$this->tgl_pelaksanaan->AdvancedSearch->Save();
+
+		// Field periode
+		$this->periode->AdvancedSearch->SearchValue = @$filter["x_periode"];
+		$this->periode->AdvancedSearch->SearchOperator = @$filter["z_periode"];
+		$this->periode->AdvancedSearch->SearchCondition = @$filter["v_periode"];
+		$this->periode->AdvancedSearch->SearchValue2 = @$filter["y_periode"];
+		$this->periode->AdvancedSearch->SearchOperator2 = @$filter["w_periode"];
+		$this->periode->AdvancedSearch->Save();
 		$this->BasicSearch->setKeyword(@$filter[EW_TABLE_BASIC_SEARCH]);
 		$this->BasicSearch->setType(@$filter[EW_TABLE_BASIC_SEARCH_TYPE]);
 	}
@@ -1040,6 +1050,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 			$this->UpdateSort($this->tanggal); // tanggal
 			$this->UpdateSort($this->total_ppn); // total_ppn
 			$this->UpdateSort($this->no_kwitansi); // no_kwitansi
+			$this->UpdateSort($this->periode); // periode
 			$this->setStartRecordNumber(1); // Reset start position
 		}
 	}
@@ -1078,6 +1089,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 				$this->tanggal->setSort("");
 				$this->total_ppn->setSort("");
 				$this->no_kwitansi->setSort("");
+				$this->periode->setSort("");
 			}
 
 			// Reset start position
@@ -1467,6 +1479,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->total_ppn->setDbValue($rs->fields('total_ppn'));
 		$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
 		$this->tgl_pelaksanaan->setDbValue($rs->fields('tgl_pelaksanaan'));
+		$this->periode->setDbValue($rs->fields('periode'));
 	}
 
 	// Load DbValue from recordset
@@ -1481,6 +1494,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->total_ppn->DbValue = $row['total_ppn'];
 		$this->no_kwitansi->DbValue = $row['no_kwitansi'];
 		$this->tgl_pelaksanaan->DbValue = $row['tgl_pelaksanaan'];
+		$this->periode->DbValue = $row['periode'];
 	}
 
 	// Load old record
@@ -1534,6 +1548,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		// total_ppn
 		// no_kwitansi
 		// tgl_pelaksanaan
+		// periode
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -1561,6 +1576,11 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		// no_kwitansi
 		$this->no_kwitansi->ViewValue = $this->no_kwitansi->CurrentValue;
 		$this->no_kwitansi->ViewCustomAttributes = "";
+
+		// periode
+		$this->periode->ViewValue = $this->periode->CurrentValue;
+		$this->periode->ViewValue = ew_FormatDateTime($this->periode->ViewValue, 0);
+		$this->periode->ViewCustomAttributes = "";
 
 			// nama
 			$this->nama->LinkCustomAttributes = "";
@@ -1591,6 +1611,11 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 			$this->no_kwitansi->LinkCustomAttributes = "";
 			$this->no_kwitansi->HrefValue = "";
 			$this->no_kwitansi->TooltipValue = "";
+
+			// periode
+			$this->periode->LinkCustomAttributes = "";
+			$this->periode->HrefValue = "";
+			$this->periode->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -2228,6 +2253,15 @@ $v_rekap_invoice_all_list->ListOptions->Render("header", "left");
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
+<?php if ($v_rekap_invoice_all->periode->Visible) { // periode ?>
+	<?php if ($v_rekap_invoice_all->SortUrl($v_rekap_invoice_all->periode) == "") { ?>
+		<th data-name="periode"><div id="elh_v_rekap_invoice_all_periode" class="v_rekap_invoice_all_periode"><div class="ewTableHeaderCaption"><?php echo $v_rekap_invoice_all->periode->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="periode"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $v_rekap_invoice_all->SortUrl($v_rekap_invoice_all->periode) ?>',1);"><div id="elh_v_rekap_invoice_all_periode" class="v_rekap_invoice_all_periode">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $v_rekap_invoice_all->periode->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($v_rekap_invoice_all->periode->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($v_rekap_invoice_all->periode->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
 <?php
 
 // Render list options (header, right)
@@ -2338,6 +2372,14 @@ $v_rekap_invoice_all_list->ListOptions->Render("body", "left", $v_rekap_invoice_
 <span id="el<?php echo $v_rekap_invoice_all_list->RowCnt ?>_v_rekap_invoice_all_no_kwitansi" class="v_rekap_invoice_all_no_kwitansi">
 <span<?php echo $v_rekap_invoice_all->no_kwitansi->ViewAttributes() ?>>
 <?php echo $v_rekap_invoice_all->no_kwitansi->ListViewValue() ?></span>
+</span>
+</td>
+	<?php } ?>
+	<?php if ($v_rekap_invoice_all->periode->Visible) { // periode ?>
+		<td data-name="periode"<?php echo $v_rekap_invoice_all->periode->CellAttributes() ?>>
+<span id="el<?php echo $v_rekap_invoice_all_list->RowCnt ?>_v_rekap_invoice_all_periode" class="v_rekap_invoice_all_periode">
+<span<?php echo $v_rekap_invoice_all->periode->ViewAttributes() ?>>
+<?php echo $v_rekap_invoice_all->periode->ListViewValue() ?></span>
 </span>
 </td>
 	<?php } ?>

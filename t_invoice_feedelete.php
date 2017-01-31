@@ -515,6 +515,10 @@ class ct_invoice_fee_delete extends ct_invoice_fee {
 			$this->harga->CurrentValue = ew_StrToFloat($this->harga->CurrentValue);
 
 		// Convert decimal values if posted back
+		if ($this->qty->FormValue == $this->qty->CurrentValue && is_numeric(ew_StrToFloat($this->qty->CurrentValue)))
+			$this->qty->CurrentValue = ew_StrToFloat($this->qty->CurrentValue);
+
+		// Convert decimal values if posted back
 		if ($this->jumlah->FormValue == $this->jumlah->CurrentValue && is_numeric(ew_StrToFloat($this->jumlah->CurrentValue)))
 			$this->jumlah->CurrentValue = ew_StrToFloat($this->jumlah->CurrentValue);
 
@@ -576,7 +580,7 @@ class ct_invoice_fee_delete extends ct_invoice_fee {
 
 		// qty
 		$this->qty->ViewValue = $this->qty->CurrentValue;
-		$this->qty->ViewValue = ew_FormatNumber($this->qty->ViewValue, 0, -2, -2, -1);
+		$this->qty->ViewValue = ew_FormatNumber($this->qty->ViewValue, 4, -2, -2, -1);
 		$this->qty->CellCssStyle .= "text-align: right;";
 		$this->qty->ViewCustomAttributes = "";
 

@@ -184,7 +184,7 @@ class cv_invoice_fee extends cTable {
 		$this->fields['harga'] = &$this->harga;
 
 		// qty
-		$this->qty = new cField('v_invoice_fee', 'v_invoice_fee', 'x_qty', 'qty', '`qty`', '`qty`', 3, -1, FALSE, '`qty`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->qty = new cField('v_invoice_fee', 'v_invoice_fee', 'x_qty', 'qty', '`qty`', '`qty`', 131, -1, FALSE, '`qty`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
 		$this->qty->Sortable = TRUE; // Allow sort
 		$this->qty->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['qty'] = &$this->qty;
@@ -1151,6 +1151,7 @@ class cv_invoice_fee extends cTable {
 		$this->qty->EditCustomAttributes = "";
 		$this->qty->EditValue = $this->qty->CurrentValue;
 		$this->qty->PlaceHolder = ew_RemoveHtml($this->qty->FldCaption());
+		if (strval($this->qty->EditValue) <> "" && is_numeric($this->qty->EditValue)) $this->qty->EditValue = ew_FormatNumber($this->qty->EditValue, -2, -1, -2, 0);
 
 		// satuan
 		$this->satuan->EditAttrs["class"] = "form-control";

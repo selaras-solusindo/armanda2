@@ -305,6 +305,7 @@ class ct_invoice_add extends ct_invoice {
 		$this->terbayar->SetVisibility();
 		$this->pasal23->SetVisibility();
 		$this->no_kwitansi->SetVisibility();
+		$this->periode->SetVisibility();
 
 		// Set up detail page object
 		$this->SetupDetailPages();
@@ -547,6 +548,8 @@ class ct_invoice_add extends ct_invoice {
 		$this->pasal23->OldValue = $this->pasal23->CurrentValue;
 		$this->no_kwitansi->CurrentValue = NULL;
 		$this->no_kwitansi->OldValue = $this->no_kwitansi->CurrentValue;
+		$this->periode->CurrentValue = NULL;
+		$this->periode->OldValue = $this->periode->CurrentValue;
 	}
 
 	// Load form values
@@ -591,6 +594,10 @@ class ct_invoice_add extends ct_invoice {
 		if (!$this->no_kwitansi->FldIsDetailKey) {
 			$this->no_kwitansi->setFormValue($objForm->GetValue("x_no_kwitansi"));
 		}
+		if (!$this->periode->FldIsDetailKey) {
+			$this->periode->setFormValue($objForm->GetValue("x_periode"));
+			$this->periode->CurrentValue = ew_UnFormatDateTime($this->periode->CurrentValue, 7);
+		}
 	}
 
 	// Restore form values
@@ -610,6 +617,8 @@ class ct_invoice_add extends ct_invoice {
 		$this->terbayar->CurrentValue = $this->terbayar->FormValue;
 		$this->pasal23->CurrentValue = $this->pasal23->FormValue;
 		$this->no_kwitansi->CurrentValue = $this->no_kwitansi->FormValue;
+		$this->periode->CurrentValue = $this->periode->FormValue;
+		$this->periode->CurrentValue = ew_UnFormatDateTime($this->periode->CurrentValue, 7);
 	}
 
 	// Load row based on key values
@@ -662,6 +671,7 @@ class ct_invoice_add extends ct_invoice {
 		$this->terbayar->setDbValue($rs->fields('terbayar'));
 		$this->pasal23->setDbValue($rs->fields('pasal23'));
 		$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
+		$this->periode->setDbValue($rs->fields('periode'));
 	}
 
 	// Load DbValue from recordset
@@ -684,6 +694,7 @@ class ct_invoice_add extends ct_invoice {
 		$this->terbayar->DbValue = $row['terbayar'];
 		$this->pasal23->DbValue = $row['pasal23'];
 		$this->no_kwitansi->DbValue = $row['no_kwitansi'];
+		$this->periode->DbValue = $row['periode'];
 	}
 
 	// Load old record
@@ -735,6 +746,7 @@ class ct_invoice_add extends ct_invoice {
 		// terbayar
 		// pasal23
 		// no_kwitansi
+		// periode
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -840,6 +852,11 @@ class ct_invoice_add extends ct_invoice {
 		$this->no_kwitansi->ViewValue = $this->no_kwitansi->CurrentValue;
 		$this->no_kwitansi->ViewCustomAttributes = "";
 
+		// periode
+		$this->periode->ViewValue = $this->periode->CurrentValue;
+		$this->periode->ViewValue = ew_FormatDateTime($this->periode->ViewValue, 7);
+		$this->periode->ViewCustomAttributes = "";
+
 			// customer_id
 			$this->customer_id->LinkCustomAttributes = "";
 			$this->customer_id->HrefValue = "";
@@ -899,6 +916,11 @@ class ct_invoice_add extends ct_invoice {
 			$this->no_kwitansi->LinkCustomAttributes = "";
 			$this->no_kwitansi->HrefValue = "";
 			$this->no_kwitansi->TooltipValue = "";
+
+			// periode
+			$this->periode->LinkCustomAttributes = "";
+			$this->periode->HrefValue = "";
+			$this->periode->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
 
 			// customer_id
@@ -988,6 +1010,12 @@ class ct_invoice_add extends ct_invoice {
 			$this->no_kwitansi->EditValue = ew_HtmlEncode($this->no_kwitansi->CurrentValue);
 			$this->no_kwitansi->PlaceHolder = ew_RemoveHtml($this->no_kwitansi->FldCaption());
 
+			// periode
+			$this->periode->EditAttrs["class"] = "form-control";
+			$this->periode->EditCustomAttributes = "";
+			$this->periode->EditValue = ew_HtmlEncode(ew_FormatDateTime($this->periode->CurrentValue, 7));
+			$this->periode->PlaceHolder = ew_RemoveHtml($this->periode->FldCaption());
+
 			// Add refer script
 			// customer_id
 
@@ -1037,6 +1065,10 @@ class ct_invoice_add extends ct_invoice {
 			// no_kwitansi
 			$this->no_kwitansi->LinkCustomAttributes = "";
 			$this->no_kwitansi->HrefValue = "";
+
+			// periode
+			$this->periode->LinkCustomAttributes = "";
+			$this->periode->HrefValue = "";
 		}
 		if ($this->RowType == EW_ROWTYPE_ADD ||
 			$this->RowType == EW_ROWTYPE_EDIT ||
@@ -1100,6 +1132,12 @@ class ct_invoice_add extends ct_invoice {
 		}
 		if (!$this->no_kwitansi->FldIsDetailKey && !is_null($this->no_kwitansi->FormValue) && $this->no_kwitansi->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->no_kwitansi->FldCaption(), $this->no_kwitansi->ReqErrMsg));
+		}
+		if (!$this->periode->FldIsDetailKey && !is_null($this->periode->FormValue) && $this->periode->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->periode->FldCaption(), $this->periode->ReqErrMsg));
+		}
+		if (!ew_CheckEuroDate($this->periode->FormValue)) {
+			ew_AddMessage($gsFormError, $this->periode->FldErrMsg());
 		}
 
 		// Validate detail grid
@@ -1175,6 +1213,9 @@ class ct_invoice_add extends ct_invoice {
 
 		// no_kwitansi
 		$this->no_kwitansi->SetDbValueDef($rsnew, $this->no_kwitansi->CurrentValue, "", FALSE);
+
+		// periode
+		$this->periode->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->periode->CurrentValue, 7), ew_CurrentDate(), FALSE);
 
 		// Call Row Inserting event
 		$rs = ($rsold == NULL) ? NULL : $rsold->fields;
@@ -1532,6 +1573,12 @@ ft_invoiceadd.Validate = function() {
 			elm = this.GetElements("x" + infix + "_no_kwitansi");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t_invoice->no_kwitansi->FldCaption(), $t_invoice->no_kwitansi->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_periode");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t_invoice->periode->FldCaption(), $t_invoice->periode->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_periode");
+			if (elm && !ew_CheckEuroDate(elm.value))
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t_invoice->periode->FldErrMsg()) ?>");
 
 			// Fire Form_CustomValidate event
 			if (!this.Form_CustomValidate(fobj))
@@ -1735,6 +1782,21 @@ ew_CreateCalendar("ft_invoiceadd", "x_tanggal", 7);
 <input type="text" data-table="t_invoice" data-field="x_no_kwitansi" name="x_no_kwitansi" id="x_no_kwitansi" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t_invoice->no_kwitansi->getPlaceHolder()) ?>" value="<?php echo $t_invoice->no_kwitansi->EditValue ?>"<?php echo $t_invoice->no_kwitansi->EditAttributes() ?>>
 </span>
 <?php echo $t_invoice->no_kwitansi->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+<?php if ($t_invoice->periode->Visible) { // periode ?>
+	<div id="r_periode" class="form-group">
+		<label id="elh_t_invoice_periode" for="x_periode" class="col-sm-2 control-label ewLabel"><?php echo $t_invoice->periode->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="col-sm-10"><div<?php echo $t_invoice->periode->CellAttributes() ?>>
+<span id="el_t_invoice_periode">
+<input type="text" data-table="t_invoice" data-field="x_periode" data-format="7" name="x_periode" id="x_periode" placeholder="<?php echo ew_HtmlEncode($t_invoice->periode->getPlaceHolder()) ?>" value="<?php echo $t_invoice->periode->EditValue ?>"<?php echo $t_invoice->periode->EditAttributes() ?>>
+<?php if (!$t_invoice->periode->ReadOnly && !$t_invoice->periode->Disabled && !isset($t_invoice->periode->EditAttrs["readonly"]) && !isset($t_invoice->periode->EditAttrs["disabled"])) { ?>
+<script type="text/javascript">
+ew_CreateCalendar("ft_invoiceadd", "x_periode", 7);
+</script>
+<?php } ?>
+</span>
+<?php echo $t_invoice->periode->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
 </div>

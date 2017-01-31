@@ -23,6 +23,7 @@ class ct_invoice extends cTable {
 	var $terbayar;
 	var $pasal23;
 	var $no_kwitansi;
+	var $periode;
 
 	//
 	// Table class constructor
@@ -145,6 +146,12 @@ class ct_invoice extends cTable {
 		$this->no_kwitansi = new cField('t_invoice', 't_invoice', 'x_no_kwitansi', 'no_kwitansi', '`no_kwitansi`', '`no_kwitansi`', 200, -1, FALSE, '`no_kwitansi`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
 		$this->no_kwitansi->Sortable = TRUE; // Allow sort
 		$this->fields['no_kwitansi'] = &$this->no_kwitansi;
+
+		// periode
+		$this->periode = new cField('t_invoice', 't_invoice', 'x_periode', 'periode', '`periode`', ew_CastDateFieldForLike('`periode`', 7, "DB"), 133, 7, FALSE, '`periode`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->periode->Sortable = TRUE; // Allow sort
+		$this->periode->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_SEPARATOR"], $Language->Phrase("IncorrectDateDMY"));
+		$this->fields['periode'] = &$this->periode;
 	}
 
 	// Set Field Visibility
@@ -728,6 +735,7 @@ class ct_invoice extends cTable {
 		$this->terbayar->setDbValue($rs->fields('terbayar'));
 		$this->pasal23->setDbValue($rs->fields('pasal23'));
 		$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
+		$this->periode->setDbValue($rs->fields('periode'));
 	}
 
 	// Render list row values
@@ -754,6 +762,7 @@ class ct_invoice extends cTable {
 		// terbayar
 		// pasal23
 		// no_kwitansi
+		// periode
 		// invoice_id
 
 		$this->invoice_id->ViewValue = $this->invoice_id->CurrentValue;
@@ -857,6 +866,11 @@ class ct_invoice extends cTable {
 		$this->no_kwitansi->ViewValue = $this->no_kwitansi->CurrentValue;
 		$this->no_kwitansi->ViewCustomAttributes = "";
 
+		// periode
+		$this->periode->ViewValue = $this->periode->CurrentValue;
+		$this->periode->ViewValue = ew_FormatDateTime($this->periode->ViewValue, 7);
+		$this->periode->ViewCustomAttributes = "";
+
 		// invoice_id
 		$this->invoice_id->LinkCustomAttributes = "";
 		$this->invoice_id->HrefValue = "";
@@ -936,6 +950,11 @@ class ct_invoice extends cTable {
 		$this->no_kwitansi->LinkCustomAttributes = "";
 		$this->no_kwitansi->HrefValue = "";
 		$this->no_kwitansi->TooltipValue = "";
+
+		// periode
+		$this->periode->LinkCustomAttributes = "";
+		$this->periode->HrefValue = "";
+		$this->periode->TooltipValue = "";
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -1040,6 +1059,12 @@ class ct_invoice extends cTable {
 		$this->no_kwitansi->EditValue = $this->no_kwitansi->CurrentValue;
 		$this->no_kwitansi->PlaceHolder = ew_RemoveHtml($this->no_kwitansi->FldCaption());
 
+		// periode
+		$this->periode->EditAttrs["class"] = "form-control";
+		$this->periode->EditCustomAttributes = "";
+		$this->periode->EditValue = ew_FormatDateTime($this->periode->CurrentValue, 7);
+		$this->periode->PlaceHolder = ew_RemoveHtml($this->periode->FldCaption());
+
 		// Call Row Rendered event
 		$this->Row_Rendered();
 	}
@@ -1082,6 +1107,7 @@ class ct_invoice extends cTable {
 					if ($this->terbayar->Exportable) $Doc->ExportCaption($this->terbayar);
 					if ($this->pasal23->Exportable) $Doc->ExportCaption($this->pasal23);
 					if ($this->no_kwitansi->Exportable) $Doc->ExportCaption($this->no_kwitansi);
+					if ($this->periode->Exportable) $Doc->ExportCaption($this->periode);
 				} else {
 					if ($this->invoice_id->Exportable) $Doc->ExportCaption($this->invoice_id);
 					if ($this->customer_id->Exportable) $Doc->ExportCaption($this->customer_id);
@@ -1099,6 +1125,7 @@ class ct_invoice extends cTable {
 					if ($this->terbayar->Exportable) $Doc->ExportCaption($this->terbayar);
 					if ($this->pasal23->Exportable) $Doc->ExportCaption($this->pasal23);
 					if ($this->no_kwitansi->Exportable) $Doc->ExportCaption($this->no_kwitansi);
+					if ($this->periode->Exportable) $Doc->ExportCaption($this->periode);
 				}
 				$Doc->EndExportRow();
 			}
@@ -1145,6 +1172,7 @@ class ct_invoice extends cTable {
 						if ($this->terbayar->Exportable) $Doc->ExportField($this->terbayar);
 						if ($this->pasal23->Exportable) $Doc->ExportField($this->pasal23);
 						if ($this->no_kwitansi->Exportable) $Doc->ExportField($this->no_kwitansi);
+						if ($this->periode->Exportable) $Doc->ExportField($this->periode);
 					} else {
 						if ($this->invoice_id->Exportable) $Doc->ExportField($this->invoice_id);
 						if ($this->customer_id->Exportable) $Doc->ExportField($this->customer_id);
@@ -1162,6 +1190,7 @@ class ct_invoice extends cTable {
 						if ($this->terbayar->Exportable) $Doc->ExportField($this->terbayar);
 						if ($this->pasal23->Exportable) $Doc->ExportField($this->pasal23);
 						if ($this->no_kwitansi->Exportable) $Doc->ExportField($this->no_kwitansi);
+						if ($this->periode->Exportable) $Doc->ExportField($this->periode);
 					}
 					$Doc->EndExportRow();
 				}

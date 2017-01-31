@@ -54,7 +54,7 @@ ft_invoice_feegrid.Validate = function() {
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t_invoice_fee->qty->FldCaption(), $t_invoice_fee->qty->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_qty");
-			if (elm && !ew_CheckInteger(elm.value))
+			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t_invoice_fee->qty->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_satuan");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))

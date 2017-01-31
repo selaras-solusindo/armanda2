@@ -73,9 +73,9 @@ class ct_invoice_fee extends cTable {
 		$this->fields['harga'] = &$this->harga;
 
 		// qty
-		$this->qty = new cField('t_invoice_fee', 't_invoice_fee', 'x_qty', 'qty', '`qty`', '`qty`', 3, -1, FALSE, '`qty`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->qty = new cField('t_invoice_fee', 't_invoice_fee', 'x_qty', 'qty', '`qty`', '`qty`', 131, -1, FALSE, '`qty`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
 		$this->qty->Sortable = TRUE; // Allow sort
-		$this->qty->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->qty->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
 		$this->fields['qty'] = &$this->qty;
 
 		// satuan
@@ -747,7 +747,7 @@ class ct_invoice_fee extends cTable {
 
 		// qty
 		$this->qty->ViewValue = $this->qty->CurrentValue;
-		$this->qty->ViewValue = ew_FormatNumber($this->qty->ViewValue, 0, -2, -2, -1);
+		$this->qty->ViewValue = ew_FormatNumber($this->qty->ViewValue, 4, -2, -2, -1);
 		$this->qty->CellCssStyle .= "text-align: right;";
 		$this->qty->ViewCustomAttributes = "";
 
@@ -850,6 +850,7 @@ class ct_invoice_fee extends cTable {
 		$this->qty->EditCustomAttributes = "";
 		$this->qty->EditValue = $this->qty->CurrentValue;
 		$this->qty->PlaceHolder = ew_RemoveHtml($this->qty->FldCaption());
+		if (strval($this->qty->EditValue) <> "" && is_numeric($this->qty->EditValue)) $this->qty->EditValue = ew_FormatNumber($this->qty->EditValue, -2, -2, -2, -1);
 
 		// satuan
 		$this->satuan->EditAttrs["class"] = "form-control";
@@ -1074,7 +1075,7 @@ class ct_invoice_fee extends cTable {
 	function Row_Updating($rsold, &$rsnew) {
 
 		// Enter your code here
-		$rsnew["jumlah"] = floatval($rsnew["harga"]) * intval($rsnew["qty"]);
+		$rsnew["jumlah"] = $rsnew["harga"] * $rsnew["qty"];
 
 		// To cancel, set return value to FALSE
 		return TRUE;
