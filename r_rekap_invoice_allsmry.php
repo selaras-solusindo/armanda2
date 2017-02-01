@@ -1206,7 +1206,7 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 
 			// tgl_bayar
 			$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
-			$this->tgl_bayar->ViewValue = ewr_FormatDateTime($this->tgl_bayar->ViewValue, 0);
+			$this->tgl_bayar->ViewValue = tgl_indo($this->tgl_bayar->ViewValue);
 			$this->tgl_bayar->CellAttrs["class"] = ($this->RecCount % 2 <> 1) ? "ewTableAltRow" : "ewTableRow";
 
 			// periode

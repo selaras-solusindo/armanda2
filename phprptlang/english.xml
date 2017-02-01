@@ -728,7 +728,7 @@
         <phrase id="fldcaption" value="invoice id" />
       </field>
       <field id="tgl_bayar">
-        <phrase id="fldcaption" value="tgl bayar" />
+        <phrase id="fldcaption" value="Tgl. Pembayaran" />
       </field>
     </table>
     <table id="v_rekap_invoice_ppn">

@@ -579,7 +579,7 @@ class ct_invoice_edit extends ct_invoice {
 		}
 		if (!$this->tgl_bayar->FldIsDetailKey) {
 			$this->tgl_bayar->setFormValue($objForm->GetValue("x_tgl_bayar"));
-			$this->tgl_bayar->CurrentValue = ew_UnFormatDateTime($this->tgl_bayar->CurrentValue, 0);
+			$this->tgl_bayar->CurrentValue = ew_UnFormatDateTime($this->tgl_bayar->CurrentValue, 7);
 		}
 		if (!$this->pasal23->FldIsDetailKey) {
 			$this->pasal23->setFormValue($objForm->GetValue("x_pasal23"));
@@ -612,7 +612,7 @@ class ct_invoice_edit extends ct_invoice {
 		$this->ppn->CurrentValue = $this->ppn->FormValue;
 		$this->terbayar->CurrentValue = $this->terbayar->FormValue;
 		$this->tgl_bayar->CurrentValue = $this->tgl_bayar->FormValue;
-		$this->tgl_bayar->CurrentValue = ew_UnFormatDateTime($this->tgl_bayar->CurrentValue, 0);
+		$this->tgl_bayar->CurrentValue = ew_UnFormatDateTime($this->tgl_bayar->CurrentValue, 7);
 		$this->pasal23->CurrentValue = $this->pasal23->FormValue;
 		$this->no_kwitansi->CurrentValue = $this->no_kwitansi->FormValue;
 		$this->periode->CurrentValue = $this->periode->FormValue;
@@ -820,7 +820,7 @@ class ct_invoice_edit extends ct_invoice {
 
 		// tgl_bayar
 		$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
-		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 0);
+		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 7);
 		$this->tgl_bayar->ViewCustomAttributes = "";
 
 		// pasal23
@@ -991,7 +991,7 @@ class ct_invoice_edit extends ct_invoice {
 			// tgl_bayar
 			$this->tgl_bayar->EditAttrs["class"] = "form-control";
 			$this->tgl_bayar->EditCustomAttributes = "";
-			$this->tgl_bayar->EditValue = ew_HtmlEncode(ew_FormatDateTime($this->tgl_bayar->CurrentValue, 8));
+			$this->tgl_bayar->EditValue = ew_HtmlEncode(ew_FormatDateTime($this->tgl_bayar->CurrentValue, 7));
 			$this->tgl_bayar->PlaceHolder = ew_RemoveHtml($this->tgl_bayar->FldCaption());
 
 			// pasal23
@@ -1125,7 +1125,7 @@ class ct_invoice_edit extends ct_invoice {
 		if ($this->terbayar->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->terbayar->FldCaption(), $this->terbayar->ReqErrMsg));
 		}
-		if (!ew_CheckDateDef($this->tgl_bayar->FormValue)) {
+		if (!ew_CheckEuroDate($this->tgl_bayar->FormValue)) {
 			ew_AddMessage($gsFormError, $this->tgl_bayar->FldErrMsg());
 		}
 		if ($this->pasal23->FormValue == "") {
@@ -1222,7 +1222,7 @@ class ct_invoice_edit extends ct_invoice {
 			$this->terbayar->SetDbValueDef($rsnew, $this->terbayar->CurrentValue, 0, $this->terbayar->ReadOnly);
 
 			// tgl_bayar
-			$this->tgl_bayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->tgl_bayar->CurrentValue, 0), NULL, $this->tgl_bayar->ReadOnly);
+			$this->tgl_bayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->tgl_bayar->CurrentValue, 7), NULL, $this->tgl_bayar->ReadOnly);
 
 			// pasal23
 			$this->pasal23->SetDbValueDef($rsnew, $this->pasal23->CurrentValue, 0, $this->pasal23->ReadOnly);
@@ -1587,7 +1587,7 @@ ft_invoiceedit.Validate = function() {
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t_invoice->terbayar->FldCaption(), $t_invoice->terbayar->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_tgl_bayar");
-			if (elm && !ew_CheckDateDef(elm.value))
+			if (elm && !ew_CheckEuroDate(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t_invoice->tgl_bayar->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_pasal23");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
@@ -1788,7 +1788,12 @@ ew_CreateCalendar("ft_invoiceedit", "x_tanggal", 7);
 		<label id="elh_t_invoice_tgl_bayar" for="x_tgl_bayar" class="col-sm-2 control-label ewLabel"><?php echo $t_invoice->tgl_bayar->FldCaption() ?></label>
 		<div class="col-sm-10"><div<?php echo $t_invoice->tgl_bayar->CellAttributes() ?>>
 <span id="el_t_invoice_tgl_bayar">
-<input type="text" data-table="t_invoice" data-field="x_tgl_bayar" name="x_tgl_bayar" id="x_tgl_bayar" placeholder="<?php echo ew_HtmlEncode($t_invoice->tgl_bayar->getPlaceHolder()) ?>" value="<?php echo $t_invoice->tgl_bayar->EditValue ?>"<?php echo $t_invoice->tgl_bayar->EditAttributes() ?>>
+<input type="text" data-table="t_invoice" data-field="x_tgl_bayar" data-format="7" name="x_tgl_bayar" id="x_tgl_bayar" placeholder="<?php echo ew_HtmlEncode($t_invoice->tgl_bayar->getPlaceHolder()) ?>" value="<?php echo $t_invoice->tgl_bayar->EditValue ?>"<?php echo $t_invoice->tgl_bayar->EditAttributes() ?>>
+<?php if (!$t_invoice->tgl_bayar->ReadOnly && !$t_invoice->tgl_bayar->Disabled && !isset($t_invoice->tgl_bayar->EditAttrs["readonly"]) && !isset($t_invoice->tgl_bayar->EditAttrs["disabled"])) { ?>
+<script type="text/javascript">
+ew_CreateCalendar("ft_invoiceedit", "x_tgl_bayar", 7);
+</script>
+<?php } ?>
 </span>
 <?php echo $t_invoice->tgl_bayar->CustomMsg ?></div></div>
 	</div>

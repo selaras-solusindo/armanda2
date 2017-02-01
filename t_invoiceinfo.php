@@ -137,9 +137,9 @@ class ct_invoice extends cTable {
 		$this->fields['terbayar'] = &$this->terbayar;
 
 		// tgl_bayar
-		$this->tgl_bayar = new cField('t_invoice', 't_invoice', 'x_tgl_bayar', 'tgl_bayar', '`tgl_bayar`', ew_CastDateFieldForLike('`tgl_bayar`', 0, "DB"), 133, 0, FALSE, '`tgl_bayar`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->tgl_bayar = new cField('t_invoice', 't_invoice', 'x_tgl_bayar', 'tgl_bayar', '`tgl_bayar`', ew_CastDateFieldForLike('`tgl_bayar`', 7, "DB"), 133, 7, FALSE, '`tgl_bayar`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
 		$this->tgl_bayar->Sortable = TRUE; // Allow sort
-		$this->tgl_bayar->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_FORMAT"], $Language->Phrase("IncorrectDate"));
+		$this->tgl_bayar->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_SEPARATOR"], $Language->Phrase("IncorrectDateDMY"));
 		$this->fields['tgl_bayar'] = &$this->tgl_bayar;
 
 		// pasal23
@@ -865,7 +865,7 @@ class ct_invoice extends cTable {
 
 		// tgl_bayar
 		$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
-		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 0);
+		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 7);
 		$this->tgl_bayar->ViewCustomAttributes = "";
 
 		// pasal23
@@ -1071,7 +1071,7 @@ class ct_invoice extends cTable {
 		// tgl_bayar
 		$this->tgl_bayar->EditAttrs["class"] = "form-control";
 		$this->tgl_bayar->EditCustomAttributes = "";
-		$this->tgl_bayar->EditValue = ew_FormatDateTime($this->tgl_bayar->CurrentValue, 8);
+		$this->tgl_bayar->EditValue = ew_FormatDateTime($this->tgl_bayar->CurrentValue, 7);
 		$this->tgl_bayar->PlaceHolder = ew_RemoveHtml($this->tgl_bayar->FldCaption());
 
 		// pasal23

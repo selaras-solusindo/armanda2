@@ -116,7 +116,7 @@ class crr_rekap_invoice_all extends crTableBase {
 		$this->invoice_id->SqlOrderBy = "";
 
 		// tgl_bayar
-		$this->tgl_bayar = new crField('r_rekap_invoice_all', 'r_rekap_invoice_all', 'x_tgl_bayar', 'tgl_bayar', '`tgl_bayar`', 133, EWR_DATATYPE_DATE, 0);
+		$this->tgl_bayar = new crField('r_rekap_invoice_all', 'r_rekap_invoice_all', 'x_tgl_bayar', 'tgl_bayar', '`tgl_bayar`', 133, EWR_DATATYPE_DATE, -1);
 		$this->tgl_bayar->Sortable = TRUE; // Allow sort
 		$this->tgl_bayar->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EWR_DATE_FORMAT"], $ReportLanguage->Phrase("IncorrectDate"));
 		$this->fields['tgl_bayar'] = &$this->tgl_bayar;

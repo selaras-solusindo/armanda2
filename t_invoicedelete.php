@@ -659,7 +659,7 @@ class ct_invoice_delete extends ct_invoice {
 
 		// tgl_bayar
 		$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
-		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 0);
+		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 7);
 		$this->tgl_bayar->ViewCustomAttributes = "";
 
 		// pasal23
