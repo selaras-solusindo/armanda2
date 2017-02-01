@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ew-language date="2017/1/31" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
+<ew-language date="2017/2/1" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
   <!-- 
 	*** Important Notes:
 	1. Language ID should follow: https://developers.google.com/recaptcha/docs/language,
@@ -766,7 +766,7 @@
         <phrase id="fldcaption" value="No. Order" />
       </field>
       <field id="no_referensi">
-        <phrase id="fldcaption" value="No. Referensi" />
+        <phrase id="fldcaption" value="No. Seri Faktur Pajak" />
       </field>
       <field id="kegiatan">
         <phrase id="fldcaption" value="Kegiatan" />

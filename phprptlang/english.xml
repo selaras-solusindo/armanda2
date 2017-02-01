@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ew-language date="2017/1/31" version="10.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
+<ew-language date="2017/2/1" version="10.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
   <!-- 
 	*** Important Notes:
 	1. Language ID should follow: https://developers.google.com/recaptcha/docs/language,
@@ -804,7 +804,7 @@
       </field>
     </table>
     <table id="r_rekap_hutang">
-      <phrase id="tblcaption" value="r rekap hutang" />
+      <phrase id="tblcaption" value="Rekap Hutang" />
       <field id="nama">
         <phrase id="fldcaption" value="Customer" />
       </field>
