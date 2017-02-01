@@ -80,12 +80,15 @@ while ($row = mysql_fetch_array($mquery)) {
 	$no_kwitansi = $row["no_kwitansi"];
 	$nama = $row["nama"];
 	$keterangan = $row["keterangan"];
-	$nomor .= ", ".$row["nomor"];
-	$no_sertifikat .= ", ".$row["no_sertifikat"];
+	$nomor .= $row["nomor"].", ";
+	$no_sertifikat .= $row["no_sertifikat"].", ";
 	$tanggal = $row["tanggal"];
 	if ($row["pasal23"] == 1) $nilai_pasal23 = $row["total"] * 0.02;
 	$total_ppn += $row["total_ppn"] - $nilai_pasal23; //$row["total_ppn"];	
 }
+
+$nomor .= substr($nomor, 0, -2);
+$no_sertifikat .= substr($no_sertifikat, 0, -2);
 
 function Terbilang($x) {
   $abil = array("", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
