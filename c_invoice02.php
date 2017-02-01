@@ -104,7 +104,7 @@ function Terbilang($x)
 }
 
 // array nama bulan
-$anamabln_ = array(
+$anamabln_old = array(
   1 => "Januari",
   "Februari",
   "Maret",
@@ -117,6 +117,21 @@ $anamabln_ = array(
   "Oktober",
   "November",
   "Desember"
+  );
+  
+$anamabln_ = array(
+  1 => "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Mei",
+  "Jun",
+  "Jul",
+  "Ags",
+  "Sep",
+  "Okt",
+  "Nov",
+  "Des"
   );
 
 $msql = "select * from v_invoice_fee where invoice_id = '".$_POST["invoice_id"]."'"; //echo $msql;
@@ -137,15 +152,10 @@ $html .= '<tr><td width="155">Nomor</td><td width="485">: '.$row["nomor"].'</td>
 $tgl_invoice = strtotime($row["tanggal"]);
 $html .= '<tr><td>Tanggal</td><td>: '.date("d", $tgl_invoice).' '.$anamabln_[intval(date("m", $tgl_invoice))].' '.date("Y", $tgl_invoice).'</td></tr>';
 $html .= '<tr><td colspan="2">&nbsp;</td></tr>';
-//$html .= '&nbsp;'.'<br>';
-//$html .= '<table border="0">';
 $html .= '<tr><td width="155">No. Order</td><td width="485">: '.$row["no_order"].'</td></tr>';
 $html .= '<tr><td>No. Seri Faktur Pajak</td><td>: '.$row["no_referensi"].'</td></tr>';
 $html .= '<tr><td>Kegiatan</td><td>: '.$row["kegiatan"].'</td></tr>';
-//$tgl_pelaksanaan = strtotime($row["tgl_invoice"]);
-//.date("d", $tgl_pelaksanaan).' '.$anamabln_[intval(date("m", $tgl_pelaksanaan))].' '.date("Y", $tgl_pelaksanaan).'</td></tr>'
 $html .= '<tr><td>Tgl. Pelaksanaan</td><td>: <table border="0"><tr><td>';
-//$msql2 = "select * from v_invoice_pelaksanaan where invoice_id = ".$_POST["invoice_id"]."";
 $msql2 = "select * from t_invoice_pelaksanaan where invoice_id = ".$_POST["invoice_id"]."";
 $mquery2 = mysql_query($msql2);
 while($row2 = mysql_fetch_array($mquery2)) {
@@ -157,7 +167,6 @@ $html .= '<tr><td>No. Sertifikat/Laporan</td><td>: '.$row["no_sertifikat"].'</td
 $html .= '<tr><td colspan="2">&nbsp;</td></tr>';
 $html .= '<tr><td>Fee</td><td>:&nbsp;</td></tr>';
 $html .= '</table>';
-
 $html .= '<table border="0">';
 
 $total = $row["total"];
@@ -189,32 +198,9 @@ while($row = mysql_fetch_array($mquery)) {
 		<td align="right" width="105">'.number_format($row["jumlah"]).'</td>
 	</tr>
 	';
-	/*$html .= '
-	<tr>
-		<td align="right">'.number_format($row["harga"]).'</td>
-		<td align="center" width="25">x</td>
-		<td align="right" width="30">'.$row["qty"].'</td>
-		<td>'.$row["unit"].'</td>
-		<td>'.$row["keterangan1"].'</td>
-		<td>  =  </td>
-		<td align="right">'.number_format($row["jumlah"]).'</td>
-	</tr>';*/
 }
 $html .= '</table>'; 
 $html .= '<table border="0">';
-/*$html .= '
-	<tr>
-		<td width="155">&nbsp;</td>
-		<td width="485">
-			<table border="0">
-				<tr>
-					<td colspan="6"></td>
-					<td><hr></td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-	';*/
 $html .= '
 	<tr>
 		<td width="155">&nbsp;</td>
@@ -228,7 +214,6 @@ $html .= '
 		</td>
 	</tr>
 	';
-//$html .= '<tr><td colspan="2">&nbsp;</td></tr>';
 $html .= '
 	<tr>
 		<td width="155">&nbsp;</td>
@@ -301,7 +286,6 @@ $html .= '
 	</tr>
 	';
 }
-
 $html .= '
 	<tr>
 		<td>&nbsp;</td>
@@ -324,8 +308,6 @@ $html .= '<tr><td>Terbilang</td><td>: '.$terbilang.' rupiah</td></tr>';
 $html .= '</table>';
 $html .= '<table border="0">';
 $html .= '<tr><td>&nbsp;</td></tr>';
-//$html .= '<tr><td>&nbsp;</td></tr>';
-//$html .= '<tr><td>&nbsp;</td></tr>';
 $html .= '<tr><td>&nbsp;</td></tr>';
 $html .= '<tr><td align="center">CV. ARMANDA NUSANTARA</td></tr>';
 $html .= '<tr><td>&nbsp;</td></tr>';
@@ -334,11 +316,6 @@ $html .= '<tr><td>&nbsp;</td></tr>';
 $html .= '<tr><td>&nbsp;</td></tr>';
 $html .= '<tr><td align="center">SEINDRI SUSANTI</td></tr>';
 $html .= '</table>';
-
-
-//echo $html;
-//echo $html2;
 $pdf->writeHTML($html, true, false, true, false, '');
-//$pdf->writeHTML($html2, true, false, true, false, '');
 $pdf->Output('Invoice.pdf', 'I');
 ?>
