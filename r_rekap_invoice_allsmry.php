@@ -1192,6 +1192,7 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 			// no_sertifikat
 			$this->no_sertifikat->ViewValue = $this->no_sertifikat->CurrentValue;
 			$this->no_sertifikat->CellAttrs["class"] = ($this->RecCount % 2 <> 1) ? "ewTableAltRow" : "ewTableRow";
+			$this->no_sertifikat->CellAttrs["style"] = "width: 200px;";
 
 			// tgl_pelaksanaan
 			$this->tgl_pelaksanaan->ViewValue = $this->tgl_pelaksanaan->CurrentValue;
@@ -2509,15 +2510,15 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <?php } ?>
 <?php if ($Page->no_sertifikat->Visible) { ?>
 <?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
-	<td data-field="no_sertifikat"><div class="r_rekap_invoice_all_no_sertifikat"><span class="ewTableHeaderCaption"><?php echo $Page->no_sertifikat->FldCaption() ?></span></div></td>
+	<td data-field="no_sertifikat"><div class="r_rekap_invoice_all_no_sertifikat" style="width: 200px;"><span class="ewTableHeaderCaption"><?php echo $Page->no_sertifikat->FldCaption() ?></span></div></td>
 <?php } else { ?>
 	<td data-field="no_sertifikat">
 <?php if ($Page->SortUrl($Page->no_sertifikat) == "") { ?>
-		<div class="ewTableHeaderBtn r_rekap_invoice_all_no_sertifikat">
+		<div class="ewTableHeaderBtn r_rekap_invoice_all_no_sertifikat" style="width: 200px;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->no_sertifikat->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_all_no_sertifikat" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->no_sertifikat) ?>',0);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_all_no_sertifikat" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->no_sertifikat) ?>',0);" style="width: 200px;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->no_sertifikat->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->no_sertifikat->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->no_sertifikat->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
