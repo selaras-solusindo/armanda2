@@ -157,10 +157,30 @@ $html .= '<tr><td>No. Seri Faktur Pajak</td><td>: '.$row["no_referensi"].'</td><
 $html .= '<tr><td>Kegiatan</td><td>: '.$row["kegiatan"].'</td></tr>';
 $html .= '<tr><td>Tgl. Pelaksanaan</td><td>: <table border="0"><tr><td>';
 $msql2 = "select * from t_invoice_pelaksanaan where invoice_id = ".$_POST["invoice_id"]."";
+$msql2 = "
+	SELECT 
+		*,
+		concat(
+			group_concat(date_format(tanggal, '%d') separator ', '),
+			' ',
+			date_format(tanggal, '%b'), 
+			' ',
+			date_format(tanggal, '%Y')
+			) as tgl_pelaksanaan 
+	FROM 
+		`t_invoice_pelaksanaan` 
+	where invoice_id = ".$_POST["invoice_id"]."
+	group by 
+		invoice_id, 
+		concat(month(tanggal),year(tanggal)) 
+		";
+	//order by 
+	//	invoice_id, tanggal desc";
 $mquery2 = mysql_query($msql2);
 while($row2 = mysql_fetch_array($mquery2)) {
-	$tgl_pelaksanaan = strtotime($row2["tanggal"]);
-	$html .= date("d", $tgl_pelaksanaan).' '.$anamabln_[intval(date("m", $tgl_pelaksanaan))].' '.date("Y", $tgl_pelaksanaan).", ";
+	//$tgl_pelaksanaan = strtotime($row2["tanggal"]);
+	//$html .= date("d", $tgl_pelaksanaan).' '.$anamabln_[intval(date("m", $tgl_pelaksanaan))].' '.date("Y", $tgl_pelaksanaan).", ";
+	$html .= $row2["tgl_pelaksanaan"];
 }
 $html .= '</td></tr></table></td></tr>';
 $html .= '<tr><td>No. Sertifikat/Laporan</td><td>: '.$row["no_sertifikat"].'</td></tr>';
