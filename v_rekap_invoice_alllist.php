@@ -418,6 +418,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->total_ppn->SetVisibility();
 		$this->no_kwitansi->SetVisibility();
 		$this->periode->SetVisibility();
+		$this->tgl_bayar->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -752,6 +753,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$sFilterList = ew_Concat($sFilterList, $this->no_kwitansi->AdvancedSearch->ToJSON(), ","); // Field no_kwitansi
 		$sFilterList = ew_Concat($sFilterList, $this->tgl_pelaksanaan->AdvancedSearch->ToJSON(), ","); // Field tgl_pelaksanaan
 		$sFilterList = ew_Concat($sFilterList, $this->periode->AdvancedSearch->ToJSON(), ","); // Field periode
+		$sFilterList = ew_Concat($sFilterList, $this->tgl_bayar->AdvancedSearch->ToJSON(), ","); // Field tgl_bayar
 		if ($this->BasicSearch->Keyword <> "") {
 			$sWrk = "\"" . EW_TABLE_BASIC_SEARCH . "\":\"" . ew_JsEncode2($this->BasicSearch->Keyword) . "\",\"" . EW_TABLE_BASIC_SEARCH_TYPE . "\":\"" . ew_JsEncode2($this->BasicSearch->Type) . "\"";
 			$sFilterList = ew_Concat($sFilterList, $sWrk, ",");
@@ -867,6 +869,14 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->periode->AdvancedSearch->SearchValue2 = @$filter["y_periode"];
 		$this->periode->AdvancedSearch->SearchOperator2 = @$filter["w_periode"];
 		$this->periode->AdvancedSearch->Save();
+
+		// Field tgl_bayar
+		$this->tgl_bayar->AdvancedSearch->SearchValue = @$filter["x_tgl_bayar"];
+		$this->tgl_bayar->AdvancedSearch->SearchOperator = @$filter["z_tgl_bayar"];
+		$this->tgl_bayar->AdvancedSearch->SearchCondition = @$filter["v_tgl_bayar"];
+		$this->tgl_bayar->AdvancedSearch->SearchValue2 = @$filter["y_tgl_bayar"];
+		$this->tgl_bayar->AdvancedSearch->SearchOperator2 = @$filter["w_tgl_bayar"];
+		$this->tgl_bayar->AdvancedSearch->Save();
 		$this->BasicSearch->setKeyword(@$filter[EW_TABLE_BASIC_SEARCH]);
 		$this->BasicSearch->setType(@$filter[EW_TABLE_BASIC_SEARCH_TYPE]);
 	}
@@ -1051,6 +1061,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 			$this->UpdateSort($this->total_ppn); // total_ppn
 			$this->UpdateSort($this->no_kwitansi); // no_kwitansi
 			$this->UpdateSort($this->periode); // periode
+			$this->UpdateSort($this->tgl_bayar); // tgl_bayar
 			$this->setStartRecordNumber(1); // Reset start position
 		}
 	}
@@ -1090,6 +1101,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 				$this->total_ppn->setSort("");
 				$this->no_kwitansi->setSort("");
 				$this->periode->setSort("");
+				$this->tgl_bayar->setSort("");
 			}
 
 			// Reset start position
@@ -1480,6 +1492,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
 		$this->tgl_pelaksanaan->setDbValue($rs->fields('tgl_pelaksanaan'));
 		$this->periode->setDbValue($rs->fields('periode'));
+		$this->tgl_bayar->setDbValue($rs->fields('tgl_bayar'));
 	}
 
 	// Load DbValue from recordset
@@ -1495,6 +1508,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->no_kwitansi->DbValue = $row['no_kwitansi'];
 		$this->tgl_pelaksanaan->DbValue = $row['tgl_pelaksanaan'];
 		$this->periode->DbValue = $row['periode'];
+		$this->tgl_bayar->DbValue = $row['tgl_bayar'];
 	}
 
 	// Load old record
@@ -1549,6 +1563,7 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		// no_kwitansi
 		// tgl_pelaksanaan
 		// periode
+		// tgl_bayar
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -1581,6 +1596,11 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->periode->ViewValue = $this->periode->CurrentValue;
 		$this->periode->ViewValue = ew_FormatDateTime($this->periode->ViewValue, 0);
 		$this->periode->ViewCustomAttributes = "";
+
+		// tgl_bayar
+		$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
+		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 0);
+		$this->tgl_bayar->ViewCustomAttributes = "";
 
 			// nama
 			$this->nama->LinkCustomAttributes = "";
@@ -1616,6 +1636,11 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 			$this->periode->LinkCustomAttributes = "";
 			$this->periode->HrefValue = "";
 			$this->periode->TooltipValue = "";
+
+			// tgl_bayar
+			$this->tgl_bayar->LinkCustomAttributes = "";
+			$this->tgl_bayar->HrefValue = "";
+			$this->tgl_bayar->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -2262,6 +2287,15 @@ $v_rekap_invoice_all_list->ListOptions->Render("header", "left");
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
+<?php if ($v_rekap_invoice_all->tgl_bayar->Visible) { // tgl_bayar ?>
+	<?php if ($v_rekap_invoice_all->SortUrl($v_rekap_invoice_all->tgl_bayar) == "") { ?>
+		<th data-name="tgl_bayar"><div id="elh_v_rekap_invoice_all_tgl_bayar" class="v_rekap_invoice_all_tgl_bayar"><div class="ewTableHeaderCaption"><?php echo $v_rekap_invoice_all->tgl_bayar->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="tgl_bayar"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $v_rekap_invoice_all->SortUrl($v_rekap_invoice_all->tgl_bayar) ?>',1);"><div id="elh_v_rekap_invoice_all_tgl_bayar" class="v_rekap_invoice_all_tgl_bayar">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $v_rekap_invoice_all->tgl_bayar->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($v_rekap_invoice_all->tgl_bayar->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($v_rekap_invoice_all->tgl_bayar->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
 <?php
 
 // Render list options (header, right)
@@ -2380,6 +2414,14 @@ $v_rekap_invoice_all_list->ListOptions->Render("body", "left", $v_rekap_invoice_
 <span id="el<?php echo $v_rekap_invoice_all_list->RowCnt ?>_v_rekap_invoice_all_periode" class="v_rekap_invoice_all_periode">
 <span<?php echo $v_rekap_invoice_all->periode->ViewAttributes() ?>>
 <?php echo $v_rekap_invoice_all->periode->ListViewValue() ?></span>
+</span>
+</td>
+	<?php } ?>
+	<?php if ($v_rekap_invoice_all->tgl_bayar->Visible) { // tgl_bayar ?>
+		<td data-name="tgl_bayar"<?php echo $v_rekap_invoice_all->tgl_bayar->CellAttributes() ?>>
+<span id="el<?php echo $v_rekap_invoice_all_list->RowCnt ?>_v_rekap_invoice_all_tgl_bayar" class="v_rekap_invoice_all_tgl_bayar">
+<span<?php echo $v_rekap_invoice_all->tgl_bayar->ViewAttributes() ?>>
+<?php echo $v_rekap_invoice_all->tgl_bayar->ListViewValue() ?></span>
 </span>
 </td>
 	<?php } ?>

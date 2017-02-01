@@ -514,6 +514,9 @@
       <field id="periode">
         <phrase id="fldcaption" value="periode" />
       </field>
+      <field id="tgl_bayar">
+        <phrase id="fldcaption" value="tgl bayar" />
+      </field>
     </table>
     <table id="t_invoice_fee">
       <phrase id="tblcaption" value="t invoice fee" />
@@ -691,6 +694,9 @@
       <field id="periode">
         <phrase id="fldcaption" value="periode" />
       </field>
+      <field id="tgl_bayar">
+        <phrase id="fldcaption" value="tgl bayar" />
+      </field>
     </table>
     <table id="r_rekap_invoice_all">
       <phrase id="tblcaption" value="Rekap Invoice (ALL)" />
@@ -720,6 +726,9 @@
       </field>
       <field id="invoice_id">
         <phrase id="fldcaption" value="invoice id" />
+      </field>
+      <field id="tgl_bayar">
+        <phrase id="fldcaption" value="tgl bayar" />
       </field>
     </table>
     <table id="v_rekap_invoice_ppn">

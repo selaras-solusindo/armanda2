@@ -796,6 +796,9 @@
         <phrase id="fldtagvalue2" value="1" />
         <phrase id="fldtagcaption2" value="Sudah" />
       </field>
+      <field id="tgl_bayar">
+        <phrase id="fldcaption" value="Tgl. Pembayaran" />
+      </field>
       <field id="pasal23">
         <phrase id="fldcaption" value="Pasal 23" />
         <phrase id="fldtagvalue1" value="0" />
@@ -994,6 +997,9 @@
       </field>
       <field id="periode">
         <phrase id="fldcaption" value="periode" />
+      </field>
+      <field id="tgl_bayar">
+        <phrase id="fldcaption" value="tgl bayar" />
       </field>
     </table>
     <table id="v_rekap_invoice_ppn">

@@ -301,6 +301,7 @@ class ct_invoice_delete extends ct_invoice {
 		$this->total_ppn->SetVisibility();
 		$this->terbilang->SetVisibility();
 		$this->terbayar->SetVisibility();
+		$this->tgl_bayar->SetVisibility();
 		$this->pasal23->SetVisibility();
 		$this->no_kwitansi->SetVisibility();
 		$this->periode->SetVisibility();
@@ -497,6 +498,7 @@ class ct_invoice_delete extends ct_invoice {
 		$this->total_ppn->setDbValue($rs->fields('total_ppn'));
 		$this->terbilang->setDbValue($rs->fields('terbilang'));
 		$this->terbayar->setDbValue($rs->fields('terbayar'));
+		$this->tgl_bayar->setDbValue($rs->fields('tgl_bayar'));
 		$this->pasal23->setDbValue($rs->fields('pasal23'));
 		$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
 		$this->periode->setDbValue($rs->fields('periode'));
@@ -520,6 +522,7 @@ class ct_invoice_delete extends ct_invoice {
 		$this->total_ppn->DbValue = $row['total_ppn'];
 		$this->terbilang->DbValue = $row['terbilang'];
 		$this->terbayar->DbValue = $row['terbayar'];
+		$this->tgl_bayar->DbValue = $row['tgl_bayar'];
 		$this->pasal23->DbValue = $row['pasal23'];
 		$this->no_kwitansi->DbValue = $row['no_kwitansi'];
 		$this->periode->DbValue = $row['periode'];
@@ -557,6 +560,7 @@ class ct_invoice_delete extends ct_invoice {
 		// total_ppn
 		// terbilang
 		// terbayar
+		// tgl_bayar
 		// pasal23
 		// no_kwitansi
 		// periode
@@ -653,6 +657,11 @@ class ct_invoice_delete extends ct_invoice {
 		}
 		$this->terbayar->ViewCustomAttributes = "";
 
+		// tgl_bayar
+		$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
+		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 0);
+		$this->tgl_bayar->ViewCustomAttributes = "";
+
 		// pasal23
 		if (strval($this->pasal23->CurrentValue) <> "") {
 			$this->pasal23->ViewValue = $this->pasal23->OptionCaption($this->pasal23->CurrentValue);
@@ -734,6 +743,11 @@ class ct_invoice_delete extends ct_invoice {
 			$this->terbayar->LinkCustomAttributes = "";
 			$this->terbayar->HrefValue = "";
 			$this->terbayar->TooltipValue = "";
+
+			// tgl_bayar
+			$this->tgl_bayar->LinkCustomAttributes = "";
+			$this->tgl_bayar->HrefValue = "";
+			$this->tgl_bayar->TooltipValue = "";
 
 			// pasal23
 			$this->pasal23->LinkCustomAttributes = "";
@@ -1092,6 +1106,9 @@ $t_invoice_delete->ShowMessage();
 <?php if ($t_invoice->terbayar->Visible) { // terbayar ?>
 		<th><span id="elh_t_invoice_terbayar" class="t_invoice_terbayar"><?php echo $t_invoice->terbayar->FldCaption() ?></span></th>
 <?php } ?>
+<?php if ($t_invoice->tgl_bayar->Visible) { // tgl_bayar ?>
+		<th><span id="elh_t_invoice_tgl_bayar" class="t_invoice_tgl_bayar"><?php echo $t_invoice->tgl_bayar->FldCaption() ?></span></th>
+<?php } ?>
 <?php if ($t_invoice->pasal23->Visible) { // pasal23 ?>
 		<th><span id="elh_t_invoice_pasal23" class="t_invoice_pasal23"><?php echo $t_invoice->pasal23->FldCaption() ?></span></th>
 <?php } ?>
@@ -1223,6 +1240,14 @@ while (!$t_invoice_delete->Recordset->EOF) {
 <span id="el<?php echo $t_invoice_delete->RowCnt ?>_t_invoice_terbayar" class="t_invoice_terbayar">
 <span<?php echo $t_invoice->terbayar->ViewAttributes() ?>>
 <?php echo $t_invoice->terbayar->ListViewValue() ?></span>
+</span>
+</td>
+<?php } ?>
+<?php if ($t_invoice->tgl_bayar->Visible) { // tgl_bayar ?>
+		<td<?php echo $t_invoice->tgl_bayar->CellAttributes() ?>>
+<span id="el<?php echo $t_invoice_delete->RowCnt ?>_t_invoice_tgl_bayar" class="t_invoice_tgl_bayar">
+<span<?php echo $t_invoice->tgl_bayar->ViewAttributes() ?>>
+<?php echo $t_invoice->tgl_bayar->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>

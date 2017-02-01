@@ -21,6 +21,7 @@ class ct_invoice extends cTable {
 	var $total_ppn;
 	var $terbilang;
 	var $terbayar;
+	var $tgl_bayar;
 	var $pasal23;
 	var $no_kwitansi;
 	var $periode;
@@ -134,6 +135,12 @@ class ct_invoice extends cTable {
 		$this->terbayar->OptionCount = 2;
 		$this->terbayar->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['terbayar'] = &$this->terbayar;
+
+		// tgl_bayar
+		$this->tgl_bayar = new cField('t_invoice', 't_invoice', 'x_tgl_bayar', 'tgl_bayar', '`tgl_bayar`', ew_CastDateFieldForLike('`tgl_bayar`', 0, "DB"), 133, 0, FALSE, '`tgl_bayar`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->tgl_bayar->Sortable = TRUE; // Allow sort
+		$this->tgl_bayar->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_FORMAT"], $Language->Phrase("IncorrectDate"));
+		$this->fields['tgl_bayar'] = &$this->tgl_bayar;
 
 		// pasal23
 		$this->pasal23 = new cField('t_invoice', 't_invoice', 'x_pasal23', 'pasal23', '`pasal23`', '`pasal23`', 16, -1, FALSE, '`pasal23`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'RADIO');
@@ -733,6 +740,7 @@ class ct_invoice extends cTable {
 		$this->total_ppn->setDbValue($rs->fields('total_ppn'));
 		$this->terbilang->setDbValue($rs->fields('terbilang'));
 		$this->terbayar->setDbValue($rs->fields('terbayar'));
+		$this->tgl_bayar->setDbValue($rs->fields('tgl_bayar'));
 		$this->pasal23->setDbValue($rs->fields('pasal23'));
 		$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
 		$this->periode->setDbValue($rs->fields('periode'));
@@ -760,6 +768,7 @@ class ct_invoice extends cTable {
 		// total_ppn
 		// terbilang
 		// terbayar
+		// tgl_bayar
 		// pasal23
 		// no_kwitansi
 		// periode
@@ -854,6 +863,11 @@ class ct_invoice extends cTable {
 		}
 		$this->terbayar->ViewCustomAttributes = "";
 
+		// tgl_bayar
+		$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
+		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 0);
+		$this->tgl_bayar->ViewCustomAttributes = "";
+
 		// pasal23
 		if (strval($this->pasal23->CurrentValue) <> "") {
 			$this->pasal23->ViewValue = $this->pasal23->OptionCaption($this->pasal23->CurrentValue);
@@ -940,6 +954,11 @@ class ct_invoice extends cTable {
 		$this->terbayar->LinkCustomAttributes = "";
 		$this->terbayar->HrefValue = "";
 		$this->terbayar->TooltipValue = "";
+
+		// tgl_bayar
+		$this->tgl_bayar->LinkCustomAttributes = "";
+		$this->tgl_bayar->HrefValue = "";
+		$this->tgl_bayar->TooltipValue = "";
 
 		// pasal23
 		$this->pasal23->LinkCustomAttributes = "";
@@ -1049,6 +1068,12 @@ class ct_invoice extends cTable {
 		$this->terbayar->EditCustomAttributes = "";
 		$this->terbayar->EditValue = $this->terbayar->Options(FALSE);
 
+		// tgl_bayar
+		$this->tgl_bayar->EditAttrs["class"] = "form-control";
+		$this->tgl_bayar->EditCustomAttributes = "";
+		$this->tgl_bayar->EditValue = ew_FormatDateTime($this->tgl_bayar->CurrentValue, 8);
+		$this->tgl_bayar->PlaceHolder = ew_RemoveHtml($this->tgl_bayar->FldCaption());
+
 		// pasal23
 		$this->pasal23->EditCustomAttributes = "";
 		$this->pasal23->EditValue = $this->pasal23->Options(FALSE);
@@ -1105,6 +1130,7 @@ class ct_invoice extends cTable {
 					if ($this->total_ppn->Exportable) $Doc->ExportCaption($this->total_ppn);
 					if ($this->terbilang->Exportable) $Doc->ExportCaption($this->terbilang);
 					if ($this->terbayar->Exportable) $Doc->ExportCaption($this->terbayar);
+					if ($this->tgl_bayar->Exportable) $Doc->ExportCaption($this->tgl_bayar);
 					if ($this->pasal23->Exportable) $Doc->ExportCaption($this->pasal23);
 					if ($this->no_kwitansi->Exportable) $Doc->ExportCaption($this->no_kwitansi);
 					if ($this->periode->Exportable) $Doc->ExportCaption($this->periode);
@@ -1123,6 +1149,7 @@ class ct_invoice extends cTable {
 					if ($this->total_ppn->Exportable) $Doc->ExportCaption($this->total_ppn);
 					if ($this->terbilang->Exportable) $Doc->ExportCaption($this->terbilang);
 					if ($this->terbayar->Exportable) $Doc->ExportCaption($this->terbayar);
+					if ($this->tgl_bayar->Exportable) $Doc->ExportCaption($this->tgl_bayar);
 					if ($this->pasal23->Exportable) $Doc->ExportCaption($this->pasal23);
 					if ($this->no_kwitansi->Exportable) $Doc->ExportCaption($this->no_kwitansi);
 					if ($this->periode->Exportable) $Doc->ExportCaption($this->periode);
@@ -1170,6 +1197,7 @@ class ct_invoice extends cTable {
 						if ($this->total_ppn->Exportable) $Doc->ExportField($this->total_ppn);
 						if ($this->terbilang->Exportable) $Doc->ExportField($this->terbilang);
 						if ($this->terbayar->Exportable) $Doc->ExportField($this->terbayar);
+						if ($this->tgl_bayar->Exportable) $Doc->ExportField($this->tgl_bayar);
 						if ($this->pasal23->Exportable) $Doc->ExportField($this->pasal23);
 						if ($this->no_kwitansi->Exportable) $Doc->ExportField($this->no_kwitansi);
 						if ($this->periode->Exportable) $Doc->ExportField($this->periode);
@@ -1188,6 +1216,7 @@ class ct_invoice extends cTable {
 						if ($this->total_ppn->Exportable) $Doc->ExportField($this->total_ppn);
 						if ($this->terbilang->Exportable) $Doc->ExportField($this->terbilang);
 						if ($this->terbayar->Exportable) $Doc->ExportField($this->terbayar);
+						if ($this->tgl_bayar->Exportable) $Doc->ExportField($this->tgl_bayar);
 						if ($this->pasal23->Exportable) $Doc->ExportField($this->pasal23);
 						if ($this->no_kwitansi->Exportable) $Doc->ExportField($this->no_kwitansi);
 						if ($this->periode->Exportable) $Doc->ExportField($this->periode);

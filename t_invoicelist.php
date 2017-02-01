@@ -431,6 +431,7 @@ class ct_invoice_list extends ct_invoice {
 		$this->total_ppn->SetVisibility();
 		$this->terbilang->SetVisibility();
 		$this->terbayar->SetVisibility();
+		$this->tgl_bayar->SetVisibility();
 		$this->pasal23->SetVisibility();
 		$this->no_kwitansi->SetVisibility();
 		$this->periode->SetVisibility();
@@ -789,6 +790,7 @@ class ct_invoice_list extends ct_invoice {
 		$sFilterList = ew_Concat($sFilterList, $this->total_ppn->AdvancedSearch->ToJSON(), ","); // Field total_ppn
 		$sFilterList = ew_Concat($sFilterList, $this->terbilang->AdvancedSearch->ToJSON(), ","); // Field terbilang
 		$sFilterList = ew_Concat($sFilterList, $this->terbayar->AdvancedSearch->ToJSON(), ","); // Field terbayar
+		$sFilterList = ew_Concat($sFilterList, $this->tgl_bayar->AdvancedSearch->ToJSON(), ","); // Field tgl_bayar
 		$sFilterList = ew_Concat($sFilterList, $this->pasal23->AdvancedSearch->ToJSON(), ","); // Field pasal23
 		$sFilterList = ew_Concat($sFilterList, $this->no_kwitansi->AdvancedSearch->ToJSON(), ","); // Field no_kwitansi
 		$sFilterList = ew_Concat($sFilterList, $this->periode->AdvancedSearch->ToJSON(), ","); // Field periode
@@ -947,6 +949,14 @@ class ct_invoice_list extends ct_invoice {
 		$this->terbayar->AdvancedSearch->SearchValue2 = @$filter["y_terbayar"];
 		$this->terbayar->AdvancedSearch->SearchOperator2 = @$filter["w_terbayar"];
 		$this->terbayar->AdvancedSearch->Save();
+
+		// Field tgl_bayar
+		$this->tgl_bayar->AdvancedSearch->SearchValue = @$filter["x_tgl_bayar"];
+		$this->tgl_bayar->AdvancedSearch->SearchOperator = @$filter["z_tgl_bayar"];
+		$this->tgl_bayar->AdvancedSearch->SearchCondition = @$filter["v_tgl_bayar"];
+		$this->tgl_bayar->AdvancedSearch->SearchValue2 = @$filter["y_tgl_bayar"];
+		$this->tgl_bayar->AdvancedSearch->SearchOperator2 = @$filter["w_tgl_bayar"];
+		$this->tgl_bayar->AdvancedSearch->Save();
 
 		// Field pasal23
 		$this->pasal23->AdvancedSearch->SearchValue = @$filter["x_pasal23"];
@@ -1164,6 +1174,7 @@ class ct_invoice_list extends ct_invoice {
 			$this->UpdateSort($this->total_ppn); // total_ppn
 			$this->UpdateSort($this->terbilang); // terbilang
 			$this->UpdateSort($this->terbayar); // terbayar
+			$this->UpdateSort($this->tgl_bayar); // tgl_bayar
 			$this->UpdateSort($this->pasal23); // pasal23
 			$this->UpdateSort($this->no_kwitansi); // no_kwitansi
 			$this->UpdateSort($this->periode); // periode
@@ -1213,6 +1224,7 @@ class ct_invoice_list extends ct_invoice {
 				$this->total_ppn->setSort("");
 				$this->terbilang->setSort("");
 				$this->terbayar->setSort("");
+				$this->tgl_bayar->setSort("");
 				$this->pasal23->setSort("");
 				$this->no_kwitansi->setSort("");
 				$this->periode->setSort("");
@@ -1846,6 +1858,7 @@ class ct_invoice_list extends ct_invoice {
 		$this->total_ppn->setDbValue($rs->fields('total_ppn'));
 		$this->terbilang->setDbValue($rs->fields('terbilang'));
 		$this->terbayar->setDbValue($rs->fields('terbayar'));
+		$this->tgl_bayar->setDbValue($rs->fields('tgl_bayar'));
 		$this->pasal23->setDbValue($rs->fields('pasal23'));
 		$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
 		$this->periode->setDbValue($rs->fields('periode'));
@@ -1869,6 +1882,7 @@ class ct_invoice_list extends ct_invoice {
 		$this->total_ppn->DbValue = $row['total_ppn'];
 		$this->terbilang->DbValue = $row['terbilang'];
 		$this->terbayar->DbValue = $row['terbayar'];
+		$this->tgl_bayar->DbValue = $row['tgl_bayar'];
 		$this->pasal23->DbValue = $row['pasal23'];
 		$this->no_kwitansi->DbValue = $row['no_kwitansi'];
 		$this->periode->DbValue = $row['periode'];
@@ -1935,6 +1949,7 @@ class ct_invoice_list extends ct_invoice {
 		// total_ppn
 		// terbilang
 		// terbayar
+		// tgl_bayar
 		// pasal23
 		// no_kwitansi
 		// periode
@@ -2031,6 +2046,11 @@ class ct_invoice_list extends ct_invoice {
 		}
 		$this->terbayar->ViewCustomAttributes = "";
 
+		// tgl_bayar
+		$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
+		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 0);
+		$this->tgl_bayar->ViewCustomAttributes = "";
+
 		// pasal23
 		if (strval($this->pasal23->CurrentValue) <> "") {
 			$this->pasal23->ViewValue = $this->pasal23->OptionCaption($this->pasal23->CurrentValue);
@@ -2112,6 +2132,11 @@ class ct_invoice_list extends ct_invoice {
 			$this->terbayar->LinkCustomAttributes = "";
 			$this->terbayar->HrefValue = "";
 			$this->terbayar->TooltipValue = "";
+
+			// tgl_bayar
+			$this->tgl_bayar->LinkCustomAttributes = "";
+			$this->tgl_bayar->HrefValue = "";
+			$this->tgl_bayar->TooltipValue = "";
 
 			// pasal23
 			$this->pasal23->LinkCustomAttributes = "";
@@ -2846,6 +2871,15 @@ $t_invoice_list->ListOptions->Render("header", "left");
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
+<?php if ($t_invoice->tgl_bayar->Visible) { // tgl_bayar ?>
+	<?php if ($t_invoice->SortUrl($t_invoice->tgl_bayar) == "") { ?>
+		<th data-name="tgl_bayar"><div id="elh_t_invoice_tgl_bayar" class="t_invoice_tgl_bayar"><div class="ewTableHeaderCaption"><?php echo $t_invoice->tgl_bayar->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="tgl_bayar"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t_invoice->SortUrl($t_invoice->tgl_bayar) ?>',1);"><div id="elh_t_invoice_tgl_bayar" class="t_invoice_tgl_bayar">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t_invoice->tgl_bayar->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t_invoice->tgl_bayar->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t_invoice->tgl_bayar->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
 <?php if ($t_invoice->pasal23->Visible) { // pasal23 ?>
 	<?php if ($t_invoice->SortUrl($t_invoice->pasal23) == "") { ?>
 		<th data-name="pasal23"><div id="elh_t_invoice_pasal23" class="t_invoice_pasal23"><div class="ewTableHeaderCaption"><?php echo $t_invoice->pasal23->FldCaption() ?></div></div></th>
@@ -3039,6 +3073,14 @@ $t_invoice_list->ListOptions->Render("body", "left", $t_invoice_list->RowCnt);
 <span id="el<?php echo $t_invoice_list->RowCnt ?>_t_invoice_terbayar" class="t_invoice_terbayar">
 <span<?php echo $t_invoice->terbayar->ViewAttributes() ?>>
 <?php echo $t_invoice->terbayar->ListViewValue() ?></span>
+</span>
+</td>
+	<?php } ?>
+	<?php if ($t_invoice->tgl_bayar->Visible) { // tgl_bayar ?>
+		<td data-name="tgl_bayar"<?php echo $t_invoice->tgl_bayar->CellAttributes() ?>>
+<span id="el<?php echo $t_invoice_list->RowCnt ?>_t_invoice_tgl_bayar" class="t_invoice_tgl_bayar">
+<span<?php echo $t_invoice->tgl_bayar->ViewAttributes() ?>>
+<?php echo $t_invoice->tgl_bayar->ListViewValue() ?></span>
 </span>
 </td>
 	<?php } ?>

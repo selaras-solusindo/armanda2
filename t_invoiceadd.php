@@ -303,6 +303,7 @@ class ct_invoice_add extends ct_invoice {
 		$this->keterangan->SetVisibility();
 		$this->ppn->SetVisibility();
 		$this->terbayar->SetVisibility();
+		$this->tgl_bayar->SetVisibility();
 		$this->pasal23->SetVisibility();
 		$this->no_kwitansi->SetVisibility();
 		$this->periode->SetVisibility();
@@ -544,6 +545,8 @@ class ct_invoice_add extends ct_invoice {
 		$this->ppn->OldValue = $this->ppn->CurrentValue;
 		$this->terbayar->CurrentValue = NULL;
 		$this->terbayar->OldValue = $this->terbayar->CurrentValue;
+		$this->tgl_bayar->CurrentValue = NULL;
+		$this->tgl_bayar->OldValue = $this->tgl_bayar->CurrentValue;
 		$this->pasal23->CurrentValue = NULL;
 		$this->pasal23->OldValue = $this->pasal23->CurrentValue;
 		$this->no_kwitansi->CurrentValue = NULL;
@@ -588,6 +591,10 @@ class ct_invoice_add extends ct_invoice {
 		if (!$this->terbayar->FldIsDetailKey) {
 			$this->terbayar->setFormValue($objForm->GetValue("x_terbayar"));
 		}
+		if (!$this->tgl_bayar->FldIsDetailKey) {
+			$this->tgl_bayar->setFormValue($objForm->GetValue("x_tgl_bayar"));
+			$this->tgl_bayar->CurrentValue = ew_UnFormatDateTime($this->tgl_bayar->CurrentValue, 0);
+		}
 		if (!$this->pasal23->FldIsDetailKey) {
 			$this->pasal23->setFormValue($objForm->GetValue("x_pasal23"));
 		}
@@ -615,6 +622,8 @@ class ct_invoice_add extends ct_invoice {
 		$this->keterangan->CurrentValue = $this->keterangan->FormValue;
 		$this->ppn->CurrentValue = $this->ppn->FormValue;
 		$this->terbayar->CurrentValue = $this->terbayar->FormValue;
+		$this->tgl_bayar->CurrentValue = $this->tgl_bayar->FormValue;
+		$this->tgl_bayar->CurrentValue = ew_UnFormatDateTime($this->tgl_bayar->CurrentValue, 0);
 		$this->pasal23->CurrentValue = $this->pasal23->FormValue;
 		$this->no_kwitansi->CurrentValue = $this->no_kwitansi->FormValue;
 		$this->periode->CurrentValue = $this->periode->FormValue;
@@ -669,6 +678,7 @@ class ct_invoice_add extends ct_invoice {
 		$this->total_ppn->setDbValue($rs->fields('total_ppn'));
 		$this->terbilang->setDbValue($rs->fields('terbilang'));
 		$this->terbayar->setDbValue($rs->fields('terbayar'));
+		$this->tgl_bayar->setDbValue($rs->fields('tgl_bayar'));
 		$this->pasal23->setDbValue($rs->fields('pasal23'));
 		$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
 		$this->periode->setDbValue($rs->fields('periode'));
@@ -692,6 +702,7 @@ class ct_invoice_add extends ct_invoice {
 		$this->total_ppn->DbValue = $row['total_ppn'];
 		$this->terbilang->DbValue = $row['terbilang'];
 		$this->terbayar->DbValue = $row['terbayar'];
+		$this->tgl_bayar->DbValue = $row['tgl_bayar'];
 		$this->pasal23->DbValue = $row['pasal23'];
 		$this->no_kwitansi->DbValue = $row['no_kwitansi'];
 		$this->periode->DbValue = $row['periode'];
@@ -744,6 +755,7 @@ class ct_invoice_add extends ct_invoice {
 		// total_ppn
 		// terbilang
 		// terbayar
+		// tgl_bayar
 		// pasal23
 		// no_kwitansi
 		// periode
@@ -840,6 +852,11 @@ class ct_invoice_add extends ct_invoice {
 		}
 		$this->terbayar->ViewCustomAttributes = "";
 
+		// tgl_bayar
+		$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
+		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 0);
+		$this->tgl_bayar->ViewCustomAttributes = "";
+
 		// pasal23
 		if (strval($this->pasal23->CurrentValue) <> "") {
 			$this->pasal23->ViewValue = $this->pasal23->OptionCaption($this->pasal23->CurrentValue);
@@ -906,6 +923,11 @@ class ct_invoice_add extends ct_invoice {
 			$this->terbayar->LinkCustomAttributes = "";
 			$this->terbayar->HrefValue = "";
 			$this->terbayar->TooltipValue = "";
+
+			// tgl_bayar
+			$this->tgl_bayar->LinkCustomAttributes = "";
+			$this->tgl_bayar->HrefValue = "";
+			$this->tgl_bayar->TooltipValue = "";
 
 			// pasal23
 			$this->pasal23->LinkCustomAttributes = "";
@@ -1000,6 +1022,12 @@ class ct_invoice_add extends ct_invoice {
 			$this->terbayar->EditCustomAttributes = "";
 			$this->terbayar->EditValue = $this->terbayar->Options(FALSE);
 
+			// tgl_bayar
+			$this->tgl_bayar->EditAttrs["class"] = "form-control";
+			$this->tgl_bayar->EditCustomAttributes = "";
+			$this->tgl_bayar->EditValue = ew_HtmlEncode(ew_FormatDateTime($this->tgl_bayar->CurrentValue, 8));
+			$this->tgl_bayar->PlaceHolder = ew_RemoveHtml($this->tgl_bayar->FldCaption());
+
 			// pasal23
 			$this->pasal23->EditCustomAttributes = "";
 			$this->pasal23->EditValue = $this->pasal23->Options(FALSE);
@@ -1057,6 +1085,10 @@ class ct_invoice_add extends ct_invoice {
 			// terbayar
 			$this->terbayar->LinkCustomAttributes = "";
 			$this->terbayar->HrefValue = "";
+
+			// tgl_bayar
+			$this->tgl_bayar->LinkCustomAttributes = "";
+			$this->tgl_bayar->HrefValue = "";
 
 			// pasal23
 			$this->pasal23->LinkCustomAttributes = "";
@@ -1126,6 +1158,9 @@ class ct_invoice_add extends ct_invoice {
 		}
 		if ($this->terbayar->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->terbayar->FldCaption(), $this->terbayar->ReqErrMsg));
+		}
+		if (!ew_CheckDateDef($this->tgl_bayar->FormValue)) {
+			ew_AddMessage($gsFormError, $this->tgl_bayar->FldErrMsg());
 		}
 		if ($this->pasal23->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->pasal23->FldCaption(), $this->pasal23->ReqErrMsg));
@@ -1207,6 +1242,9 @@ class ct_invoice_add extends ct_invoice {
 
 		// terbayar
 		$this->terbayar->SetDbValueDef($rsnew, $this->terbayar->CurrentValue, 0, FALSE);
+
+		// tgl_bayar
+		$this->tgl_bayar->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->tgl_bayar->CurrentValue, 0), NULL, FALSE);
 
 		// pasal23
 		$this->pasal23->SetDbValueDef($rsnew, $this->pasal23->CurrentValue, 0, FALSE);
@@ -1567,6 +1605,9 @@ ft_invoiceadd.Validate = function() {
 			elm = this.GetElements("x" + infix + "_terbayar");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t_invoice->terbayar->FldCaption(), $t_invoice->terbayar->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_tgl_bayar");
+			if (elm && !ew_CheckDateDef(elm.value))
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t_invoice->tgl_bayar->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_pasal23");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t_invoice->pasal23->FldCaption(), $t_invoice->pasal23->ReqErrMsg)) ?>");
@@ -1759,6 +1800,16 @@ ew_CreateCalendar("ft_invoiceadd", "x_tanggal", 7);
 </div></div>
 </span>
 <?php echo $t_invoice->terbayar->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+<?php if ($t_invoice->tgl_bayar->Visible) { // tgl_bayar ?>
+	<div id="r_tgl_bayar" class="form-group">
+		<label id="elh_t_invoice_tgl_bayar" for="x_tgl_bayar" class="col-sm-2 control-label ewLabel"><?php echo $t_invoice->tgl_bayar->FldCaption() ?></label>
+		<div class="col-sm-10"><div<?php echo $t_invoice->tgl_bayar->CellAttributes() ?>>
+<span id="el_t_invoice_tgl_bayar">
+<input type="text" data-table="t_invoice" data-field="x_tgl_bayar" name="x_tgl_bayar" id="x_tgl_bayar" placeholder="<?php echo ew_HtmlEncode($t_invoice->tgl_bayar->getPlaceHolder()) ?>" value="<?php echo $t_invoice->tgl_bayar->EditValue ?>"<?php echo $t_invoice->tgl_bayar->EditAttributes() ?>>
+</span>
+<?php echo $t_invoice->tgl_bayar->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
 <?php if ($t_invoice->pasal23->Visible) { // pasal23 ?>

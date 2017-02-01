@@ -13,6 +13,7 @@
 // total_ppn
 // terbilang
 // terbayar
+// tgl_bayar
 // pasal23
 // no_kwitansi
 // periode
@@ -162,6 +163,17 @@
 <span id="el_t_invoice_terbayar">
 <span<?php echo $t_invoice->terbayar->ViewAttributes() ?>>
 <?php echo $t_invoice->terbayar->ListViewValue() ?></span>
+</span>
+</td>
+		</tr>
+<?php } ?>
+<?php if ($t_invoice->tgl_bayar->Visible) { // tgl_bayar ?>
+		<tr id="r_tgl_bayar">
+			<td><?php echo $t_invoice->tgl_bayar->FldCaption() ?></td>
+			<td<?php echo $t_invoice->tgl_bayar->CellAttributes() ?>>
+<span id="el_t_invoice_tgl_bayar">
+<span<?php echo $t_invoice->tgl_bayar->ViewAttributes() ?>>
+<?php echo $t_invoice->tgl_bayar->ListViewValue() ?></span>
 </span>
 </td>
 		</tr>

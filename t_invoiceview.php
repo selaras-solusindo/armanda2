@@ -404,6 +404,7 @@ class ct_invoice_view extends ct_invoice {
 		$this->total_ppn->SetVisibility();
 		$this->terbilang->SetVisibility();
 		$this->terbayar->SetVisibility();
+		$this->tgl_bayar->SetVisibility();
 		$this->pasal23->SetVisibility();
 		$this->no_kwitansi->SetVisibility();
 		$this->periode->SetVisibility();
@@ -827,6 +828,7 @@ class ct_invoice_view extends ct_invoice {
 		$this->total_ppn->setDbValue($rs->fields('total_ppn'));
 		$this->terbilang->setDbValue($rs->fields('terbilang'));
 		$this->terbayar->setDbValue($rs->fields('terbayar'));
+		$this->tgl_bayar->setDbValue($rs->fields('tgl_bayar'));
 		$this->pasal23->setDbValue($rs->fields('pasal23'));
 		$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
 		$this->periode->setDbValue($rs->fields('periode'));
@@ -850,6 +852,7 @@ class ct_invoice_view extends ct_invoice {
 		$this->total_ppn->DbValue = $row['total_ppn'];
 		$this->terbilang->DbValue = $row['terbilang'];
 		$this->terbayar->DbValue = $row['terbayar'];
+		$this->tgl_bayar->DbValue = $row['tgl_bayar'];
 		$this->pasal23->DbValue = $row['pasal23'];
 		$this->no_kwitansi->DbValue = $row['no_kwitansi'];
 		$this->periode->DbValue = $row['periode'];
@@ -893,6 +896,7 @@ class ct_invoice_view extends ct_invoice {
 		// total_ppn
 		// terbilang
 		// terbayar
+		// tgl_bayar
 		// pasal23
 		// no_kwitansi
 		// periode
@@ -989,6 +993,11 @@ class ct_invoice_view extends ct_invoice {
 		}
 		$this->terbayar->ViewCustomAttributes = "";
 
+		// tgl_bayar
+		$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
+		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 0);
+		$this->tgl_bayar->ViewCustomAttributes = "";
+
 		// pasal23
 		if (strval($this->pasal23->CurrentValue) <> "") {
 			$this->pasal23->ViewValue = $this->pasal23->OptionCaption($this->pasal23->CurrentValue);
@@ -1070,6 +1079,11 @@ class ct_invoice_view extends ct_invoice {
 			$this->terbayar->LinkCustomAttributes = "";
 			$this->terbayar->HrefValue = "";
 			$this->terbayar->TooltipValue = "";
+
+			// tgl_bayar
+			$this->tgl_bayar->LinkCustomAttributes = "";
+			$this->tgl_bayar->HrefValue = "";
+			$this->tgl_bayar->TooltipValue = "";
 
 			// pasal23
 			$this->pasal23->LinkCustomAttributes = "";
@@ -1774,6 +1788,17 @@ $t_invoice_view->ShowMessage();
 <span id="el_t_invoice_terbayar">
 <span<?php echo $t_invoice->terbayar->ViewAttributes() ?>>
 <?php echo $t_invoice->terbayar->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
+<?php if ($t_invoice->tgl_bayar->Visible) { // tgl_bayar ?>
+	<tr id="r_tgl_bayar">
+		<td><span id="elh_t_invoice_tgl_bayar"><?php echo $t_invoice->tgl_bayar->FldCaption() ?></span></td>
+		<td data-name="tgl_bayar"<?php echo $t_invoice->tgl_bayar->CellAttributes() ?>>
+<span id="el_t_invoice_tgl_bayar">
+<span<?php echo $t_invoice->tgl_bayar->ViewAttributes() ?>>
+<?php echo $t_invoice->tgl_bayar->ViewValue ?></span>
 </span>
 </td>
 	</tr>

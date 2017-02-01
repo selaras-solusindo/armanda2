@@ -16,6 +16,7 @@ class cv_rekap_invoice_all extends cTable {
 	var $no_kwitansi;
 	var $tgl_pelaksanaan;
 	var $periode;
+	var $tgl_bayar;
 
 	//
 	// Table class constructor
@@ -95,6 +96,12 @@ class cv_rekap_invoice_all extends cTable {
 		$this->periode->Sortable = TRUE; // Allow sort
 		$this->periode->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_FORMAT"], $Language->Phrase("IncorrectDate"));
 		$this->fields['periode'] = &$this->periode;
+
+		// tgl_bayar
+		$this->tgl_bayar = new cField('v_rekap_invoice_all', 'v_rekap_invoice_all', 'x_tgl_bayar', 'tgl_bayar', '`tgl_bayar`', ew_CastDateFieldForLike('`tgl_bayar`', 0, "DB"), 133, 0, FALSE, '`tgl_bayar`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->tgl_bayar->Sortable = TRUE; // Allow sort
+		$this->tgl_bayar->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_FORMAT"], $Language->Phrase("IncorrectDate"));
+		$this->fields['tgl_bayar'] = &$this->tgl_bayar;
 	}
 
 	// Set Field Visibility
@@ -586,6 +593,7 @@ class cv_rekap_invoice_all extends cTable {
 		$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
 		$this->tgl_pelaksanaan->setDbValue($rs->fields('tgl_pelaksanaan'));
 		$this->periode->setDbValue($rs->fields('periode'));
+		$this->tgl_bayar->setDbValue($rs->fields('tgl_bayar'));
 	}
 
 	// Render list row values
@@ -605,6 +613,7 @@ class cv_rekap_invoice_all extends cTable {
 		// no_kwitansi
 		// tgl_pelaksanaan
 		// periode
+		// tgl_bayar
 		// nama
 
 		$this->nama->ViewValue = $this->nama->CurrentValue;
@@ -643,6 +652,11 @@ class cv_rekap_invoice_all extends cTable {
 		$this->periode->ViewValue = $this->periode->CurrentValue;
 		$this->periode->ViewValue = ew_FormatDateTime($this->periode->ViewValue, 0);
 		$this->periode->ViewCustomAttributes = "";
+
+		// tgl_bayar
+		$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
+		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 0);
+		$this->tgl_bayar->ViewCustomAttributes = "";
 
 		// nama
 		$this->nama->LinkCustomAttributes = "";
@@ -688,6 +702,11 @@ class cv_rekap_invoice_all extends cTable {
 		$this->periode->LinkCustomAttributes = "";
 		$this->periode->HrefValue = "";
 		$this->periode->TooltipValue = "";
+
+		// tgl_bayar
+		$this->tgl_bayar->LinkCustomAttributes = "";
+		$this->tgl_bayar->HrefValue = "";
+		$this->tgl_bayar->TooltipValue = "";
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -755,6 +774,12 @@ class cv_rekap_invoice_all extends cTable {
 		$this->periode->EditValue = ew_FormatDateTime($this->periode->CurrentValue, 8);
 		$this->periode->PlaceHolder = ew_RemoveHtml($this->periode->FldCaption());
 
+		// tgl_bayar
+		$this->tgl_bayar->EditAttrs["class"] = "form-control";
+		$this->tgl_bayar->EditCustomAttributes = "";
+		$this->tgl_bayar->EditValue = ew_FormatDateTime($this->tgl_bayar->CurrentValue, 8);
+		$this->tgl_bayar->PlaceHolder = ew_RemoveHtml($this->tgl_bayar->FldCaption());
+
 		// Call Row Rendered event
 		$this->Row_Rendered();
 	}
@@ -791,6 +816,7 @@ class cv_rekap_invoice_all extends cTable {
 					if ($this->no_kwitansi->Exportable) $Doc->ExportCaption($this->no_kwitansi);
 					if ($this->tgl_pelaksanaan->Exportable) $Doc->ExportCaption($this->tgl_pelaksanaan);
 					if ($this->periode->Exportable) $Doc->ExportCaption($this->periode);
+					if ($this->tgl_bayar->Exportable) $Doc->ExportCaption($this->tgl_bayar);
 				} else {
 					if ($this->nama->Exportable) $Doc->ExportCaption($this->nama);
 					if ($this->invoice_id->Exportable) $Doc->ExportCaption($this->invoice_id);
@@ -799,6 +825,7 @@ class cv_rekap_invoice_all extends cTable {
 					if ($this->total_ppn->Exportable) $Doc->ExportCaption($this->total_ppn);
 					if ($this->no_kwitansi->Exportable) $Doc->ExportCaption($this->no_kwitansi);
 					if ($this->periode->Exportable) $Doc->ExportCaption($this->periode);
+					if ($this->tgl_bayar->Exportable) $Doc->ExportCaption($this->tgl_bayar);
 				}
 				$Doc->EndExportRow();
 			}
@@ -839,6 +866,7 @@ class cv_rekap_invoice_all extends cTable {
 						if ($this->no_kwitansi->Exportable) $Doc->ExportField($this->no_kwitansi);
 						if ($this->tgl_pelaksanaan->Exportable) $Doc->ExportField($this->tgl_pelaksanaan);
 						if ($this->periode->Exportable) $Doc->ExportField($this->periode);
+						if ($this->tgl_bayar->Exportable) $Doc->ExportField($this->tgl_bayar);
 					} else {
 						if ($this->nama->Exportable) $Doc->ExportField($this->nama);
 						if ($this->invoice_id->Exportable) $Doc->ExportField($this->invoice_id);
@@ -847,6 +875,7 @@ class cv_rekap_invoice_all extends cTable {
 						if ($this->total_ppn->Exportable) $Doc->ExportField($this->total_ppn);
 						if ($this->no_kwitansi->Exportable) $Doc->ExportField($this->no_kwitansi);
 						if ($this->periode->Exportable) $Doc->ExportField($this->periode);
+						if ($this->tgl_bayar->Exportable) $Doc->ExportField($this->tgl_bayar);
 					}
 					$Doc->EndExportRow();
 				}

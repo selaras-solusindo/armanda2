@@ -18,6 +18,7 @@ class crr_rekap_invoice_all extends crTableBase {
 	var $tgl_pelaksanaan;
 	var $total_ppn;
 	var $invoice_id;
+	var $tgl_bayar;
 
 	//
 	// Table class constructor
@@ -113,6 +114,15 @@ class crr_rekap_invoice_all extends crTableBase {
 		$this->invoice_id->DateFilter = "";
 		$this->invoice_id->SqlSelect = "";
 		$this->invoice_id->SqlOrderBy = "";
+
+		// tgl_bayar
+		$this->tgl_bayar = new crField('r_rekap_invoice_all', 'r_rekap_invoice_all', 'x_tgl_bayar', 'tgl_bayar', '`tgl_bayar`', 133, EWR_DATATYPE_DATE, 0);
+		$this->tgl_bayar->Sortable = TRUE; // Allow sort
+		$this->tgl_bayar->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EWR_DATE_FORMAT"], $ReportLanguage->Phrase("IncorrectDate"));
+		$this->fields['tgl_bayar'] = &$this->tgl_bayar;
+		$this->tgl_bayar->DateFilter = "";
+		$this->tgl_bayar->SqlSelect = "";
+		$this->tgl_bayar->SqlOrderBy = "";
 	}
 
 	// Set Field Visibility
