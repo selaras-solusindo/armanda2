@@ -818,7 +818,7 @@
         <phrase id="fldcaption" value="Customer" />
       </field>
       <field id="tgl_pelaksanaan">
-        <phrase id="fldcaption" value="Tgl. Kegiatan" />
+        <phrase id="fldcaption" value="Tgl. Pelaksanaan" />
       </field>
       <field id="no_kwitansi">
         <phrase id="fldcaption" value="No. KW." />
