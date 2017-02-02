@@ -840,12 +840,6 @@ class ct_invoice_fee_add extends ct_invoice_fee {
 		if (!ew_CheckNumber($this->qty->FormValue)) {
 			ew_AddMessage($gsFormError, $this->qty->FldErrMsg());
 		}
-		if (!$this->satuan->FldIsDetailKey && !is_null($this->satuan->FormValue) && $this->satuan->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->satuan->FldCaption(), $this->satuan->ReqErrMsg));
-		}
-		if (!$this->keterangan->FldIsDetailKey && !is_null($this->keterangan->FormValue) && $this->keterangan->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->keterangan->FldCaption(), $this->keterangan->ReqErrMsg));
-		}
 
 		// Return validate result
 		$ValidateForm = ($gsFormError == "");
@@ -880,10 +874,10 @@ class ct_invoice_fee_add extends ct_invoice_fee {
 		$this->qty->SetDbValueDef($rsnew, $this->qty->CurrentValue, 0, FALSE);
 
 		// satuan
-		$this->satuan->SetDbValueDef($rsnew, $this->satuan->CurrentValue, "", FALSE);
+		$this->satuan->SetDbValueDef($rsnew, $this->satuan->CurrentValue, NULL, FALSE);
 
 		// keterangan
-		$this->keterangan->SetDbValueDef($rsnew, $this->keterangan->CurrentValue, "", FALSE);
+		$this->keterangan->SetDbValueDef($rsnew, $this->keterangan->CurrentValue, NULL, FALSE);
 
 		// invoice_id
 		if ($this->invoice_id->getSessionValue() <> "") {
@@ -1187,12 +1181,6 @@ ft_invoice_feeadd.Validate = function() {
 			elm = this.GetElements("x" + infix + "_qty");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t_invoice_fee->qty->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_satuan");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t_invoice_fee->satuan->FldCaption(), $t_invoice_fee->satuan->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_keterangan");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t_invoice_fee->keterangan->FldCaption(), $t_invoice_fee->keterangan->ReqErrMsg)) ?>");
 
 			// Fire Form_CustomValidate event
 			if (!this.Form_CustomValidate(fobj))
@@ -1296,7 +1284,7 @@ $t_invoice_fee_add->ShowMessage();
 <?php } ?>
 <?php if ($t_invoice_fee->satuan->Visible) { // satuan ?>
 	<div id="r_satuan" class="form-group">
-		<label id="elh_t_invoice_fee_satuan" for="x_satuan" class="col-sm-2 control-label ewLabel"><?php echo $t_invoice_fee->satuan->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<label id="elh_t_invoice_fee_satuan" for="x_satuan" class="col-sm-2 control-label ewLabel"><?php echo $t_invoice_fee->satuan->FldCaption() ?></label>
 		<div class="col-sm-10"><div<?php echo $t_invoice_fee->satuan->CellAttributes() ?>>
 <span id="el_t_invoice_fee_satuan">
 <input type="text" data-table="t_invoice_fee" data-field="x_satuan" name="x_satuan" id="x_satuan" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t_invoice_fee->satuan->getPlaceHolder()) ?>" value="<?php echo $t_invoice_fee->satuan->EditValue ?>"<?php echo $t_invoice_fee->satuan->EditAttributes() ?>>
@@ -1306,7 +1294,7 @@ $t_invoice_fee_add->ShowMessage();
 <?php } ?>
 <?php if ($t_invoice_fee->keterangan->Visible) { // keterangan ?>
 	<div id="r_keterangan" class="form-group">
-		<label id="elh_t_invoice_fee_keterangan" for="x_keterangan" class="col-sm-2 control-label ewLabel"><?php echo $t_invoice_fee->keterangan->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<label id="elh_t_invoice_fee_keterangan" for="x_keterangan" class="col-sm-2 control-label ewLabel"><?php echo $t_invoice_fee->keterangan->FldCaption() ?></label>
 		<div class="col-sm-10"><div<?php echo $t_invoice_fee->keterangan->CellAttributes() ?>>
 <span id="el_t_invoice_fee_keterangan">
 <textarea data-table="t_invoice_fee" data-field="x_keterangan" name="x_keterangan" id="x_keterangan" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($t_invoice_fee->keterangan->getPlaceHolder()) ?>"<?php echo $t_invoice_fee->keterangan->EditAttributes() ?>><?php echo $t_invoice_fee->keterangan->EditValue ?></textarea>

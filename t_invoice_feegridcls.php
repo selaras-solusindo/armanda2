@@ -1694,14 +1694,8 @@ class ct_invoice_fee_grid extends ct_invoice_fee {
 		if (!ew_CheckNumber($this->qty->FormValue)) {
 			ew_AddMessage($gsFormError, $this->qty->FldErrMsg());
 		}
-		if (!$this->satuan->FldIsDetailKey && !is_null($this->satuan->FormValue) && $this->satuan->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->satuan->FldCaption(), $this->satuan->ReqErrMsg));
-		}
 		if (!ew_CheckNumber($this->jumlah->FormValue)) {
 			ew_AddMessage($gsFormError, $this->jumlah->FldErrMsg());
-		}
-		if (!$this->keterangan->FldIsDetailKey && !is_null($this->keterangan->FormValue) && $this->keterangan->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->keterangan->FldCaption(), $this->keterangan->ReqErrMsg));
 		}
 
 		// Return validate result
@@ -1835,13 +1829,13 @@ class ct_invoice_fee_grid extends ct_invoice_fee {
 			$this->qty->SetDbValueDef($rsnew, $this->qty->CurrentValue, 0, $this->qty->ReadOnly);
 
 			// satuan
-			$this->satuan->SetDbValueDef($rsnew, $this->satuan->CurrentValue, "", $this->satuan->ReadOnly);
+			$this->satuan->SetDbValueDef($rsnew, $this->satuan->CurrentValue, NULL, $this->satuan->ReadOnly);
 
 			// jumlah
 			$this->jumlah->SetDbValueDef($rsnew, $this->jumlah->CurrentValue, NULL, $this->jumlah->ReadOnly);
 
 			// keterangan
-			$this->keterangan->SetDbValueDef($rsnew, $this->keterangan->CurrentValue, "", $this->keterangan->ReadOnly);
+			$this->keterangan->SetDbValueDef($rsnew, $this->keterangan->CurrentValue, NULL, $this->keterangan->ReadOnly);
 
 			// Call Row Updating event
 			$bUpdateRow = $this->Row_Updating($rsold, $rsnew);
@@ -1904,13 +1898,13 @@ class ct_invoice_fee_grid extends ct_invoice_fee {
 		$this->qty->SetDbValueDef($rsnew, $this->qty->CurrentValue, 0, FALSE);
 
 		// satuan
-		$this->satuan->SetDbValueDef($rsnew, $this->satuan->CurrentValue, "", FALSE);
+		$this->satuan->SetDbValueDef($rsnew, $this->satuan->CurrentValue, NULL, FALSE);
 
 		// jumlah
 		$this->jumlah->SetDbValueDef($rsnew, $this->jumlah->CurrentValue, NULL, FALSE);
 
 		// keterangan
-		$this->keterangan->SetDbValueDef($rsnew, $this->keterangan->CurrentValue, "", FALSE);
+		$this->keterangan->SetDbValueDef($rsnew, $this->keterangan->CurrentValue, NULL, FALSE);
 
 		// invoice_id
 		if ($this->invoice_id->getSessionValue() <> "") {

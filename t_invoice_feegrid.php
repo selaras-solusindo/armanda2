@@ -56,15 +56,9 @@ ft_invoice_feegrid.Validate = function() {
 			elm = this.GetElements("x" + infix + "_qty");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t_invoice_fee->qty->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_satuan");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t_invoice_fee->satuan->FldCaption(), $t_invoice_fee->satuan->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_jumlah");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t_invoice_fee->jumlah->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_keterangan");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t_invoice_fee->keterangan->FldCaption(), $t_invoice_fee->keterangan->ReqErrMsg)) ?>");
 
 			// Fire Form_CustomValidate event
 			if (!this.Form_CustomValidate(fobj))
