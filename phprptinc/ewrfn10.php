@@ -7411,7 +7411,7 @@ function ewr_AdjustEmailContent($content) {
 	foreach ($tables as $table) {
 		if (ewr_ContainsText($table->getAttribute("class"), "ewExportTable")) {
 			if ($table->hasAttribute("style"))
-				$table->setAttribute("style", $table->getAttribute("style") . $tableStyles);
+				$table->setAttribute("style", $cell->getAttribute("style") . $tableStyles);
 			else
 				$table->setAttribute("style", $tableStyles);
 			$rows = $table->getElementsByTagName("tr");
