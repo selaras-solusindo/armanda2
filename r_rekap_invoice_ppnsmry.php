@@ -1868,6 +1868,9 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		$orderBy = (@$options["order"] <> "") ? @$options["order"] : ewr_StripSlashes(@$_GET["order"]);
 		$orderType = (@$options["ordertype"] <> "") ? @$options["ordertype"] : ewr_StripSlashes(@$_GET["ordertype"]);
 
+		// Check for Ctrl pressed
+		$bCtrl = (@$_GET["ctrl"] <> "");
+
 		// Check for a resetsort command
 		if ($bResetSort) {
 			$this->setOrderBy("");
@@ -1885,6 +1888,14 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		} elseif ($orderBy <> "") {
 			$this->CurrentOrder = $orderBy;
 			$this->CurrentOrderType = $orderType;
+			$this->UpdateSort($this->periode, $bCtrl); // periode
+			$this->UpdateSort($this->tanggal, $bCtrl); // tanggal
+			$this->UpdateSort($this->nama, $bCtrl); // nama
+			$this->UpdateSort($this->no_kwitansi, $bCtrl); // no_kwitansi
+			$this->UpdateSort($this->nomor, $bCtrl); // nomor
+			$this->UpdateSort($this->no_referensi, $bCtrl); // no_referensi
+			$this->UpdateSort($this->nilai_ppn, $bCtrl); // nilai_ppn
+			$this->UpdateSort($this->total_ppn, $bCtrl); // total_ppn
 			$sSortSql = $this->SortSql();
 			$this->setOrderBy($sSortSql);
 			$this->setStartGroup(1);
@@ -2417,7 +2428,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->periode->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_periode" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->periode) ?>',0);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_periode" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->periode) ?>',2);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->periode->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->periode->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->periode->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2436,7 +2447,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->tanggal->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_tanggal" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->tanggal) ?>',0);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_tanggal" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->tanggal) ?>',2);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->tanggal->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->tanggal->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->tanggal->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2454,7 +2465,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->nama->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_nama" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nama) ?>',0);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_nama" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nama) ?>',2);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->nama->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->nama->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->nama->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2472,7 +2483,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->no_kwitansi->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_no_kwitansi" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->no_kwitansi) ?>',0);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_no_kwitansi" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->no_kwitansi) ?>',2);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->no_kwitansi->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->no_kwitansi->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->no_kwitansi->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2490,7 +2501,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->nomor->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_nomor" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nomor) ?>',0);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_nomor" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nomor) ?>',2);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->nomor->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->nomor->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->nomor->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2508,7 +2519,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->no_referensi->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_no_referensi" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->no_referensi) ?>',0);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_no_referensi" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->no_referensi) ?>',2);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->no_referensi->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->no_referensi->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->no_referensi->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2526,7 +2537,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->nilai_ppn->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_nilai_ppn" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nilai_ppn) ?>',0);" style="text-align: right;">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_nilai_ppn" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nilai_ppn) ?>',2);" style="text-align: right;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->nilai_ppn->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->nilai_ppn->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->nilai_ppn->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2544,7 +2555,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->total_ppn->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_total_ppn" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->total_ppn) ?>',0);" style="text-align: right;">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_total_ppn" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->total_ppn) ?>',2);" style="text-align: right;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->total_ppn->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->total_ppn->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->total_ppn->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2601,7 +2612,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->periode->FldCaption() ?></span>
 		</span>
 	<?php } else { ?>
-		<span class="ewTableHeaderBtn ewPointer ewSummaryCaption r_rekap_invoice_ppn_periode" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->periode) ?>',0);">
+		<span class="ewTableHeaderBtn ewPointer ewSummaryCaption r_rekap_invoice_ppn_periode" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->periode) ?>',2);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->periode->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->periode->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->periode->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</span>

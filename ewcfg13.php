@@ -25,7 +25,7 @@ define("EW_CONFIG_FILE_FOLDER", EW_PROJECT_NAME, TRUE); // Config file name
 define("EW_PROJECT_ID", "{02A4272B-E84A-463D-9ED2-75398DF0A44A}", TRUE); // Project ID (GUID)
 $EW_RELATED_PROJECT_ID = "";
 $EW_RELATED_LANGUAGE_FOLDER = "";
-define("EW_RANDOM_KEY", 'CknJ1b20mxPwY7zI', TRUE); // Random key for encryption
+define("EW_RANDOM_KEY", 'sOfH4TWLZAMM4OT5', TRUE); // Random key for encryption
 define("EW_PROJECT_STYLESHEET_FILENAME", "phpcss/armanda2.css", TRUE); // Project stylesheet file name
 define("EW_CHARSET", "", TRUE); // Project charset
 define("EW_EMAIL_CHARSET", EW_CHARSET, TRUE); // Email charset
@@ -761,7 +761,7 @@ define("EW_NOT_NULL_VALUE", "##notnull##", TRUE);
 define("EW_SEARCH_MULTI_VALUE_OPTION", 3, TRUE);
 
 // Quick search
-define("EW_BASIC_SEARCH_IGNORE_PATTERN", "/[\?,\.\^\*\(\)\[\]\\\"]/", TRUE); // Ignore special characters
+$EW_BASIC_SEARCH_IGNORE_PATTERN = "/[\?,\.\^\*\(\)\[\]\\\"]/"; // Ignore special characters
 define("EW_BASIC_SEARCH_ANY_FIELDS", FALSE, TRUE); // Search "All keywords" in any selected fields
 
 // Validate option

@@ -1757,6 +1757,9 @@ class crr_rekap_hutang_summary extends crr_rekap_hutang {
 		$orderBy = (@$options["order"] <> "") ? @$options["order"] : ewr_StripSlashes(@$_GET["order"]);
 		$orderType = (@$options["ordertype"] <> "") ? @$options["ordertype"] : ewr_StripSlashes(@$_GET["ordertype"]);
 
+		// Check for Ctrl pressed
+		$bCtrl = (@$_GET["ctrl"] <> "");
+
 		// Check for a resetsort command
 		if ($bResetSort) {
 			$this->setOrderBy("");
@@ -1771,6 +1774,11 @@ class crr_rekap_hutang_summary extends crr_rekap_hutang {
 		} elseif ($orderBy <> "") {
 			$this->CurrentOrder = $orderBy;
 			$this->CurrentOrderType = $orderType;
+			$this->UpdateSort($this->nama, $bCtrl); // nama
+			$this->UpdateSort($this->tgl_pelaksanaan, $bCtrl); // tgl_pelaksanaan
+			$this->UpdateSort($this->no_kwitansi, $bCtrl); // no_kwitansi
+			$this->UpdateSort($this->nomor, $bCtrl); // nomor
+			$this->UpdateSort($this->total_ppn, $bCtrl); // total_ppn
 			$sSortSql = $this->SortSql();
 			$this->setOrderBy($sSortSql);
 			$this->setStartGroup(1);
@@ -2303,7 +2311,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->nama->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_hutang_nama" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nama) ?>',0);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_hutang_nama" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nama) ?>',2);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->nama->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->nama->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->nama->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2322,7 +2330,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->tgl_pelaksanaan->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_hutang_tgl_pelaksanaan" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->tgl_pelaksanaan) ?>',0);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_hutang_tgl_pelaksanaan" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->tgl_pelaksanaan) ?>',2);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->tgl_pelaksanaan->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->tgl_pelaksanaan->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->tgl_pelaksanaan->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2340,7 +2348,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->no_kwitansi->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_hutang_no_kwitansi" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->no_kwitansi) ?>',0);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_hutang_no_kwitansi" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->no_kwitansi) ?>',2);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->no_kwitansi->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->no_kwitansi->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->no_kwitansi->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2358,7 +2366,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->nomor->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_hutang_nomor" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nomor) ?>',0);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_hutang_nomor" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nomor) ?>',2);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->nomor->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->nomor->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->nomor->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2376,7 +2384,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->total_ppn->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_hutang_total_ppn" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->total_ppn) ?>',0);" style="text-align: right;">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_hutang_total_ppn" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->total_ppn) ?>',2);" style="text-align: right;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->total_ppn->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->total_ppn->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->total_ppn->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2433,7 +2441,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			<span class="ewTableHeaderCaption"><?php echo $Page->nama->FldCaption() ?></span>
 		</span>
 	<?php } else { ?>
-		<span class="ewTableHeaderBtn ewPointer ewSummaryCaption r_rekap_hutang_nama" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nama) ?>',0);">
+		<span class="ewTableHeaderBtn ewPointer ewSummaryCaption r_rekap_hutang_nama" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nama) ?>',2);">
 			<span class="ewTableHeaderCaption"><?php echo $Page->nama->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->nama->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->nama->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</span>
