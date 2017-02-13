@@ -209,7 +209,7 @@ while($row = mysql_fetch_array($mquery)) {
 					<td width="200">'.$row["jenis"].'</td>
 					<td width="75" align="right">'.number_format($row["harga"]).'</td>
 					<td width="40" align="center">x</td>
-					<td width="70" align="right">'.number_format($row["qty"], 2, ".", ",").'</td>
+					<td width="70" align="right">'.(is_int($row["qty"]) ? number_format($row["qty"]) : number_format($row["qty"], 2, ".", ",")).'</td>
 					<td width="75"> '.$row["satuan"].' </td>
 					<td width="75"> '.$row["keterangan1"].' </td>
 				</tr>
