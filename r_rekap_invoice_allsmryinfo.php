@@ -444,19 +444,6 @@ class crr_rekap_invoice_all extends crTableBase {
 			if ($sSqlWrk <> "")
 				$fld->LookupFilters["s"] .= $sSqlWrk;
 			break;
-		case "x_tanggal_short":
-			$sSqlWrk = "";
-		$sSqlWrk = "SELECT DISTINCT `tanggal_short`, `tanggal_short` AS `DispFld`, '' AS `DispFld2`, '' AS `DispFld3`, '' AS `DispFld4` FROM `v_rekap_invoice_all`";
-		$sWhereWrk = "";
-		$this->tanggal_short->LookupFilters = array();
-			$fld->LookupFilters += array("s" => $sSqlWrk, "d" => "DB", "f0" => '`tanggal_short` = {filter_value}', "t0" => "200", "fn0" => "");
-			$sSqlWrk = "";
-		$this->Lookup_Selecting($this->tanggal_short, $sWhereWrk); // Call Lookup selecting
-		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-		$sSqlWrk .= " ORDER BY `tanggal_short` ASC";
-			if ($sSqlWrk <> "")
-				$fld->LookupFilters["s"] .= $sSqlWrk;
-			break;
 		}
 	}
 

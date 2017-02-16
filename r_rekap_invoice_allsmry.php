@@ -1433,7 +1433,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 
 			// Load default values
 			$this->SetSessionDropDownValue($this->periode_short->DropDownValue, $this->periode_short->SearchOperator, 'periode_short'); // Field periode_short
-			$this->SetSessionDropDownValue($this->tanggal_short->DropDownValue, $this->tanggal_short->SearchOperator, 'tanggal_short'); // Field tanggal_short
 
 			//$bSetupFilter = TRUE; // No need to set up, just use default
 		} else {
@@ -1445,13 +1444,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 			} elseif ($this->periode_short->DropDownValue <> EWR_INIT_VALUE && !isset($_SESSION['sv_r_rekap_invoice_all_periode_short'])) {
 				$bSetupFilter = TRUE;
 			}
-
-			// Field tanggal_short
-			if ($this->GetDropDownValue($this->tanggal_short)) {
-				$bSetupFilter = TRUE;
-			} elseif ($this->tanggal_short->DropDownValue <> EWR_INIT_VALUE && !isset($_SESSION['sv_r_rekap_invoice_all_tanggal_short'])) {
-				$bSetupFilter = TRUE;
-			}
 			if (!$this->ValidateForm()) {
 				$this->setFailureMessage($gsFormError);
 				return $sFilter;
@@ -1461,7 +1453,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 		// Restore session
 		if ($bRestoreSession) {
 			$this->GetSessionDropDownValue($this->periode_short); // Field periode_short
-			$this->GetSessionDropDownValue($this->tanggal_short); // Field tanggal_short
 		}
 
 		// Call page filter validated event
@@ -1469,11 +1460,9 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 
 		// Build SQL
 		$this->BuildDropDownFilter($this->periode_short, $sFilter, $this->periode_short->SearchOperator, FALSE, TRUE); // Field periode_short
-		$this->BuildDropDownFilter($this->tanggal_short, $sFilter, $this->tanggal_short->SearchOperator, FALSE, TRUE); // Field tanggal_short
 
 		// Save parms to session
 		$this->SetSessionDropDownValue($this->periode_short->DropDownValue, $this->periode_short->SearchOperator, 'periode_short'); // Field periode_short
-		$this->SetSessionDropDownValue($this->tanggal_short->DropDownValue, $this->tanggal_short->SearchOperator, 'tanggal_short'); // Field tanggal_short
 
 		// Setup filter
 		if ($bSetupFilter) {
@@ -1481,9 +1470,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 
 		// Field periode_short
 		ewr_LoadDropDownList($this->periode_short->DropDownList, $this->periode_short->DropDownValue);
-
-		// Field tanggal_short
-		ewr_LoadDropDownList($this->tanggal_short->DropDownList, $this->tanggal_short->DropDownValue);
 		return $sFilter;
 	}
 
@@ -1788,10 +1774,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 		// Field periode_short
 		$this->periode_short->DefaultDropDownValue = EWR_INIT_VALUE;
 		if (!$this->SearchCommand) $this->periode_short->DropDownValue = $this->periode_short->DefaultDropDownValue;
-
-		// Field tanggal_short
-		$this->tanggal_short->DefaultDropDownValue = EWR_INIT_VALUE;
-		if (!$this->SearchCommand) $this->tanggal_short->DropDownValue = $this->tanggal_short->DefaultDropDownValue;
 		/**
 		* Set up default values for extended filters
 		* function SetDefaultExtFilter(&$fld, $so1, $sv1, $sc, $so2, $sv2)
@@ -1814,10 +1796,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 		// Check periode_short extended filter
 		if ($this->NonTextFilterApplied($this->periode_short))
 			return TRUE;
-
-		// Check tanggal_short extended filter
-		if ($this->NonTextFilterApplied($this->tanggal_short))
-			return TRUE;
 		return FALSE;
 	}
 
@@ -1839,18 +1817,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 			$sFilter .= "<span class=\"ewFilterValue\">$sWrk</span>";
 		if ($sFilter <> "")
 			$sFilterList .= "<div><span class=\"ewFilterCaption\">" . $this->periode_short->FldCaption() . "</span>" . $sFilter . "</div>";
-
-		// Field tanggal_short
-		$sExtWrk = "";
-		$sWrk = "";
-		$this->BuildDropDownFilter($this->tanggal_short, $sExtWrk, $this->tanggal_short->SearchOperator);
-		$sFilter = "";
-		if ($sExtWrk <> "")
-			$sFilter .= "<span class=\"ewFilterValue\">$sExtWrk</span>";
-		elseif ($sWrk <> "")
-			$sFilter .= "<span class=\"ewFilterValue\">$sWrk</span>";
-		if ($sFilter <> "")
-			$sFilterList .= "<div><span class=\"ewFilterCaption\">" . $this->tanggal_short->FldCaption() . "</span>" . $sFilter . "</div>";
 		$divstyle = "";
 		$divdataclass = "";
 
@@ -1880,18 +1846,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 			$sWrk = implode("||", $sWrk);
 		if ($sWrk <> "")
 			$sWrk = "\"sv_periode_short\":\"" . ewr_JsEncode2($sWrk) . "\"";
-		if ($sWrk <> "") {
-			if ($sFilterList <> "") $sFilterList .= ",";
-			$sFilterList .= $sWrk;
-		}
-
-		// Field tanggal_short
-		$sWrk = "";
-		$sWrk = ($this->tanggal_short->DropDownValue <> EWR_INIT_VALUE) ? $this->tanggal_short->DropDownValue : "";
-		if (is_array($sWrk))
-			$sWrk = implode("||", $sWrk);
-		if ($sWrk <> "")
-			$sWrk = "\"sv_tanggal_short\":\"" . ewr_JsEncode2($sWrk) . "\"";
 		if ($sWrk <> "") {
 			if ($sFilterList <> "") $sFilterList .= ",";
 			$sFilterList .= $sWrk;
@@ -1930,19 +1884,6 @@ class crr_rekap_invoice_all_summary extends crr_rekap_invoice_all {
 		}
 		if (!$bRestoreFilter) { // Clear filter
 			$this->SetSessionDropDownValue(EWR_INIT_VALUE, "", "periode_short");
-		}
-
-		// Field tanggal_short
-		$bRestoreFilter = FALSE;
-		if (array_key_exists("sv_tanggal_short", $filter)) {
-			$sWrk = $filter["sv_tanggal_short"];
-			if (strpos($sWrk, "||") !== FALSE)
-				$sWrk = explode("||", $sWrk);
-			$this->SetSessionDropDownValue($sWrk, @$filter["so_tanggal_short"], "tanggal_short");
-			$bRestoreFilter = TRUE;
-		}
-		if (!$bRestoreFilter) { // Clear filter
-			$this->SetSessionDropDownValue(EWR_INIT_VALUE, "", "tanggal_short");
 		}
 		return TRUE;
 	}
@@ -2346,7 +2287,6 @@ fr_rekap_invoice_allsummary.ValidateRequired = false; // No JavaScript validatio
 
 // Use Ajax
 fr_rekap_invoice_allsummary.Lists["sv_periode_short"] = {"LinkField":"sv_periode_short","Ajax":true,"DisplayFields":["sv_periode_short","","",""],"ParentFields":[],"FilterFields":[],"Options":[],"Template":""};
-fr_rekap_invoice_allsummary.Lists["sv_tanggal_short"] = {"LinkField":"sv_tanggal_short","Ajax":true,"DisplayFields":["sv_tanggal_short","","",""],"ParentFields":[],"FilterFields":[],"Options":[],"Template":""};
 </script>
 <?php } ?>
 <?php if ($Page->Export == "" && !$Page->DrillDown) { ?>
@@ -2413,6 +2353,7 @@ if (!$Page->DrillDownInPanel) {
 <div id="c_periode_short" class="ewCell form-group">
 	<label for="sv_periode_short" class="ewSearchCaption ewLabel"><?php echo $Page->periode_short->FldCaption() ?></label>
 	<span class="ewSearchField">
+<?php $Page->periode_short->EditAttrs["onchange"] = "ewrForms(this).Submit(); " . @$Page->periode_short->EditAttrs["onchange"]; ?>
 <?php ewr_PrependClass($Page->periode_short->EditAttrs["class"], "form-control"); ?>
 <select data-table="r_rekap_invoice_all" data-field="x_periode_short" data-value-separator="<?php echo ewr_HtmlEncode(is_array($Page->periode_short->DisplayValueSeparator) ? json_encode($Page->periode_short->DisplayValueSeparator) : $Page->periode_short->DisplayValueSeparator) ?>" id="sv_periode_short" name="sv_periode_short"<?php echo $Page->periode_short->EditAttributes() ?>>
 <option value=""><?php echo $ReportLanguage->Phrase("PleaseSelect") ?></option>
@@ -2444,43 +2385,6 @@ if (!$Page->DrillDownInPanel) {
 <input type="hidden" name="s_sv_periode_short" id="s_sv_periode_short" value="<?php echo $Page->periode_short->LookupFilterQuery() ?>"></span>
 </div>
 </div>
-<div id="r_2" class="ewRow">
-<div id="c_tanggal_short" class="ewCell form-group">
-	<label for="sv_tanggal_short" class="ewSearchCaption ewLabel"><?php echo $Page->tanggal_short->FldCaption() ?></label>
-	<span class="ewSearchField">
-<?php ewr_PrependClass($Page->tanggal_short->EditAttrs["class"], "form-control"); ?>
-<select data-table="r_rekap_invoice_all" data-field="x_tanggal_short" data-value-separator="<?php echo ewr_HtmlEncode(is_array($Page->tanggal_short->DisplayValueSeparator) ? json_encode($Page->tanggal_short->DisplayValueSeparator) : $Page->tanggal_short->DisplayValueSeparator) ?>" id="sv_tanggal_short" name="sv_tanggal_short"<?php echo $Page->tanggal_short->EditAttributes() ?>>
-<option value=""><?php echo $ReportLanguage->Phrase("PleaseSelect") ?></option>
-<?php
-	$cntf = is_array($Page->tanggal_short->AdvancedFilters) ? count($Page->tanggal_short->AdvancedFilters) : 0;
-	$cntd = is_array($Page->tanggal_short->DropDownList) ? count($Page->tanggal_short->DropDownList) : 0;
-	$totcnt = $cntf + $cntd;
-	$wrkcnt = 0;
-	if ($cntf > 0) {
-		foreach ($Page->tanggal_short->AdvancedFilters as $filter) {
-			if ($filter->Enabled) {
-				$selwrk = ewr_MatchedFilterValue($Page->tanggal_short->DropDownValue, $filter->ID) ? " selected" : "";
-?>
-<option value="<?php echo $filter->ID ?>"<?php echo $selwrk ?>><?php echo $filter->Name ?></option>
-<?php
-				$wrkcnt += 1;
-			}
-		}
-	}
-	for ($i = 0; $i < $cntd; $i++) {
-		$selwrk = " selected";
-?>
-<option value="<?php echo $Page->tanggal_short->DropDownList[$i] ?>"<?php echo $selwrk ?>><?php echo ewr_DropDownDisplayValue($Page->tanggal_short->DropDownList[$i], "", 0) ?></option>
-<?php
-		$wrkcnt += 1;
-	}
-?>
-</select>
-<input type="hidden" name="s_sv_tanggal_short" id="s_sv_tanggal_short" value="<?php echo $Page->tanggal_short->LookupFilterQuery() ?>"></span>
-</div>
-</div>
-<div class="ewRow"><input type="submit" name="btnsubmit" id="btnsubmit" class="btn btn-primary" value="<?php echo $ReportLanguage->Phrase("Search") ?>">
-<input type="reset" name="btnreset" id="btnreset" class="btn hide" value="<?php echo $ReportLanguage->Phrase("Reset") ?>"></div>
 </div>
 </form>
 <script type="text/javascript">
