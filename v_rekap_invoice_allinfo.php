@@ -17,6 +17,8 @@ class cv_rekap_invoice_all extends cTable {
 	var $tgl_pelaksanaan;
 	var $periode;
 	var $tgl_bayar;
+	var $tanggal_short;
+	var $periode_short;
 
 	//
 	// Table class constructor
@@ -102,6 +104,16 @@ class cv_rekap_invoice_all extends cTable {
 		$this->tgl_bayar->Sortable = TRUE; // Allow sort
 		$this->tgl_bayar->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_FORMAT"], $Language->Phrase("IncorrectDate"));
 		$this->fields['tgl_bayar'] = &$this->tgl_bayar;
+
+		// tanggal_short
+		$this->tanggal_short = new cField('v_rekap_invoice_all', 'v_rekap_invoice_all', 'x_tanggal_short', 'tanggal_short', '`tanggal_short`', '`tanggal_short`', 200, -1, FALSE, '`tanggal_short`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->tanggal_short->Sortable = TRUE; // Allow sort
+		$this->fields['tanggal_short'] = &$this->tanggal_short;
+
+		// periode_short
+		$this->periode_short = new cField('v_rekap_invoice_all', 'v_rekap_invoice_all', 'x_periode_short', 'periode_short', '`periode_short`', '`periode_short`', 200, -1, FALSE, '`periode_short`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->periode_short->Sortable = TRUE; // Allow sort
+		$this->fields['periode_short'] = &$this->periode_short;
 	}
 
 	// Set Field Visibility
@@ -594,6 +606,8 @@ class cv_rekap_invoice_all extends cTable {
 		$this->tgl_pelaksanaan->setDbValue($rs->fields('tgl_pelaksanaan'));
 		$this->periode->setDbValue($rs->fields('periode'));
 		$this->tgl_bayar->setDbValue($rs->fields('tgl_bayar'));
+		$this->tanggal_short->setDbValue($rs->fields('tanggal_short'));
+		$this->periode_short->setDbValue($rs->fields('periode_short'));
 	}
 
 	// Render list row values
@@ -614,6 +628,8 @@ class cv_rekap_invoice_all extends cTable {
 		// tgl_pelaksanaan
 		// periode
 		// tgl_bayar
+		// tanggal_short
+		// periode_short
 		// nama
 
 		$this->nama->ViewValue = $this->nama->CurrentValue;
@@ -657,6 +673,14 @@ class cv_rekap_invoice_all extends cTable {
 		$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
 		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 0);
 		$this->tgl_bayar->ViewCustomAttributes = "";
+
+		// tanggal_short
+		$this->tanggal_short->ViewValue = $this->tanggal_short->CurrentValue;
+		$this->tanggal_short->ViewCustomAttributes = "";
+
+		// periode_short
+		$this->periode_short->ViewValue = $this->periode_short->CurrentValue;
+		$this->periode_short->ViewCustomAttributes = "";
 
 		// nama
 		$this->nama->LinkCustomAttributes = "";
@@ -707,6 +731,16 @@ class cv_rekap_invoice_all extends cTable {
 		$this->tgl_bayar->LinkCustomAttributes = "";
 		$this->tgl_bayar->HrefValue = "";
 		$this->tgl_bayar->TooltipValue = "";
+
+		// tanggal_short
+		$this->tanggal_short->LinkCustomAttributes = "";
+		$this->tanggal_short->HrefValue = "";
+		$this->tanggal_short->TooltipValue = "";
+
+		// periode_short
+		$this->periode_short->LinkCustomAttributes = "";
+		$this->periode_short->HrefValue = "";
+		$this->periode_short->TooltipValue = "";
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -780,6 +814,18 @@ class cv_rekap_invoice_all extends cTable {
 		$this->tgl_bayar->EditValue = ew_FormatDateTime($this->tgl_bayar->CurrentValue, 8);
 		$this->tgl_bayar->PlaceHolder = ew_RemoveHtml($this->tgl_bayar->FldCaption());
 
+		// tanggal_short
+		$this->tanggal_short->EditAttrs["class"] = "form-control";
+		$this->tanggal_short->EditCustomAttributes = "";
+		$this->tanggal_short->EditValue = $this->tanggal_short->CurrentValue;
+		$this->tanggal_short->PlaceHolder = ew_RemoveHtml($this->tanggal_short->FldCaption());
+
+		// periode_short
+		$this->periode_short->EditAttrs["class"] = "form-control";
+		$this->periode_short->EditCustomAttributes = "";
+		$this->periode_short->EditValue = $this->periode_short->CurrentValue;
+		$this->periode_short->PlaceHolder = ew_RemoveHtml($this->periode_short->FldCaption());
+
 		// Call Row Rendered event
 		$this->Row_Rendered();
 	}
@@ -817,6 +863,8 @@ class cv_rekap_invoice_all extends cTable {
 					if ($this->tgl_pelaksanaan->Exportable) $Doc->ExportCaption($this->tgl_pelaksanaan);
 					if ($this->periode->Exportable) $Doc->ExportCaption($this->periode);
 					if ($this->tgl_bayar->Exportable) $Doc->ExportCaption($this->tgl_bayar);
+					if ($this->tanggal_short->Exportable) $Doc->ExportCaption($this->tanggal_short);
+					if ($this->periode_short->Exportable) $Doc->ExportCaption($this->periode_short);
 				} else {
 					if ($this->nama->Exportable) $Doc->ExportCaption($this->nama);
 					if ($this->invoice_id->Exportable) $Doc->ExportCaption($this->invoice_id);
@@ -826,6 +874,8 @@ class cv_rekap_invoice_all extends cTable {
 					if ($this->no_kwitansi->Exportable) $Doc->ExportCaption($this->no_kwitansi);
 					if ($this->periode->Exportable) $Doc->ExportCaption($this->periode);
 					if ($this->tgl_bayar->Exportable) $Doc->ExportCaption($this->tgl_bayar);
+					if ($this->tanggal_short->Exportable) $Doc->ExportCaption($this->tanggal_short);
+					if ($this->periode_short->Exportable) $Doc->ExportCaption($this->periode_short);
 				}
 				$Doc->EndExportRow();
 			}
@@ -867,6 +917,8 @@ class cv_rekap_invoice_all extends cTable {
 						if ($this->tgl_pelaksanaan->Exportable) $Doc->ExportField($this->tgl_pelaksanaan);
 						if ($this->periode->Exportable) $Doc->ExportField($this->periode);
 						if ($this->tgl_bayar->Exportable) $Doc->ExportField($this->tgl_bayar);
+						if ($this->tanggal_short->Exportable) $Doc->ExportField($this->tanggal_short);
+						if ($this->periode_short->Exportable) $Doc->ExportField($this->periode_short);
 					} else {
 						if ($this->nama->Exportable) $Doc->ExportField($this->nama);
 						if ($this->invoice_id->Exportable) $Doc->ExportField($this->invoice_id);
@@ -876,6 +928,8 @@ class cv_rekap_invoice_all extends cTable {
 						if ($this->no_kwitansi->Exportable) $Doc->ExportField($this->no_kwitansi);
 						if ($this->periode->Exportable) $Doc->ExportField($this->periode);
 						if ($this->tgl_bayar->Exportable) $Doc->ExportField($this->tgl_bayar);
+						if ($this->tanggal_short->Exportable) $Doc->ExportField($this->tanggal_short);
+						if ($this->periode_short->Exportable) $Doc->ExportField($this->periode_short);
 					}
 					$Doc->EndExportRow();
 				}

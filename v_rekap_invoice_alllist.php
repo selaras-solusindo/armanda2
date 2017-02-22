@@ -419,6 +419,8 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->no_kwitansi->SetVisibility();
 		$this->periode->SetVisibility();
 		$this->tgl_bayar->SetVisibility();
+		$this->tanggal_short->SetVisibility();
+		$this->periode_short->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -754,6 +756,8 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$sFilterList = ew_Concat($sFilterList, $this->tgl_pelaksanaan->AdvancedSearch->ToJSON(), ","); // Field tgl_pelaksanaan
 		$sFilterList = ew_Concat($sFilterList, $this->periode->AdvancedSearch->ToJSON(), ","); // Field periode
 		$sFilterList = ew_Concat($sFilterList, $this->tgl_bayar->AdvancedSearch->ToJSON(), ","); // Field tgl_bayar
+		$sFilterList = ew_Concat($sFilterList, $this->tanggal_short->AdvancedSearch->ToJSON(), ","); // Field tanggal_short
+		$sFilterList = ew_Concat($sFilterList, $this->periode_short->AdvancedSearch->ToJSON(), ","); // Field periode_short
 		if ($this->BasicSearch->Keyword <> "") {
 			$sWrk = "\"" . EW_TABLE_BASIC_SEARCH . "\":\"" . ew_JsEncode2($this->BasicSearch->Keyword) . "\",\"" . EW_TABLE_BASIC_SEARCH_TYPE . "\":\"" . ew_JsEncode2($this->BasicSearch->Type) . "\"";
 			$sFilterList = ew_Concat($sFilterList, $sWrk, ",");
@@ -877,6 +881,22 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->tgl_bayar->AdvancedSearch->SearchValue2 = @$filter["y_tgl_bayar"];
 		$this->tgl_bayar->AdvancedSearch->SearchOperator2 = @$filter["w_tgl_bayar"];
 		$this->tgl_bayar->AdvancedSearch->Save();
+
+		// Field tanggal_short
+		$this->tanggal_short->AdvancedSearch->SearchValue = @$filter["x_tanggal_short"];
+		$this->tanggal_short->AdvancedSearch->SearchOperator = @$filter["z_tanggal_short"];
+		$this->tanggal_short->AdvancedSearch->SearchCondition = @$filter["v_tanggal_short"];
+		$this->tanggal_short->AdvancedSearch->SearchValue2 = @$filter["y_tanggal_short"];
+		$this->tanggal_short->AdvancedSearch->SearchOperator2 = @$filter["w_tanggal_short"];
+		$this->tanggal_short->AdvancedSearch->Save();
+
+		// Field periode_short
+		$this->periode_short->AdvancedSearch->SearchValue = @$filter["x_periode_short"];
+		$this->periode_short->AdvancedSearch->SearchOperator = @$filter["z_periode_short"];
+		$this->periode_short->AdvancedSearch->SearchCondition = @$filter["v_periode_short"];
+		$this->periode_short->AdvancedSearch->SearchValue2 = @$filter["y_periode_short"];
+		$this->periode_short->AdvancedSearch->SearchOperator2 = @$filter["w_periode_short"];
+		$this->periode_short->AdvancedSearch->Save();
 		$this->BasicSearch->setKeyword(@$filter[EW_TABLE_BASIC_SEARCH]);
 		$this->BasicSearch->setType(@$filter[EW_TABLE_BASIC_SEARCH_TYPE]);
 	}
@@ -889,6 +909,8 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->BuildBasicSearchSQL($sWhere, $this->no_sertifikat, $arKeywords, $type);
 		$this->BuildBasicSearchSQL($sWhere, $this->no_kwitansi, $arKeywords, $type);
 		$this->BuildBasicSearchSQL($sWhere, $this->tgl_pelaksanaan, $arKeywords, $type);
+		$this->BuildBasicSearchSQL($sWhere, $this->tanggal_short, $arKeywords, $type);
+		$this->BuildBasicSearchSQL($sWhere, $this->periode_short, $arKeywords, $type);
 		return $sWhere;
 	}
 
@@ -1062,6 +1084,8 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 			$this->UpdateSort($this->no_kwitansi); // no_kwitansi
 			$this->UpdateSort($this->periode); // periode
 			$this->UpdateSort($this->tgl_bayar); // tgl_bayar
+			$this->UpdateSort($this->tanggal_short); // tanggal_short
+			$this->UpdateSort($this->periode_short); // periode_short
 			$this->setStartRecordNumber(1); // Reset start position
 		}
 	}
@@ -1102,6 +1126,8 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 				$this->no_kwitansi->setSort("");
 				$this->periode->setSort("");
 				$this->tgl_bayar->setSort("");
+				$this->tanggal_short->setSort("");
+				$this->periode_short->setSort("");
 			}
 
 			// Reset start position
@@ -1493,6 +1519,8 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->tgl_pelaksanaan->setDbValue($rs->fields('tgl_pelaksanaan'));
 		$this->periode->setDbValue($rs->fields('periode'));
 		$this->tgl_bayar->setDbValue($rs->fields('tgl_bayar'));
+		$this->tanggal_short->setDbValue($rs->fields('tanggal_short'));
+		$this->periode_short->setDbValue($rs->fields('periode_short'));
 	}
 
 	// Load DbValue from recordset
@@ -1509,6 +1537,8 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->tgl_pelaksanaan->DbValue = $row['tgl_pelaksanaan'];
 		$this->periode->DbValue = $row['periode'];
 		$this->tgl_bayar->DbValue = $row['tgl_bayar'];
+		$this->tanggal_short->DbValue = $row['tanggal_short'];
+		$this->periode_short->DbValue = $row['periode_short'];
 	}
 
 	// Load old record
@@ -1564,6 +1594,8 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		// tgl_pelaksanaan
 		// periode
 		// tgl_bayar
+		// tanggal_short
+		// periode_short
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -1601,6 +1633,14 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 		$this->tgl_bayar->ViewValue = $this->tgl_bayar->CurrentValue;
 		$this->tgl_bayar->ViewValue = ew_FormatDateTime($this->tgl_bayar->ViewValue, 0);
 		$this->tgl_bayar->ViewCustomAttributes = "";
+
+		// tanggal_short
+		$this->tanggal_short->ViewValue = $this->tanggal_short->CurrentValue;
+		$this->tanggal_short->ViewCustomAttributes = "";
+
+		// periode_short
+		$this->periode_short->ViewValue = $this->periode_short->CurrentValue;
+		$this->periode_short->ViewCustomAttributes = "";
 
 			// nama
 			$this->nama->LinkCustomAttributes = "";
@@ -1641,6 +1681,16 @@ class cv_rekap_invoice_all_list extends cv_rekap_invoice_all {
 			$this->tgl_bayar->LinkCustomAttributes = "";
 			$this->tgl_bayar->HrefValue = "";
 			$this->tgl_bayar->TooltipValue = "";
+
+			// tanggal_short
+			$this->tanggal_short->LinkCustomAttributes = "";
+			$this->tanggal_short->HrefValue = "";
+			$this->tanggal_short->TooltipValue = "";
+
+			// periode_short
+			$this->periode_short->LinkCustomAttributes = "";
+			$this->periode_short->HrefValue = "";
+			$this->periode_short->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -2296,6 +2346,24 @@ $v_rekap_invoice_all_list->ListOptions->Render("header", "left");
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
+<?php if ($v_rekap_invoice_all->tanggal_short->Visible) { // tanggal_short ?>
+	<?php if ($v_rekap_invoice_all->SortUrl($v_rekap_invoice_all->tanggal_short) == "") { ?>
+		<th data-name="tanggal_short"><div id="elh_v_rekap_invoice_all_tanggal_short" class="v_rekap_invoice_all_tanggal_short"><div class="ewTableHeaderCaption"><?php echo $v_rekap_invoice_all->tanggal_short->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="tanggal_short"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $v_rekap_invoice_all->SortUrl($v_rekap_invoice_all->tanggal_short) ?>',1);"><div id="elh_v_rekap_invoice_all_tanggal_short" class="v_rekap_invoice_all_tanggal_short">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $v_rekap_invoice_all->tanggal_short->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($v_rekap_invoice_all->tanggal_short->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($v_rekap_invoice_all->tanggal_short->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
+<?php if ($v_rekap_invoice_all->periode_short->Visible) { // periode_short ?>
+	<?php if ($v_rekap_invoice_all->SortUrl($v_rekap_invoice_all->periode_short) == "") { ?>
+		<th data-name="periode_short"><div id="elh_v_rekap_invoice_all_periode_short" class="v_rekap_invoice_all_periode_short"><div class="ewTableHeaderCaption"><?php echo $v_rekap_invoice_all->periode_short->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="periode_short"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $v_rekap_invoice_all->SortUrl($v_rekap_invoice_all->periode_short) ?>',1);"><div id="elh_v_rekap_invoice_all_periode_short" class="v_rekap_invoice_all_periode_short">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $v_rekap_invoice_all->periode_short->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($v_rekap_invoice_all->periode_short->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($v_rekap_invoice_all->periode_short->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
 <?php
 
 // Render list options (header, right)
@@ -2422,6 +2490,22 @@ $v_rekap_invoice_all_list->ListOptions->Render("body", "left", $v_rekap_invoice_
 <span id="el<?php echo $v_rekap_invoice_all_list->RowCnt ?>_v_rekap_invoice_all_tgl_bayar" class="v_rekap_invoice_all_tgl_bayar">
 <span<?php echo $v_rekap_invoice_all->tgl_bayar->ViewAttributes() ?>>
 <?php echo $v_rekap_invoice_all->tgl_bayar->ListViewValue() ?></span>
+</span>
+</td>
+	<?php } ?>
+	<?php if ($v_rekap_invoice_all->tanggal_short->Visible) { // tanggal_short ?>
+		<td data-name="tanggal_short"<?php echo $v_rekap_invoice_all->tanggal_short->CellAttributes() ?>>
+<span id="el<?php echo $v_rekap_invoice_all_list->RowCnt ?>_v_rekap_invoice_all_tanggal_short" class="v_rekap_invoice_all_tanggal_short">
+<span<?php echo $v_rekap_invoice_all->tanggal_short->ViewAttributes() ?>>
+<?php echo $v_rekap_invoice_all->tanggal_short->ListViewValue() ?></span>
+</span>
+</td>
+	<?php } ?>
+	<?php if ($v_rekap_invoice_all->periode_short->Visible) { // periode_short ?>
+		<td data-name="periode_short"<?php echo $v_rekap_invoice_all->periode_short->CellAttributes() ?>>
+<span id="el<?php echo $v_rekap_invoice_all_list->RowCnt ?>_v_rekap_invoice_all_periode_short" class="v_rekap_invoice_all_periode_short">
+<span<?php echo $v_rekap_invoice_all->periode_short->ViewAttributes() ?>>
+<?php echo $v_rekap_invoice_all->periode_short->ListViewValue() ?></span>
 </span>
 </td>
 	<?php } ?>

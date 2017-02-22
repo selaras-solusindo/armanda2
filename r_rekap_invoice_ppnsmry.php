@@ -537,7 +537,6 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		global $ReportLanguage;
 
 		// Set field visibility for detail fields
-		$this->tanggal->SetVisibility();
 		$this->nama->SetVisibility();
 		$this->no_kwitansi->SetVisibility();
 		$this->nomor->SetVisibility();
@@ -549,8 +548,8 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		// 1st dimension = no of groups (level 0 used for grand total)
 		// 2nd dimension = no of fields
 
-		$nDtls = 8;
-		$nGrps = 2;
+		$nDtls = 7;
+		$nGrps = 3;
 		$this->Val = &ewr_InitArray($nDtls, 0);
 		$this->Cnt = &ewr_Init2DArray($nGrps, $nDtls, 0);
 		$this->Smry = &ewr_Init2DArray($nGrps, $nDtls, 0);
@@ -562,7 +561,7 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		$this->GrandMx = &ewr_InitArray($nDtls, NULL);
 
 		// Set up array if accumulation required: array(Accum, SkipNullOrZero)
-		$this->Col = array(array(FALSE, FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(TRUE,FALSE), array(TRUE,FALSE));
+		$this->Col = array(array(FALSE, FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(FALSE,FALSE), array(TRUE,FALSE), array(TRUE,FALSE));
 
 		// Set up groups per page dynamically
 		$this->SetUpDisplayGrps();
@@ -670,12 +669,20 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 	function GetSummaryCount($lvl, $curValue = TRUE) {
 		$cnt = 0;
 		foreach ($this->DetailRows as $row) {
-			$wrkperiode = $row["periode"];
+			$wrkperiode_short = $row["periode_short"];
+			$wrktanggal_short = $row["tanggal_short"];
 			if ($lvl >= 1) {
-				$val = $curValue ? $this->periode->CurrentValue : $this->periode->OldValue;
-				$grpval = $curValue ? $this->periode->GroupValue() : $this->periode->GroupOldValue();
-				if (is_null($val) && !is_null($wrkperiode) || !is_null($val) && is_null($wrkperiode) ||
-					$grpval <> $this->periode->getGroupValueBase($wrkperiode))
+				$val = $curValue ? $this->periode_short->CurrentValue : $this->periode_short->OldValue;
+				$grpval = $curValue ? $this->periode_short->GroupValue() : $this->periode_short->GroupOldValue();
+				if (is_null($val) && !is_null($wrkperiode_short) || !is_null($val) && is_null($wrkperiode_short) ||
+					$grpval <> $this->periode_short->getGroupValueBase($wrkperiode_short))
+				continue;
+			}
+			if ($lvl >= 2) {
+				$val = $curValue ? $this->tanggal_short->CurrentValue : $this->tanggal_short->OldValue;
+				$grpval = $curValue ? $this->tanggal_short->GroupValue() : $this->tanggal_short->GroupOldValue();
+				if (is_null($val) && !is_null($wrktanggal_short) || !is_null($val) && is_null($wrktanggal_short) ||
+					$grpval <> $this->tanggal_short->getGroupValueBase($wrktanggal_short))
 				continue;
 			}
 			$cnt++;
@@ -687,9 +694,13 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 	function ChkLvlBreak($lvl) {
 		switch ($lvl) {
 			case 1:
-				return (is_null($this->periode->CurrentValue) && !is_null($this->periode->OldValue)) ||
-					(!is_null($this->periode->CurrentValue) && is_null($this->periode->OldValue)) ||
-					($this->periode->GroupValue() <> $this->periode->GroupOldValue());
+				return (is_null($this->periode_short->CurrentValue) && !is_null($this->periode_short->OldValue)) ||
+					(!is_null($this->periode_short->CurrentValue) && is_null($this->periode_short->OldValue)) ||
+					($this->periode_short->GroupValue() <> $this->periode_short->GroupOldValue());
+			case 2:
+				return (is_null($this->tanggal_short->CurrentValue) && !is_null($this->tanggal_short->OldValue)) ||
+					(!is_null($this->tanggal_short->CurrentValue) && is_null($this->tanggal_short->OldValue)) ||
+					($this->tanggal_short->GroupValue() <> $this->tanggal_short->GroupOldValue()) || $this->ChkLvlBreak(1); // Recurse upper level
 		}
 	}
 
@@ -807,14 +818,14 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		if ($opt == 1) { // Get first group
 
 			//$rsgrp->MoveFirst(); // NOTE: no need to move position
-			$this->periode->setDbValue(""); // Init first value
+			$this->periode_short->setDbValue(""); // Init first value
 		} else { // Get next group
 			$rsgrp->MoveNext();
 		}
 		if (!$rsgrp->EOF)
-			$this->periode->setDbValue($rsgrp->fields[0]);
+			$this->periode_short->setDbValue($rsgrp->fields[0]);
 		if ($rsgrp->EOF) {
-			$this->periode->setDbValue("");
+			$this->periode_short->setDbValue("");
 		}
 	}
 
@@ -844,6 +855,8 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 			$rs->MoveFirst(); // Move first
 			if ($this->GrpCount == 1) {
 				$this->FirstRowData = array();
+				$this->FirstRowData['periode_short'] = ewr_Conv($rs->fields('periode_short'), 200);
+				$this->FirstRowData['tanggal_short'] = ewr_Conv($rs->fields('tanggal_short'), 200);
 				$this->FirstRowData['periode'] = ewr_Conv($rs->fields('periode'), 133);
 				$this->FirstRowData['tanggal'] = ewr_Conv($rs->fields('tanggal'), 133);
 				$this->FirstRowData['nama'] = ewr_Conv($rs->fields('nama'), 200);
@@ -859,11 +872,13 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		}
 		if (!$rs->EOF) {
 			if ($opt <> 1) {
-				if (is_array($this->periode->GroupDbValues))
-					$this->periode->setDbValue(@$this->periode->GroupDbValues[$rs->fields('periode')]);
+				if (is_array($this->periode_short->GroupDbValues))
+					$this->periode_short->setDbValue(@$this->periode_short->GroupDbValues[$rs->fields('periode_short')]);
 				else
-					$this->periode->setDbValue(ewr_GroupValue($this->periode, $rs->fields('periode')));
+					$this->periode_short->setDbValue(ewr_GroupValue($this->periode_short, $rs->fields('periode_short')));
 			}
+			$this->tanggal_short->setDbValue($rs->fields('tanggal_short'));
+			$this->periode->setDbValue($rs->fields('periode'));
 			$this->tanggal->setDbValue($rs->fields('tanggal'));
 			$this->nama->setDbValue($rs->fields('nama'));
 			$this->no_kwitansi->setDbValue($rs->fields('no_kwitansi'));
@@ -872,14 +887,15 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 			$this->nilai_ppn->setDbValue($rs->fields('nilai_ppn'));
 			$this->total_ppn->setDbValue($rs->fields('total_ppn'));
 			$this->invoice_id->setDbValue($rs->fields('invoice_id'));
-			$this->Val[1] = $this->tanggal->CurrentValue;
-			$this->Val[2] = $this->nama->CurrentValue;
-			$this->Val[3] = $this->no_kwitansi->CurrentValue;
-			$this->Val[4] = $this->nomor->CurrentValue;
-			$this->Val[5] = $this->no_referensi->CurrentValue;
-			$this->Val[6] = $this->nilai_ppn->CurrentValue;
-			$this->Val[7] = $this->total_ppn->CurrentValue;
+			$this->Val[1] = $this->nama->CurrentValue;
+			$this->Val[2] = $this->no_kwitansi->CurrentValue;
+			$this->Val[3] = $this->nomor->CurrentValue;
+			$this->Val[4] = $this->no_referensi->CurrentValue;
+			$this->Val[5] = $this->nilai_ppn->CurrentValue;
+			$this->Val[6] = $this->total_ppn->CurrentValue;
 		} else {
+			$this->periode_short->setDbValue("");
+			$this->tanggal_short->setDbValue("");
 			$this->periode->setDbValue("");
 			$this->tanggal->setDbValue("");
 			$this->nama->setDbValue("");
@@ -938,20 +954,6 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 	// Load group db values if necessary
 	function LoadGroupDbValues() {
 		$conn = &$this->Connection();
-
-		// Set up periode GroupDbValues
-		$sSql = ewr_BuildReportSql($this->periode->SqlSelect, $this->getSqlWhere(), $this->getSqlGroupBy(), $this->getSqlHaving(), $this->periode->SqlOrderBy, "", "");
-		$rswrk = $conn->Execute($sSql);
-		while ($rswrk && !$rswrk->EOF) {
-			$this->periode->setDbValue($rswrk->fields[0]);
-			if (!is_null($this->periode->CurrentValue) && $this->periode->CurrentValue <> "") {
-				$grpval = $rswrk->fields('ew_report_groupvalue');
-				$this->periode->GroupDbValues[$this->periode->CurrentValue] = $grpval;
-			}
-			$rswrk->MoveNext();
-		}
-		if ($rswrk)
-			$rswrk->Close();
 	}
 
 	// Process Ajax popup
@@ -1080,10 +1082,9 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 				$this->GrandCnt[3] = $this->TotCount;
 				$this->GrandCnt[4] = $this->TotCount;
 				$this->GrandCnt[5] = $this->TotCount;
+				$this->GrandSmry[5] = $rsagg->fields("sum_nilai_ppn");
 				$this->GrandCnt[6] = $this->TotCount;
-				$this->GrandSmry[6] = $rsagg->fields("sum_nilai_ppn");
-				$this->GrandCnt[7] = $this->TotCount;
-				$this->GrandSmry[7] = $rsagg->fields("sum_total_ppn");
+				$this->GrandSmry[6] = $rsagg->fields("sum_total_ppn");
 				$rsagg->Close();
 				$bGotSummary = TRUE;
 			}
@@ -1113,15 +1114,26 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 
 		if ($this->RowType == EWR_ROWTYPE_TOTAL && !($this->RowTotalType == EWR_ROWTOTAL_GROUP && $this->RowTotalSubType == EWR_ROWTOTAL_HEADER)) { // Summary row
 			ewr_PrependClass($this->RowAttrs["class"], ($this->RowTotalType == EWR_ROWTOTAL_PAGE || $this->RowTotalType == EWR_ROWTOTAL_GRAND) ? "ewRptGrpAggregate" : "ewRptGrpSummary" . $this->RowGroupLevel); // Set up row class
-			if ($this->RowTotalType == EWR_ROWTOTAL_GROUP) $this->RowAttrs["data-group"] = $this->periode->GroupOldValue(); // Set up group attribute
+			if ($this->RowTotalType == EWR_ROWTOTAL_GROUP) $this->RowAttrs["data-group"] = $this->periode_short->GroupOldValue(); // Set up group attribute
+			if ($this->RowTotalType == EWR_ROWTOTAL_GROUP && $this->RowGroupLevel >= 2) $this->RowAttrs["data-group-2"] = $this->tanggal_short->GroupOldValue(); // Set up group attribute 2
 
-			// periode
-			$this->periode->GroupViewValue = $this->periode->GroupOldValue();
-			$this->periode->CellAttrs["class"] = ($this->RowGroupLevel == 1) ? "ewRptGrpSummary1" : "ewRptGrpField1";
-			$this->periode->GroupViewValue = ewr_DisplayGroupValue($this->periode, $this->periode->GroupViewValue);
-			$this->periode->GroupSummaryOldValue = $this->periode->GroupSummaryValue;
-			$this->periode->GroupSummaryValue = $this->periode->GroupViewValue;
-			$this->periode->GroupSummaryViewValue = ($this->periode->GroupSummaryOldValue <> $this->periode->GroupSummaryValue) ? $this->periode->GroupSummaryValue : "&nbsp;";
+			// periode_short
+			$this->periode_short->GroupViewValue = $this->periode_short->GroupOldValue();
+			$this->periode_short->CellAttrs["class"] = ($this->RowGroupLevel == 1) ? "ewRptGrpSummary1" : "ewRptGrpField1";
+			$this->periode_short->CellAttrs["style"] = "width: 100px;";
+			$this->periode_short->GroupViewValue = ewr_DisplayGroupValue($this->periode_short, $this->periode_short->GroupViewValue);
+			$this->periode_short->GroupSummaryOldValue = $this->periode_short->GroupSummaryValue;
+			$this->periode_short->GroupSummaryValue = $this->periode_short->GroupViewValue;
+			$this->periode_short->GroupSummaryViewValue = ($this->periode_short->GroupSummaryOldValue <> $this->periode_short->GroupSummaryValue) ? $this->periode_short->GroupSummaryValue : "&nbsp;";
+
+			// tanggal_short
+			$this->tanggal_short->GroupViewValue = $this->tanggal_short->GroupOldValue();
+			$this->tanggal_short->CellAttrs["class"] = ($this->RowGroupLevel == 2) ? "ewRptGrpSummary2" : "ewRptGrpField2";
+			$this->tanggal_short->CellAttrs["style"] = "width: 100px;";
+			$this->tanggal_short->GroupViewValue = ewr_DisplayGroupValue($this->tanggal_short, $this->tanggal_short->GroupViewValue);
+			$this->tanggal_short->GroupSummaryOldValue = $this->tanggal_short->GroupSummaryValue;
+			$this->tanggal_short->GroupSummaryValue = $this->tanggal_short->GroupViewValue;
+			$this->tanggal_short->GroupSummaryViewValue = ($this->tanggal_short->GroupSummaryOldValue <> $this->tanggal_short->GroupSummaryValue) ? $this->tanggal_short->GroupSummaryValue : "&nbsp;";
 
 			// nilai_ppn
 			$this->nilai_ppn->SumViewValue = $this->nilai_ppn->SumValue;
@@ -1135,11 +1147,11 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 			$this->total_ppn->CellAttrs["style"] = "text-align:right;";
 			$this->total_ppn->CellAttrs["class"] = ($this->RowTotalType == EWR_ROWTOTAL_PAGE || $this->RowTotalType == EWR_ROWTOTAL_GRAND) ? "ewRptGrpAggregate" : "ewRptGrpSummary" . $this->RowGroupLevel;
 
-			// periode
-			$this->periode->HrefValue = "";
+			// periode_short
+			$this->periode_short->HrefValue = "";
 
-			// tanggal
-			$this->tanggal->HrefValue = "";
+			// tanggal_short
+			$this->tanggal_short->HrefValue = "";
 
 			// nama
 			$this->nama->HrefValue = "";
@@ -1160,38 +1172,48 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 			$this->total_ppn->HrefValue = "";
 		} else {
 			if ($this->RowTotalType == EWR_ROWTOTAL_GROUP && $this->RowTotalSubType == EWR_ROWTOTAL_HEADER) {
-			$this->RowAttrs["data-group"] = $this->periode->GroupValue(); // Set up group attribute
+			$this->RowAttrs["data-group"] = $this->periode_short->GroupValue(); // Set up group attribute
+			if ($this->RowGroupLevel >= 2) $this->RowAttrs["data-group-2"] = $this->tanggal_short->GroupValue(); // Set up group attribute 2
 			} else {
-			$this->RowAttrs["data-group"] = $this->periode->GroupValue(); // Set up group attribute
+			$this->RowAttrs["data-group"] = $this->periode_short->GroupValue(); // Set up group attribute
+			$this->RowAttrs["data-group-2"] = $this->tanggal_short->GroupValue(); // Set up group attribute 2
 			}
 
-			// periode
-			$this->periode->GroupViewValue = $this->periode->GroupValue();
-			$this->periode->CellAttrs["class"] = "ewRptGrpField1";
-			$this->periode->GroupViewValue = ewr_DisplayGroupValue($this->periode, $this->periode->GroupViewValue);
-			if ($this->periode->GroupValue() == $this->periode->GroupOldValue() && !$this->ChkLvlBreak(1))
-				$this->periode->GroupViewValue = "&nbsp;";
+			// periode_short
+			$this->periode_short->GroupViewValue = $this->periode_short->GroupValue();
+			$this->periode_short->CellAttrs["class"] = "ewRptGrpField1";
+			$this->periode_short->CellAttrs["style"] = "width: 100px;";
+			$this->periode_short->GroupViewValue = ewr_DisplayGroupValue($this->periode_short, $this->periode_short->GroupViewValue);
+			if ($this->periode_short->GroupValue() == $this->periode_short->GroupOldValue() && !$this->ChkLvlBreak(1))
+				$this->periode_short->GroupViewValue = "&nbsp;";
 
-			// tanggal
-			$this->tanggal->ViewValue = $this->tanggal->CurrentValue;
-			$this->tanggal->ViewValue = tgl_indo($this->tanggal->ViewValue);
-			$this->tanggal->CellAttrs["class"] = ($this->RecCount % 2 <> 1) ? "ewTableAltRow" : "ewTableRow";
+			// tanggal_short
+			$this->tanggal_short->GroupViewValue = $this->tanggal_short->GroupValue();
+			$this->tanggal_short->CellAttrs["class"] = "ewRptGrpField2";
+			$this->tanggal_short->CellAttrs["style"] = "width: 100px;";
+			$this->tanggal_short->GroupViewValue = ewr_DisplayGroupValue($this->tanggal_short, $this->tanggal_short->GroupViewValue);
+			if ($this->tanggal_short->GroupValue() == $this->tanggal_short->GroupOldValue() && !$this->ChkLvlBreak(2))
+				$this->tanggal_short->GroupViewValue = "&nbsp;";
 
 			// nama
 			$this->nama->ViewValue = $this->nama->CurrentValue;
 			$this->nama->CellAttrs["class"] = ($this->RecCount % 2 <> 1) ? "ewTableAltRow" : "ewTableRow";
+			$this->nama->CellAttrs["style"] = "width: 200px;";
 
 			// no_kwitansi
 			$this->no_kwitansi->ViewValue = $this->no_kwitansi->CurrentValue;
 			$this->no_kwitansi->CellAttrs["class"] = ($this->RecCount % 2 <> 1) ? "ewTableAltRow" : "ewTableRow";
+			$this->no_kwitansi->CellAttrs["style"] = "width: 100px;";
 
 			// nomor
 			$this->nomor->ViewValue = $this->nomor->CurrentValue;
 			$this->nomor->CellAttrs["class"] = ($this->RecCount % 2 <> 1) ? "ewTableAltRow" : "ewTableRow";
+			$this->nomor->CellAttrs["style"] = "width: 200px;";
 
 			// no_referensi
 			$this->no_referensi->ViewValue = $this->no_referensi->CurrentValue;
 			$this->no_referensi->CellAttrs["class"] = ($this->RecCount % 2 <> 1) ? "ewTableAltRow" : "ewTableRow";
+			$this->no_referensi->CellAttrs["style"] = "width: 200px;";
 
 			// nilai_ppn
 			$this->nilai_ppn->ViewValue = $this->nilai_ppn->CurrentValue;
@@ -1205,11 +1227,11 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 			$this->total_ppn->CellAttrs["class"] = ($this->RecCount % 2 <> 1) ? "ewTableAltRow" : "ewTableRow";
 			$this->total_ppn->CellAttrs["style"] = "text-align:right;";
 
-			// periode
-			$this->periode->HrefValue = "";
+			// periode_short
+			$this->periode_short->HrefValue = "";
 
-			// tanggal
-			$this->tanggal->HrefValue = "";
+			// tanggal_short
+			$this->tanggal_short->HrefValue = "";
 
 			// nama
 			$this->nama->HrefValue = "";
@@ -1233,14 +1255,23 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		// Call Cell_Rendered event
 		if ($this->RowType == EWR_ROWTYPE_TOTAL) { // Summary row
 
-			// periode
-			$CurrentValue = $this->periode->GroupViewValue;
-			$ViewValue = &$this->periode->GroupViewValue;
-			$ViewAttrs = &$this->periode->ViewAttrs;
-			$CellAttrs = &$this->periode->CellAttrs;
-			$HrefValue = &$this->periode->HrefValue;
-			$LinkAttrs = &$this->periode->LinkAttrs;
-			$this->Cell_Rendered($this->periode, $CurrentValue, $ViewValue, $ViewAttrs, $CellAttrs, $HrefValue, $LinkAttrs);
+			// periode_short
+			$CurrentValue = $this->periode_short->GroupViewValue;
+			$ViewValue = &$this->periode_short->GroupViewValue;
+			$ViewAttrs = &$this->periode_short->ViewAttrs;
+			$CellAttrs = &$this->periode_short->CellAttrs;
+			$HrefValue = &$this->periode_short->HrefValue;
+			$LinkAttrs = &$this->periode_short->LinkAttrs;
+			$this->Cell_Rendered($this->periode_short, $CurrentValue, $ViewValue, $ViewAttrs, $CellAttrs, $HrefValue, $LinkAttrs);
+
+			// tanggal_short
+			$CurrentValue = $this->tanggal_short->GroupViewValue;
+			$ViewValue = &$this->tanggal_short->GroupViewValue;
+			$ViewAttrs = &$this->tanggal_short->ViewAttrs;
+			$CellAttrs = &$this->tanggal_short->CellAttrs;
+			$HrefValue = &$this->tanggal_short->HrefValue;
+			$LinkAttrs = &$this->tanggal_short->LinkAttrs;
+			$this->Cell_Rendered($this->tanggal_short, $CurrentValue, $ViewValue, $ViewAttrs, $CellAttrs, $HrefValue, $LinkAttrs);
 
 			// nilai_ppn
 			$CurrentValue = $this->nilai_ppn->SumValue;
@@ -1261,23 +1292,23 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 			$this->Cell_Rendered($this->total_ppn, $CurrentValue, $ViewValue, $ViewAttrs, $CellAttrs, $HrefValue, $LinkAttrs);
 		} else {
 
-			// periode
-			$CurrentValue = $this->periode->GroupValue();
-			$ViewValue = &$this->periode->GroupViewValue;
-			$ViewAttrs = &$this->periode->ViewAttrs;
-			$CellAttrs = &$this->periode->CellAttrs;
-			$HrefValue = &$this->periode->HrefValue;
-			$LinkAttrs = &$this->periode->LinkAttrs;
-			$this->Cell_Rendered($this->periode, $CurrentValue, $ViewValue, $ViewAttrs, $CellAttrs, $HrefValue, $LinkAttrs);
+			// periode_short
+			$CurrentValue = $this->periode_short->GroupValue();
+			$ViewValue = &$this->periode_short->GroupViewValue;
+			$ViewAttrs = &$this->periode_short->ViewAttrs;
+			$CellAttrs = &$this->periode_short->CellAttrs;
+			$HrefValue = &$this->periode_short->HrefValue;
+			$LinkAttrs = &$this->periode_short->LinkAttrs;
+			$this->Cell_Rendered($this->periode_short, $CurrentValue, $ViewValue, $ViewAttrs, $CellAttrs, $HrefValue, $LinkAttrs);
 
-			// tanggal
-			$CurrentValue = $this->tanggal->CurrentValue;
-			$ViewValue = &$this->tanggal->ViewValue;
-			$ViewAttrs = &$this->tanggal->ViewAttrs;
-			$CellAttrs = &$this->tanggal->CellAttrs;
-			$HrefValue = &$this->tanggal->HrefValue;
-			$LinkAttrs = &$this->tanggal->LinkAttrs;
-			$this->Cell_Rendered($this->tanggal, $CurrentValue, $ViewValue, $ViewAttrs, $CellAttrs, $HrefValue, $LinkAttrs);
+			// tanggal_short
+			$CurrentValue = $this->tanggal_short->GroupValue();
+			$ViewValue = &$this->tanggal_short->GroupViewValue;
+			$ViewAttrs = &$this->tanggal_short->ViewAttrs;
+			$CellAttrs = &$this->tanggal_short->CellAttrs;
+			$HrefValue = &$this->tanggal_short->HrefValue;
+			$LinkAttrs = &$this->tanggal_short->LinkAttrs;
+			$this->Cell_Rendered($this->tanggal_short, $CurrentValue, $ViewValue, $ViewAttrs, $CellAttrs, $HrefValue, $LinkAttrs);
 
 			// nama
 			$CurrentValue = $this->nama->CurrentValue;
@@ -1344,8 +1375,8 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		$this->GrpColumnCount = 0;
 		$this->SubGrpColumnCount = 0;
 		$this->DtlColumnCount = 0;
-		if ($this->periode->Visible) $this->GrpColumnCount += 1;
-		if ($this->tanggal->Visible) $this->DtlColumnCount += 1;
+		if ($this->periode_short->Visible) $this->GrpColumnCount += 1;
+		if ($this->tanggal_short->Visible) { $this->GrpColumnCount += 1; $this->SubGrpColumnCount += 1; }
 		if ($this->nama->Visible) $this->DtlColumnCount += 1;
 		if ($this->no_kwitansi->Visible) $this->DtlColumnCount += 1;
 		if ($this->nomor->Visible) $this->DtlColumnCount += 1;
@@ -1393,16 +1424,16 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		} elseif (@$_GET["cmd"] == "reset") {
 
 			// Load default values
-			$this->SetSessionDropDownValue($this->periode->DropDownValue, $this->periode->SearchOperator, 'periode'); // Field periode
+			$this->SetSessionDropDownValue($this->periode_short->DropDownValue, $this->periode_short->SearchOperator, 'periode_short'); // Field periode_short
 
 			//$bSetupFilter = TRUE; // No need to set up, just use default
 		} else {
 			$bRestoreSession = !$this->SearchCommand;
 
-			// Field periode
-			if ($this->GetDropDownValue($this->periode)) {
+			// Field periode_short
+			if ($this->GetDropDownValue($this->periode_short)) {
 				$bSetupFilter = TRUE;
-			} elseif ($this->periode->DropDownValue <> EWR_INIT_VALUE && !isset($_SESSION['sv_r_rekap_invoice_ppn_periode'])) {
+			} elseif ($this->periode_short->DropDownValue <> EWR_INIT_VALUE && !isset($_SESSION['sv_r_rekap_invoice_ppn_periode_short'])) {
 				$bSetupFilter = TRUE;
 			}
 			if (!$this->ValidateForm()) {
@@ -1413,24 +1444,24 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 
 		// Restore session
 		if ($bRestoreSession) {
-			$this->GetSessionDropDownValue($this->periode); // Field periode
+			$this->GetSessionDropDownValue($this->periode_short); // Field periode_short
 		}
 
 		// Call page filter validated event
 		$this->Page_FilterValidated();
 
 		// Build SQL
-		$this->BuildDropDownFilter($this->periode, $sFilter, $this->periode->SearchOperator, FALSE, TRUE); // Field periode
+		$this->BuildDropDownFilter($this->periode_short, $sFilter, $this->periode_short->SearchOperator, FALSE, TRUE); // Field periode_short
 
 		// Save parms to session
-		$this->SetSessionDropDownValue($this->periode->DropDownValue, $this->periode->SearchOperator, 'periode'); // Field periode
+		$this->SetSessionDropDownValue($this->periode_short->DropDownValue, $this->periode_short->SearchOperator, 'periode_short'); // Field periode_short
 
 		// Setup filter
 		if ($bSetupFilter) {
 		}
 
-		// Field periode
-		ewr_LoadDropDownList($this->periode->DropDownList, $this->periode->DropDownValue);
+		// Field periode_short
+		ewr_LoadDropDownList($this->periode_short->DropDownList, $this->periode_short->DropDownValue);
 		return $sFilter;
 	}
 
@@ -1732,9 +1763,9 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		* Set up default values for non Text filters
 		*/
 
-		// Field periode
-		$this->periode->DefaultDropDownValue = EWR_INIT_VALUE;
-		if (!$this->SearchCommand) $this->periode->DropDownValue = $this->periode->DefaultDropDownValue;
+		// Field periode_short
+		$this->periode_short->DefaultDropDownValue = EWR_INIT_VALUE;
+		if (!$this->SearchCommand) $this->periode_short->DropDownValue = $this->periode_short->DefaultDropDownValue;
 		/**
 		* Set up default values for extended filters
 		* function SetDefaultExtFilter(&$fld, $so1, $sv1, $sc, $so2, $sv2)
@@ -1754,8 +1785,8 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 	// Check if filter applied
 	function CheckFilter() {
 
-		// Check periode extended filter
-		if ($this->NonTextFilterApplied($this->periode))
+		// Check periode_short extended filter
+		if ($this->NonTextFilterApplied($this->periode_short))
 			return TRUE;
 		return FALSE;
 	}
@@ -1767,17 +1798,17 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		// Initialize
 		$sFilterList = "";
 
-		// Field periode
+		// Field periode_short
 		$sExtWrk = "";
 		$sWrk = "";
-		$this->BuildDropDownFilter($this->periode, $sExtWrk, $this->periode->SearchOperator);
+		$this->BuildDropDownFilter($this->periode_short, $sExtWrk, $this->periode_short->SearchOperator);
 		$sFilter = "";
 		if ($sExtWrk <> "")
 			$sFilter .= "<span class=\"ewFilterValue\">$sExtWrk</span>";
 		elseif ($sWrk <> "")
 			$sFilter .= "<span class=\"ewFilterValue\">$sWrk</span>";
 		if ($sFilter <> "")
-			$sFilterList .= "<div><span class=\"ewFilterCaption\">" . $this->periode->FldCaption() . "</span>" . $sFilter . "</div>";
+			$sFilterList .= "<div><span class=\"ewFilterCaption\">" . $this->periode_short->FldCaption() . "</span>" . $sFilter . "</div>";
 		$divstyle = "";
 		$divdataclass = "";
 
@@ -1800,13 +1831,13 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		// Initialize
 		$sFilterList = "";
 
-		// Field periode
+		// Field periode_short
 		$sWrk = "";
-		$sWrk = ($this->periode->DropDownValue <> EWR_INIT_VALUE) ? $this->periode->DropDownValue : "";
+		$sWrk = ($this->periode_short->DropDownValue <> EWR_INIT_VALUE) ? $this->periode_short->DropDownValue : "";
 		if (is_array($sWrk))
 			$sWrk = implode("||", $sWrk);
 		if ($sWrk <> "")
-			$sWrk = "\"sv_periode\":\"" . ewr_JsEncode2($sWrk) . "\"";
+			$sWrk = "\"sv_periode_short\":\"" . ewr_JsEncode2($sWrk) . "\"";
 		if ($sWrk <> "") {
 			if ($sFilterList <> "") $sFilterList .= ",";
 			$sFilterList .= $sWrk;
@@ -1834,17 +1865,17 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		if (!is_array($filter))
 			return FALSE;
 
-		// Field periode
+		// Field periode_short
 		$bRestoreFilter = FALSE;
-		if (array_key_exists("sv_periode", $filter)) {
-			$sWrk = $filter["sv_periode"];
+		if (array_key_exists("sv_periode_short", $filter)) {
+			$sWrk = $filter["sv_periode_short"];
 			if (strpos($sWrk, "||") !== FALSE)
 				$sWrk = explode("||", $sWrk);
-			$this->SetSessionDropDownValue($sWrk, @$filter["so_periode"], "periode");
+			$this->SetSessionDropDownValue($sWrk, @$filter["so_periode_short"], "periode_short");
 			$bRestoreFilter = TRUE;
 		}
 		if (!$bRestoreFilter) { // Clear filter
-			$this->SetSessionDropDownValue(EWR_INIT_VALUE, "", "periode");
+			$this->SetSessionDropDownValue(EWR_INIT_VALUE, "", "periode_short");
 		}
 		return TRUE;
 	}
@@ -1875,8 +1906,8 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		if ($bResetSort) {
 			$this->setOrderBy("");
 			$this->setStartGroup(1);
-			$this->periode->setSort("");
-			$this->tanggal->setSort("");
+			$this->periode_short->setSort("");
+			$this->tanggal_short->setSort("");
 			$this->nama->setSort("");
 			$this->no_kwitansi->setSort("");
 			$this->nomor->setSort("");
@@ -1888,8 +1919,8 @@ class crr_rekap_invoice_ppn_summary extends crr_rekap_invoice_ppn {
 		} elseif ($orderBy <> "") {
 			$this->CurrentOrder = $orderBy;
 			$this->CurrentOrderType = $orderType;
-			$this->UpdateSort($this->periode, $bCtrl); // periode
-			$this->UpdateSort($this->tanggal, $bCtrl); // tanggal
+			$this->UpdateSort($this->periode_short, $bCtrl); // periode_short
+			$this->UpdateSort($this->tanggal_short, $bCtrl); // tanggal_short
 			$this->UpdateSort($this->nama, $bCtrl); // nama
 			$this->UpdateSort($this->no_kwitansi, $bCtrl); // no_kwitansi
 			$this->UpdateSort($this->nomor, $bCtrl); // nomor
@@ -2245,7 +2276,7 @@ fr_rekap_invoice_ppnsummary.ValidateRequired = false; // No JavaScript validatio
 <?php } ?>
 
 // Use Ajax
-fr_rekap_invoice_ppnsummary.Lists["sv_periode"] = {"LinkField":"sv_periode","Ajax":true,"DisplayFields":["sv_periode","","",""],"ParentFields":[],"FilterFields":[],"Options":[],"Template":""};
+fr_rekap_invoice_ppnsummary.Lists["sv_periode_short"] = {"LinkField":"sv_periode_short","Ajax":true,"DisplayFields":["sv_periode_short","","",""],"ParentFields":[],"FilterFields":[],"Options":[],"Template":""};
 </script>
 <?php } ?>
 <?php if ($Page->Export == "" && !$Page->DrillDown) { ?>
@@ -2309,22 +2340,22 @@ if (!$Page->DrillDownInPanel) {
 <div id="fr_rekap_invoice_ppnsummary_SearchPanel" class="ewSearchPanel collapse<?php echo $SearchPanelClass ?>">
 <input type="hidden" name="cmd" value="search">
 <div id="r_1" class="ewRow">
-<div id="c_periode" class="ewCell form-group">
-	<label for="sv_periode" class="ewSearchCaption ewLabel"><?php echo $Page->periode->FldCaption() ?></label>
+<div id="c_periode_short" class="ewCell form-group">
+	<label for="sv_periode_short" class="ewSearchCaption ewLabel"><?php echo $Page->periode_short->FldCaption() ?></label>
 	<span class="ewSearchField">
-<?php $Page->periode->EditAttrs["onchange"] = "ewrForms(this).Submit(); " . @$Page->periode->EditAttrs["onchange"]; ?>
-<?php ewr_PrependClass($Page->periode->EditAttrs["class"], "form-control"); ?>
-<select data-table="r_rekap_invoice_ppn" data-field="x_periode" data-value-separator="<?php echo ewr_HtmlEncode(is_array($Page->periode->DisplayValueSeparator) ? json_encode($Page->periode->DisplayValueSeparator) : $Page->periode->DisplayValueSeparator) ?>" id="sv_periode" name="sv_periode"<?php echo $Page->periode->EditAttributes() ?>>
+<?php $Page->periode_short->EditAttrs["onchange"] = "ewrForms(this).Submit(); " . @$Page->periode_short->EditAttrs["onchange"]; ?>
+<?php ewr_PrependClass($Page->periode_short->EditAttrs["class"], "form-control"); ?>
+<select data-table="r_rekap_invoice_ppn" data-field="x_periode_short" data-value-separator="<?php echo ewr_HtmlEncode(is_array($Page->periode_short->DisplayValueSeparator) ? json_encode($Page->periode_short->DisplayValueSeparator) : $Page->periode_short->DisplayValueSeparator) ?>" id="sv_periode_short" name="sv_periode_short"<?php echo $Page->periode_short->EditAttributes() ?>>
 <option value=""><?php echo $ReportLanguage->Phrase("PleaseSelect") ?></option>
 <?php
-	$cntf = is_array($Page->periode->AdvancedFilters) ? count($Page->periode->AdvancedFilters) : 0;
-	$cntd = is_array($Page->periode->DropDownList) ? count($Page->periode->DropDownList) : 0;
+	$cntf = is_array($Page->periode_short->AdvancedFilters) ? count($Page->periode_short->AdvancedFilters) : 0;
+	$cntd = is_array($Page->periode_short->DropDownList) ? count($Page->periode_short->DropDownList) : 0;
 	$totcnt = $cntf + $cntd;
 	$wrkcnt = 0;
 	if ($cntf > 0) {
-		foreach ($Page->periode->AdvancedFilters as $filter) {
+		foreach ($Page->periode_short->AdvancedFilters as $filter) {
 			if ($filter->Enabled) {
-				$selwrk = ewr_MatchedFilterValue($Page->periode->DropDownValue, $filter->ID) ? " selected" : "";
+				$selwrk = ewr_MatchedFilterValue($Page->periode_short->DropDownValue, $filter->ID) ? " selected" : "";
 ?>
 <option value="<?php echo $filter->ID ?>"<?php echo $selwrk ?>><?php echo $filter->Name ?></option>
 <?php
@@ -2335,13 +2366,13 @@ if (!$Page->DrillDownInPanel) {
 	for ($i = 0; $i < $cntd; $i++) {
 		$selwrk = " selected";
 ?>
-<option value="<?php echo $Page->periode->DropDownList[$i] ?>"<?php echo $selwrk ?>><?php echo ewr_DropDownDisplayValue($Page->periode->DropDownList[$i], "date", 7) ?></option>
+<option value="<?php echo $Page->periode_short->DropDownList[$i] ?>"<?php echo $selwrk ?>><?php echo ewr_DropDownDisplayValue($Page->periode_short->DropDownList[$i], "", 0) ?></option>
 <?php
 		$wrkcnt += 1;
 	}
 ?>
 </select>
-<input type="hidden" name="s_sv_periode" id="s_sv_periode" value="<?php echo $Page->periode->LookupFilterQuery() ?>"></span>
+<input type="hidden" name="s_sv_periode_short" id="s_sv_periode_short" value="<?php echo $Page->periode_short->LookupFilterQuery() ?>"></span>
 </div>
 </div>
 </div>
@@ -2373,6 +2404,7 @@ $Page->RecIndex = 0;
 // Get first row
 if ($Page->TotalGrps > 0) {
 	$Page->GetGrpRow(1);
+	$Page->GrpCounter[0] = 1;
 	$Page->GrpCount = 1;
 }
 $Page->GrpIdx = ewr_InitArray($Page->StopGrp - $Page->StartGrp + 1, -1);
@@ -2415,57 +2447,61 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <thead>
 	<!-- Table header -->
 	<tr class="ewTableHeader">
-<?php if ($Page->periode->Visible) { ?>
-	<?php if ($Page->periode->ShowGroupHeaderAsRow) { ?>
-	<td data-field="periode">&nbsp;</td>
+<?php if ($Page->periode_short->Visible) { ?>
+	<?php if ($Page->periode_short->ShowGroupHeaderAsRow) { ?>
+	<td data-field="periode_short">&nbsp;</td>
 	<?php } else { ?>
 <?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
-	<td data-field="periode"><div class="r_rekap_invoice_ppn_periode"><span class="ewTableHeaderCaption"><?php echo $Page->periode->FldCaption() ?></span></div></td>
+	<td data-field="periode_short"><div class="r_rekap_invoice_ppn_periode_short" style="width: 100px;"><span class="ewTableHeaderCaption"><?php echo $Page->periode_short->FldCaption() ?></span></div></td>
 <?php } else { ?>
-	<td data-field="periode">
-<?php if ($Page->SortUrl($Page->periode) == "") { ?>
-		<div class="ewTableHeaderBtn r_rekap_invoice_ppn_periode">
-			<span class="ewTableHeaderCaption"><?php echo $Page->periode->FldCaption() ?></span>
+	<td data-field="periode_short">
+<?php if ($Page->SortUrl($Page->periode_short) == "") { ?>
+		<div class="ewTableHeaderBtn r_rekap_invoice_ppn_periode_short" style="width: 100px;">
+			<span class="ewTableHeaderCaption"><?php echo $Page->periode_short->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_periode" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->periode) ?>',2);">
-			<span class="ewTableHeaderCaption"><?php echo $Page->periode->FldCaption() ?></span>
-			<span class="ewTableHeaderSort"><?php if ($Page->periode->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->periode->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_periode_short" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->periode_short) ?>',2);" style="width: 100px;">
+			<span class="ewTableHeaderCaption"><?php echo $Page->periode_short->FldCaption() ?></span>
+			<span class="ewTableHeaderSort"><?php if ($Page->periode_short->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->periode_short->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
 <?php } ?>
 	</td>
 <?php } ?>
 	<?php } ?>
 <?php } ?>
-<?php if ($Page->tanggal->Visible) { ?>
+<?php if ($Page->tanggal_short->Visible) { ?>
+	<?php if ($Page->tanggal_short->ShowGroupHeaderAsRow) { ?>
+	<td data-field="tanggal_short">&nbsp;</td>
+	<?php } else { ?>
 <?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
-	<td data-field="tanggal"><div class="r_rekap_invoice_ppn_tanggal"><span class="ewTableHeaderCaption"><?php echo $Page->tanggal->FldCaption() ?></span></div></td>
+	<td data-field="tanggal_short"><div class="r_rekap_invoice_ppn_tanggal_short" style="width: 100px;"><span class="ewTableHeaderCaption"><?php echo $Page->tanggal_short->FldCaption() ?></span></div></td>
 <?php } else { ?>
-	<td data-field="tanggal">
-<?php if ($Page->SortUrl($Page->tanggal) == "") { ?>
-		<div class="ewTableHeaderBtn r_rekap_invoice_ppn_tanggal">
-			<span class="ewTableHeaderCaption"><?php echo $Page->tanggal->FldCaption() ?></span>
+	<td data-field="tanggal_short">
+<?php if ($Page->SortUrl($Page->tanggal_short) == "") { ?>
+		<div class="ewTableHeaderBtn r_rekap_invoice_ppn_tanggal_short" style="width: 100px;">
+			<span class="ewTableHeaderCaption"><?php echo $Page->tanggal_short->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_tanggal" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->tanggal) ?>',2);">
-			<span class="ewTableHeaderCaption"><?php echo $Page->tanggal->FldCaption() ?></span>
-			<span class="ewTableHeaderSort"><?php if ($Page->tanggal->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->tanggal->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_tanggal_short" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->tanggal_short) ?>',2);" style="width: 100px;">
+			<span class="ewTableHeaderCaption"><?php echo $Page->tanggal_short->FldCaption() ?></span>
+			<span class="ewTableHeaderSort"><?php if ($Page->tanggal_short->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->tanggal_short->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
 <?php } ?>
 	</td>
 <?php } ?>
+	<?php } ?>
 <?php } ?>
 <?php if ($Page->nama->Visible) { ?>
 <?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
-	<td data-field="nama"><div class="r_rekap_invoice_ppn_nama"><span class="ewTableHeaderCaption"><?php echo $Page->nama->FldCaption() ?></span></div></td>
+	<td data-field="nama"><div class="r_rekap_invoice_ppn_nama" style="width: 200px;"><span class="ewTableHeaderCaption"><?php echo $Page->nama->FldCaption() ?></span></div></td>
 <?php } else { ?>
 	<td data-field="nama">
 <?php if ($Page->SortUrl($Page->nama) == "") { ?>
-		<div class="ewTableHeaderBtn r_rekap_invoice_ppn_nama">
+		<div class="ewTableHeaderBtn r_rekap_invoice_ppn_nama" style="width: 200px;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->nama->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_nama" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nama) ?>',2);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_nama" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nama) ?>',2);" style="width: 200px;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->nama->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->nama->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->nama->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2475,15 +2511,15 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <?php } ?>
 <?php if ($Page->no_kwitansi->Visible) { ?>
 <?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
-	<td data-field="no_kwitansi"><div class="r_rekap_invoice_ppn_no_kwitansi"><span class="ewTableHeaderCaption"><?php echo $Page->no_kwitansi->FldCaption() ?></span></div></td>
+	<td data-field="no_kwitansi"><div class="r_rekap_invoice_ppn_no_kwitansi" style="width: 100px;"><span class="ewTableHeaderCaption"><?php echo $Page->no_kwitansi->FldCaption() ?></span></div></td>
 <?php } else { ?>
 	<td data-field="no_kwitansi">
 <?php if ($Page->SortUrl($Page->no_kwitansi) == "") { ?>
-		<div class="ewTableHeaderBtn r_rekap_invoice_ppn_no_kwitansi">
+		<div class="ewTableHeaderBtn r_rekap_invoice_ppn_no_kwitansi" style="width: 100px;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->no_kwitansi->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_no_kwitansi" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->no_kwitansi) ?>',2);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_no_kwitansi" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->no_kwitansi) ?>',2);" style="width: 100px;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->no_kwitansi->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->no_kwitansi->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->no_kwitansi->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2493,15 +2529,15 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <?php } ?>
 <?php if ($Page->nomor->Visible) { ?>
 <?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
-	<td data-field="nomor"><div class="r_rekap_invoice_ppn_nomor"><span class="ewTableHeaderCaption"><?php echo $Page->nomor->FldCaption() ?></span></div></td>
+	<td data-field="nomor"><div class="r_rekap_invoice_ppn_nomor" style="width: 200px;"><span class="ewTableHeaderCaption"><?php echo $Page->nomor->FldCaption() ?></span></div></td>
 <?php } else { ?>
 	<td data-field="nomor">
 <?php if ($Page->SortUrl($Page->nomor) == "") { ?>
-		<div class="ewTableHeaderBtn r_rekap_invoice_ppn_nomor">
+		<div class="ewTableHeaderBtn r_rekap_invoice_ppn_nomor" style="width: 200px;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->nomor->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_nomor" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nomor) ?>',2);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_nomor" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->nomor) ?>',2);" style="width: 200px;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->nomor->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->nomor->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->nomor->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2511,15 +2547,15 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <?php } ?>
 <?php if ($Page->no_referensi->Visible) { ?>
 <?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
-	<td data-field="no_referensi"><div class="r_rekap_invoice_ppn_no_referensi"><span class="ewTableHeaderCaption"><?php echo $Page->no_referensi->FldCaption() ?></span></div></td>
+	<td data-field="no_referensi"><div class="r_rekap_invoice_ppn_no_referensi" style="width: 200px;"><span class="ewTableHeaderCaption"><?php echo $Page->no_referensi->FldCaption() ?></span></div></td>
 <?php } else { ?>
 	<td data-field="no_referensi">
 <?php if ($Page->SortUrl($Page->no_referensi) == "") { ?>
-		<div class="ewTableHeaderBtn r_rekap_invoice_ppn_no_referensi">
+		<div class="ewTableHeaderBtn r_rekap_invoice_ppn_no_referensi" style="width: 200px;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->no_referensi->FldCaption() ?></span>
 		</div>
 <?php } else { ?>
-		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_no_referensi" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->no_referensi) ?>',2);">
+		<div class="ewTableHeaderBtn ewPointer r_rekap_invoice_ppn_no_referensi" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->no_referensi) ?>',2);" style="width: 200px;">
 			<span class="ewTableHeaderCaption"><?php echo $Page->no_referensi->FldCaption() ?></span>
 			<span class="ewTableHeaderSort"><?php if ($Page->no_referensi->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->no_referensi->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</div>
@@ -2572,7 +2608,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 	}
 
 	// Build detail SQL
-	$sWhere = ewr_DetailFilterSQL($Page->periode, $Page->getSqlFirstGroupField(), $Page->periode->GroupValue(), $Page->DBID);
+	$sWhere = ewr_DetailFilterSQL($Page->periode_short, $Page->getSqlFirstGroupField(), $Page->periode_short->GroupValue(), $Page->DBID);
 	if ($Page->PageFirstGroupFilter <> "") $Page->PageFirstGroupFilter .= " OR ";
 	$Page->PageFirstGroupFilter .= $sWhere;
 	if ($Page->Filter != "")
@@ -2582,12 +2618,12 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 	$rsdtlcnt = ($rs) ? $rs->RecordCount() : 0;
 	if ($rsdtlcnt > 0)
 		$Page->GetRow(1);
-	$Page->GrpIdx[$Page->GrpCount] = $rsdtlcnt;
+	$Page->GrpIdx[$Page->GrpCount] = array(-1);
 	while ($rs && !$rs->EOF) { // Loop detail records
 		$Page->RecCount++;
 		$Page->RecIndex++;
 ?>
-<?php if ($Page->periode->Visible && $Page->ChkLvlBreak(1) && $Page->periode->ShowGroupHeaderAsRow) { ?>
+<?php if ($Page->periode_short->Visible && $Page->ChkLvlBreak(1) && $Page->periode_short->ShowGroupHeaderAsRow) { ?>
 <?php
 
 		// Render header row
@@ -2596,31 +2632,71 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 		$Page->RowTotalType = EWR_ROWTOTAL_GROUP;
 		$Page->RowTotalSubType = EWR_ROWTOTAL_HEADER;
 		$Page->RowGroupLevel = 1;
-		$Page->periode->Count = $Page->GetSummaryCount(1);
+		$Page->periode_short->Count = $Page->GetSummaryCount(1);
 		$Page->RenderRow();
 ?>
 	<tr<?php echo $Page->RowAttributes(); ?>>
-<?php if ($Page->periode->Visible) { ?>
-		<td data-field="periode"<?php echo $Page->periode->CellAttributes(); ?>><span class="ewGroupToggle icon-collapse"></span></td>
+<?php if ($Page->periode_short->Visible) { ?>
+		<td data-field="periode_short"<?php echo $Page->periode_short->CellAttributes(); ?>><span class="ewGroupToggle icon-collapse"></span></td>
 <?php } ?>
-		<td data-field="periode" colspan="<?php echo ($Page->GrpColumnCount + $Page->DtlColumnCount - 1) ?>"<?php echo $Page->periode->CellAttributes() ?>>
+		<td data-field="periode_short" colspan="<?php echo ($Page->GrpColumnCount + $Page->DtlColumnCount - 1) ?>"<?php echo $Page->periode_short->CellAttributes() ?>>
 <?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
-		<span class="ewSummaryCaption r_rekap_invoice_ppn_periode"><span class="ewTableHeaderCaption"><?php echo $Page->periode->FldCaption() ?></span></span>
+		<span class="ewSummaryCaption r_rekap_invoice_ppn_periode_short"><span class="ewTableHeaderCaption"><?php echo $Page->periode_short->FldCaption() ?></span></span>
 <?php } else { ?>
-	<?php if ($Page->SortUrl($Page->periode) == "") { ?>
-		<span class="ewSummaryCaption r_rekap_invoice_ppn_periode">
-			<span class="ewTableHeaderCaption"><?php echo $Page->periode->FldCaption() ?></span>
+	<?php if ($Page->SortUrl($Page->periode_short) == "") { ?>
+		<span class="ewSummaryCaption r_rekap_invoice_ppn_periode_short">
+			<span class="ewTableHeaderCaption"><?php echo $Page->periode_short->FldCaption() ?></span>
 		</span>
 	<?php } else { ?>
-		<span class="ewTableHeaderBtn ewPointer ewSummaryCaption r_rekap_invoice_ppn_periode" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->periode) ?>',2);">
-			<span class="ewTableHeaderCaption"><?php echo $Page->periode->FldCaption() ?></span>
-			<span class="ewTableHeaderSort"><?php if ($Page->periode->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->periode->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
+		<span class="ewTableHeaderBtn ewPointer ewSummaryCaption r_rekap_invoice_ppn_periode_short" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->periode_short) ?>',2);">
+			<span class="ewTableHeaderCaption"><?php echo $Page->periode_short->FldCaption() ?></span>
+			<span class="ewTableHeaderSort"><?php if ($Page->periode_short->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->periode_short->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
 		</span>
 	<?php } ?>
 <?php } ?>
 		<?php echo $ReportLanguage->Phrase("SummaryColon") ?>
-<span data-class="tpx<?php echo $Page->GrpCount ?>_r_rekap_invoice_ppn_periode"<?php echo $Page->periode->ViewAttributes() ?>><?php echo $Page->periode->GroupViewValue ?></span>
-		<span class="ewSummaryCount">(<span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptCnt") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><?php echo ewr_FormatNumber($Page->periode->Count,0,-2,-2,-2) ?></span>)</span>
+<span data-class="tpx<?php echo $Page->GrpCount ?>_r_rekap_invoice_ppn_periode_short"<?php echo $Page->periode_short->ViewAttributes() ?>><?php echo $Page->periode_short->GroupViewValue ?></span>
+		<span class="ewSummaryCount">(<span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptCnt") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><?php echo ewr_FormatNumber($Page->periode_short->Count,0,-2,-2,-2) ?></span>)</span>
+		</td>
+	</tr>
+<?php } ?>
+<?php if ($Page->tanggal_short->Visible && $Page->ChkLvlBreak(2) && $Page->tanggal_short->ShowGroupHeaderAsRow) { ?>
+<?php
+
+		// Render header row
+		$Page->ResetAttrs();
+		$Page->RowType = EWR_ROWTYPE_TOTAL;
+		$Page->RowTotalType = EWR_ROWTOTAL_GROUP;
+		$Page->RowTotalSubType = EWR_ROWTOTAL_HEADER;
+		$Page->RowGroupLevel = 2;
+		$Page->tanggal_short->Count = $Page->GetSummaryCount(2);
+		$Page->RenderRow();
+?>
+	<tr<?php echo $Page->RowAttributes(); ?>>
+<?php if ($Page->periode_short->Visible) { ?>
+		<td data-field="periode_short"<?php echo $Page->periode_short->CellAttributes(); ?>></td>
+<?php } ?>
+<?php if ($Page->tanggal_short->Visible) { ?>
+		<td data-field="tanggal_short"<?php echo $Page->tanggal_short->CellAttributes(); ?>><span class="ewGroupToggle icon-collapse"></span></td>
+<?php } ?>
+		<td data-field="tanggal_short" colspan="<?php echo ($Page->GrpColumnCount + $Page->DtlColumnCount - 2) ?>"<?php echo $Page->tanggal_short->CellAttributes() ?>>
+<?php if ($Page->Export <> "" || $Page->DrillDown) { ?>
+		<span class="ewSummaryCaption r_rekap_invoice_ppn_tanggal_short"><span class="ewTableHeaderCaption"><?php echo $Page->tanggal_short->FldCaption() ?></span></span>
+<?php } else { ?>
+	<?php if ($Page->SortUrl($Page->tanggal_short) == "") { ?>
+		<span class="ewSummaryCaption r_rekap_invoice_ppn_tanggal_short">
+			<span class="ewTableHeaderCaption"><?php echo $Page->tanggal_short->FldCaption() ?></span>
+		</span>
+	<?php } else { ?>
+		<span class="ewTableHeaderBtn ewPointer ewSummaryCaption r_rekap_invoice_ppn_tanggal_short" onclick="ewr_Sort(event,'<?php echo $Page->SortUrl($Page->tanggal_short) ?>',2);">
+			<span class="ewTableHeaderCaption"><?php echo $Page->tanggal_short->FldCaption() ?></span>
+			<span class="ewTableHeaderSort"><?php if ($Page->tanggal_short->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($Page->tanggal_short->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span>
+		</span>
+	<?php } ?>
+<?php } ?>
+		<?php echo $ReportLanguage->Phrase("SummaryColon") ?>
+<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->GrpCounter[0] ?>_r_rekap_invoice_ppn_tanggal_short"<?php echo $Page->tanggal_short->ViewAttributes() ?>><?php echo $Page->tanggal_short->GroupViewValue ?></span>
+		<span class="ewSummaryCount">(<span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptCnt") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><?php echo ewr_FormatNumber($Page->tanggal_short->Count,0,-2,-2,-2) ?></span>)</span>
 		</td>
 	</tr>
 <?php } ?>
@@ -2632,41 +2708,45 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 		$Page->RenderRow();
 ?>
 	<tr<?php echo $Page->RowAttributes(); ?>>
-<?php if ($Page->periode->Visible) { ?>
-	<?php if ($Page->periode->ShowGroupHeaderAsRow) { ?>
-		<td data-field="periode"<?php echo $Page->periode->CellAttributes(); ?>>&nbsp;</td>
+<?php if ($Page->periode_short->Visible) { ?>
+	<?php if ($Page->periode_short->ShowGroupHeaderAsRow) { ?>
+		<td data-field="periode_short"<?php echo $Page->periode_short->CellAttributes(); ?>>&nbsp;</td>
 	<?php } else { ?>
-		<td data-field="periode"<?php echo $Page->periode->CellAttributes(); ?>>
-<span data-class="tpx<?php echo $Page->GrpCount ?>_r_rekap_invoice_ppn_periode"<?php echo $Page->periode->ViewAttributes() ?>><?php echo $Page->periode->GroupViewValue ?></span></td>
+		<td data-field="periode_short"<?php echo $Page->periode_short->CellAttributes(); ?>>
+<span data-class="tpx<?php echo $Page->GrpCount ?>_r_rekap_invoice_ppn_periode_short"<?php echo $Page->periode_short->ViewAttributes() ?>><?php echo $Page->periode_short->GroupViewValue ?></span></td>
 	<?php } ?>
 <?php } ?>
-<?php if ($Page->tanggal->Visible) { ?>
-		<td data-field="tanggal"<?php echo $Page->tanggal->CellAttributes() ?>>
-<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_tanggal"<?php echo $Page->tanggal->ViewAttributes() ?>><?php echo $Page->tanggal->ListViewValue() ?></span></td>
+<?php if ($Page->tanggal_short->Visible) { ?>
+	<?php if ($Page->tanggal_short->ShowGroupHeaderAsRow) { ?>
+		<td data-field="tanggal_short"<?php echo $Page->tanggal_short->CellAttributes(); ?>>&nbsp;</td>
+	<?php } else { ?>
+		<td data-field="tanggal_short"<?php echo $Page->tanggal_short->CellAttributes(); ?>>
+<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->GrpCounter[0] ?>_r_rekap_invoice_ppn_tanggal_short"<?php echo $Page->tanggal_short->ViewAttributes() ?>><?php echo $Page->tanggal_short->GroupViewValue ?></span></td>
+	<?php } ?>
 <?php } ?>
 <?php if ($Page->nama->Visible) { ?>
 		<td data-field="nama"<?php echo $Page->nama->CellAttributes() ?>>
-<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_nama"<?php echo $Page->nama->ViewAttributes() ?>><?php echo $Page->nama->ListViewValue() ?></span></td>
+<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->GrpCounter[0] ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_nama"<?php echo $Page->nama->ViewAttributes() ?>><?php echo $Page->nama->ListViewValue() ?></span></td>
 <?php } ?>
 <?php if ($Page->no_kwitansi->Visible) { ?>
 		<td data-field="no_kwitansi"<?php echo $Page->no_kwitansi->CellAttributes() ?>>
-<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_no_kwitansi"<?php echo $Page->no_kwitansi->ViewAttributes() ?>><?php echo $Page->no_kwitansi->ListViewValue() ?></span></td>
+<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->GrpCounter[0] ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_no_kwitansi"<?php echo $Page->no_kwitansi->ViewAttributes() ?>><?php echo $Page->no_kwitansi->ListViewValue() ?></span></td>
 <?php } ?>
 <?php if ($Page->nomor->Visible) { ?>
 		<td data-field="nomor"<?php echo $Page->nomor->CellAttributes() ?>>
-<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_nomor"<?php echo $Page->nomor->ViewAttributes() ?>><?php echo $Page->nomor->ListViewValue() ?></span></td>
+<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->GrpCounter[0] ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_nomor"<?php echo $Page->nomor->ViewAttributes() ?>><?php echo $Page->nomor->ListViewValue() ?></span></td>
 <?php } ?>
 <?php if ($Page->no_referensi->Visible) { ?>
 		<td data-field="no_referensi"<?php echo $Page->no_referensi->CellAttributes() ?>>
-<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_no_referensi"<?php echo $Page->no_referensi->ViewAttributes() ?>><?php echo $Page->no_referensi->ListViewValue() ?></span></td>
+<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->GrpCounter[0] ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_no_referensi"<?php echo $Page->no_referensi->ViewAttributes() ?>><?php echo $Page->no_referensi->ListViewValue() ?></span></td>
 <?php } ?>
 <?php if ($Page->nilai_ppn->Visible) { ?>
 		<td data-field="nilai_ppn"<?php echo $Page->nilai_ppn->CellAttributes() ?>>
-<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_nilai_ppn"<?php echo $Page->nilai_ppn->ViewAttributes() ?>><?php echo $Page->nilai_ppn->ListViewValue() ?></span></td>
+<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->GrpCounter[0] ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_nilai_ppn"<?php echo $Page->nilai_ppn->ViewAttributes() ?>><?php echo $Page->nilai_ppn->ListViewValue() ?></span></td>
 <?php } ?>
 <?php if ($Page->total_ppn->Visible) { ?>
 		<td data-field="total_ppn"<?php echo $Page->total_ppn->CellAttributes() ?>>
-<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->ListViewValue() ?></span></td>
+<span data-class="tpx<?php echo $Page->GrpCount ?>_<?php echo $Page->GrpCounter[0] ?>_<?php echo $Page->RecCount ?>_r_rekap_invoice_ppn_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->ListViewValue() ?></span></td>
 <?php } ?>
 	</tr>
 <?php
@@ -2680,17 +2760,129 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 		// Show Footers
 ?>
 <?php
+		if ($Page->ChkLvlBreak(2)) {
+			$cnt = count(@$Page->GrpIdx[$Page->GrpCount]);
+			$Page->GrpIdx[$Page->GrpCount][$cnt] = $Page->RecCount;
+		}
+		if ($Page->ChkLvlBreak(2) && $Page->tanggal_short->Visible) {
+?>
+<?php
+			$Page->periode_short->Count = $Page->GetSummaryCount(1, FALSE);
+			$Page->tanggal_short->Count = $Page->GetSummaryCount(2, FALSE);
+			$Page->nilai_ppn->Count = $Page->Cnt[2][5];
+			$Page->nilai_ppn->SumValue = $Page->Smry[2][5]; // Load SUM
+			$Page->total_ppn->Count = $Page->Cnt[2][6];
+			$Page->total_ppn->SumValue = $Page->Smry[2][6]; // Load SUM
+			$Page->ResetAttrs();
+			$Page->RowType = EWR_ROWTYPE_TOTAL;
+			$Page->RowTotalType = EWR_ROWTOTAL_GROUP;
+			$Page->RowTotalSubType = EWR_ROWTOTAL_FOOTER;
+			$Page->RowGroupLevel = 2;
+			$Page->RenderRow();
+?>
+<?php if ($Page->tanggal_short->ShowCompactSummaryFooter) { ?>
+	<tr<?php echo $Page->RowAttributes(); ?>>
+<?php if ($Page->periode_short->Visible) { ?>
+		<td data-field="periode_short"<?php echo $Page->periode_short->CellAttributes() ?>>
+	<?php if ($Page->periode_short->ShowGroupHeaderAsRow) { ?>
+		&nbsp;
+	<?php } elseif ($Page->RowGroupLevel <> 1) { ?>
+		&nbsp;
+	<?php } else { ?>
+		<span class="ewSummaryCount"><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptCnt") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><?php echo ewr_FormatNumber($Page->periode_short->Count,0,-2,-2,-2) ?></span></span>
+	<?php } ?>
+		</td>
+<?php } ?>
+<?php if ($Page->tanggal_short->Visible) { ?>
+		<td data-field="tanggal_short"<?php echo $Page->tanggal_short->CellAttributes() ?>>
+	<?php if ($Page->tanggal_short->ShowGroupHeaderAsRow) { ?>
+		&nbsp;
+	<?php } elseif ($Page->RowGroupLevel <> 2) { ?>
+		&nbsp;
+	<?php } else { ?>
+		<span class="ewSummaryCount"><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptCnt") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><?php echo ewr_FormatNumber($Page->tanggal_short->Count,0,-2,-2,-2) ?></span></span>
+	<?php } ?>
+		</td>
+<?php } ?>
+<?php if ($Page->nama->Visible) { ?>
+		<td data-field="nama"<?php echo $Page->tanggal_short->CellAttributes() ?>></td>
+<?php } ?>
+<?php if ($Page->no_kwitansi->Visible) { ?>
+		<td data-field="no_kwitansi"<?php echo $Page->tanggal_short->CellAttributes() ?>></td>
+<?php } ?>
+<?php if ($Page->nomor->Visible) { ?>
+		<td data-field="nomor"<?php echo $Page->tanggal_short->CellAttributes() ?>></td>
+<?php } ?>
+<?php if ($Page->no_referensi->Visible) { ?>
+		<td data-field="no_referensi"<?php echo $Page->tanggal_short->CellAttributes() ?>></td>
+<?php } ?>
+<?php if ($Page->nilai_ppn->Visible) { ?>
+		<td data-field="nilai_ppn"<?php echo $Page->tanggal_short->CellAttributes() ?>><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptSum") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><span data-class="tpgs<?php echo $Page->GrpCount ?>_<?php echo $Page->GrpCounter[0] ?>_r_rekap_invoice_ppn_nilai_ppn"<?php echo $Page->nilai_ppn->ViewAttributes() ?>><?php echo $Page->nilai_ppn->SumViewValue ?></span></span></td>
+<?php } ?>
+<?php if ($Page->total_ppn->Visible) { ?>
+		<td data-field="total_ppn"<?php echo $Page->tanggal_short->CellAttributes() ?>><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptSum") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><span data-class="tpgs<?php echo $Page->GrpCount ?>_<?php echo $Page->GrpCounter[0] ?>_r_rekap_invoice_ppn_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->SumViewValue ?></span></span></td>
+<?php } ?>
+	</tr>
+<?php } else { ?>
+	<tr<?php echo $Page->RowAttributes(); ?>>
+<?php if ($Page->periode_short->Visible) { ?>
+		<td data-field="periode_short"<?php echo $Page->periode_short->CellAttributes() ?>>&nbsp;</td>
+<?php } ?>
+<?php if ($Page->SubGrpColumnCount + $Page->DtlColumnCount > 0) { ?>
+		<td colspan="<?php echo ($Page->SubGrpColumnCount + $Page->DtlColumnCount) ?>"<?php echo $Page->total_ppn->CellAttributes() ?>><?php echo str_replace(array("%v", "%c"), array($Page->tanggal_short->GroupViewValue, $Page->tanggal_short->FldCaption()), $ReportLanguage->Phrase("RptSumHead")) ?> <span class="ewDirLtr">(<?php echo ewr_FormatNumber($Page->Cnt[2][0],0,-2,-2,-2) ?><?php echo $ReportLanguage->Phrase("RptDtlRec") ?>)</span></td>
+<?php } ?>
+	</tr>
+	<tr<?php echo $Page->RowAttributes(); ?>>
+<?php if ($Page->periode_short->Visible) { ?>
+		<td data-field="periode_short"<?php echo $Page->periode_short->CellAttributes() ?>>&nbsp;</td>
+<?php } ?>
+<?php if ($Page->GrpColumnCount > 0) { ?>
+		<td colspan="<?php echo ($Page->GrpColumnCount - 1) ?>"<?php echo $Page->tanggal_short->CellAttributes() ?>><?php echo $ReportLanguage->Phrase("RptSum") ?></td>
+<?php } ?>
+<?php if ($Page->nama->Visible) { ?>
+		<td data-field="nama"<?php echo $Page->tanggal_short->CellAttributes() ?>>&nbsp;</td>
+<?php } ?>
+<?php if ($Page->no_kwitansi->Visible) { ?>
+		<td data-field="no_kwitansi"<?php echo $Page->tanggal_short->CellAttributes() ?>>&nbsp;</td>
+<?php } ?>
+<?php if ($Page->nomor->Visible) { ?>
+		<td data-field="nomor"<?php echo $Page->tanggal_short->CellAttributes() ?>>&nbsp;</td>
+<?php } ?>
+<?php if ($Page->no_referensi->Visible) { ?>
+		<td data-field="no_referensi"<?php echo $Page->tanggal_short->CellAttributes() ?>>&nbsp;</td>
+<?php } ?>
+<?php if ($Page->nilai_ppn->Visible) { ?>
+		<td data-field="nilai_ppn"<?php echo $Page->total_ppn->CellAttributes() ?>>
+<span data-class="tpgs<?php echo $Page->GrpCount ?>_<?php echo $Page->GrpCounter[0] ?>_r_rekap_invoice_ppn_nilai_ppn"<?php echo $Page->nilai_ppn->ViewAttributes() ?>><?php echo $Page->nilai_ppn->SumViewValue ?></span></td>
+<?php } ?>
+<?php if ($Page->total_ppn->Visible) { ?>
+		<td data-field="total_ppn"<?php echo $Page->total_ppn->CellAttributes() ?>>
+<span data-class="tpgs<?php echo $Page->GrpCount ?>_<?php echo $Page->GrpCounter[0] ?>_r_rekap_invoice_ppn_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->SumViewValue ?></span></td>
+<?php } ?>
+	</tr>
+<?php } ?>
+<?php
+
+			// Reset level 2 summary
+			$Page->ResetLevelSummary(2);
+		} // End show footer check
+		if ($Page->ChkLvlBreak(2)) {
+			$Page->GrpCounter[0]++;
+		}
+?>
+<?php
 	} // End detail records loop
 ?>
 <?php
-		if ($Page->periode->Visible) {
+		if ($Page->periode_short->Visible) {
 ?>
 <?php
-			$Page->periode->Count = $Page->GetSummaryCount(1, FALSE);
-			$Page->nilai_ppn->Count = $Page->Cnt[1][6];
-			$Page->nilai_ppn->SumValue = $Page->Smry[1][6]; // Load SUM
-			$Page->total_ppn->Count = $Page->Cnt[1][7];
-			$Page->total_ppn->SumValue = $Page->Smry[1][7]; // Load SUM
+			$Page->periode_short->Count = $Page->GetSummaryCount(1, FALSE);
+			$Page->tanggal_short->Count = $Page->GetSummaryCount(2, FALSE);
+			$Page->nilai_ppn->Count = $Page->Cnt[1][5];
+			$Page->nilai_ppn->SumValue = $Page->Smry[1][5]; // Load SUM
+			$Page->total_ppn->Count = $Page->Cnt[1][6];
+			$Page->total_ppn->SumValue = $Page->Smry[1][6]; // Load SUM
 			$Page->ResetAttrs();
 			$Page->RowType = EWR_ROWTYPE_TOTAL;
 			$Page->RowTotalType = EWR_ROWTOTAL_GROUP;
@@ -2698,65 +2890,70 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 			$Page->RowGroupLevel = 1;
 			$Page->RenderRow();
 ?>
-<?php if ($Page->periode->ShowCompactSummaryFooter) { ?>
+<?php if ($Page->periode_short->ShowCompactSummaryFooter) { ?>
 	<tr<?php echo $Page->RowAttributes(); ?>>
-<?php if ($Page->periode->Visible) { ?>
-		<td data-field="periode"<?php echo $Page->periode->CellAttributes() ?>>
-	<?php if ($Page->periode->ShowGroupHeaderAsRow) { ?>
+<?php if ($Page->periode_short->Visible) { ?>
+		<td data-field="periode_short"<?php echo $Page->periode_short->CellAttributes() ?>>
+	<?php if ($Page->periode_short->ShowGroupHeaderAsRow) { ?>
 		&nbsp;
 	<?php } elseif ($Page->RowGroupLevel <> 1) { ?>
 		&nbsp;
 	<?php } else { ?>
-		<span class="ewSummaryCount"><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptCnt") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><?php echo ewr_FormatNumber($Page->periode->Count,0,-2,-2,-2) ?></span></span>
+		<span class="ewSummaryCount"><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptCnt") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><?php echo ewr_FormatNumber($Page->periode_short->Count,0,-2,-2,-2) ?></span></span>
 	<?php } ?>
 		</td>
 <?php } ?>
-<?php if ($Page->tanggal->Visible) { ?>
-		<td data-field="tanggal"<?php echo $Page->periode->CellAttributes() ?>></td>
+<?php if ($Page->tanggal_short->Visible) { ?>
+		<td data-field="tanggal_short"<?php echo $Page->periode_short->CellAttributes() ?>>
+	<?php if ($Page->tanggal_short->ShowGroupHeaderAsRow) { ?>
+		&nbsp;
+	<?php } elseif ($Page->RowGroupLevel <> 2) { ?>
+		&nbsp;
+	<?php } else { ?>
+		<span class="ewSummaryCount"><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptCnt") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><?php echo ewr_FormatNumber($Page->tanggal_short->Count,0,-2,-2,-2) ?></span></span>
+	<?php } ?>
+		</td>
 <?php } ?>
 <?php if ($Page->nama->Visible) { ?>
-		<td data-field="nama"<?php echo $Page->periode->CellAttributes() ?>></td>
+		<td data-field="nama"<?php echo $Page->periode_short->CellAttributes() ?>></td>
 <?php } ?>
 <?php if ($Page->no_kwitansi->Visible) { ?>
-		<td data-field="no_kwitansi"<?php echo $Page->periode->CellAttributes() ?>></td>
+		<td data-field="no_kwitansi"<?php echo $Page->periode_short->CellAttributes() ?>></td>
 <?php } ?>
 <?php if ($Page->nomor->Visible) { ?>
-		<td data-field="nomor"<?php echo $Page->periode->CellAttributes() ?>></td>
+		<td data-field="nomor"<?php echo $Page->periode_short->CellAttributes() ?>></td>
 <?php } ?>
 <?php if ($Page->no_referensi->Visible) { ?>
-		<td data-field="no_referensi"<?php echo $Page->periode->CellAttributes() ?>></td>
+		<td data-field="no_referensi"<?php echo $Page->periode_short->CellAttributes() ?>></td>
 <?php } ?>
 <?php if ($Page->nilai_ppn->Visible) { ?>
-		<td data-field="nilai_ppn"<?php echo $Page->periode->CellAttributes() ?>><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptSum") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><span data-class="tpgs<?php echo $Page->GrpCount ?>_r_rekap_invoice_ppn_nilai_ppn"<?php echo $Page->nilai_ppn->ViewAttributes() ?>><?php echo $Page->nilai_ppn->SumViewValue ?></span></span></td>
+		<td data-field="nilai_ppn"<?php echo $Page->periode_short->CellAttributes() ?>><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptSum") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><span data-class="tpgs<?php echo $Page->GrpCount ?>_r_rekap_invoice_ppn_nilai_ppn"<?php echo $Page->nilai_ppn->ViewAttributes() ?>><?php echo $Page->nilai_ppn->SumViewValue ?></span></span></td>
 <?php } ?>
 <?php if ($Page->total_ppn->Visible) { ?>
-		<td data-field="total_ppn"<?php echo $Page->periode->CellAttributes() ?>><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptSum") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><span data-class="tpgs<?php echo $Page->GrpCount ?>_r_rekap_invoice_ppn_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->SumViewValue ?></span></span></td>
+		<td data-field="total_ppn"<?php echo $Page->periode_short->CellAttributes() ?>><span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptSum") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><span data-class="tpgs<?php echo $Page->GrpCount ?>_r_rekap_invoice_ppn_total_ppn"<?php echo $Page->total_ppn->ViewAttributes() ?>><?php echo $Page->total_ppn->SumViewValue ?></span></span></td>
 <?php } ?>
 	</tr>
 <?php } else { ?>
 	<tr<?php echo $Page->RowAttributes(); ?>>
 <?php if ($Page->GrpColumnCount + $Page->DtlColumnCount > 0) { ?>
-		<td colspan="<?php echo ($Page->GrpColumnCount + $Page->DtlColumnCount) ?>"<?php echo $Page->total_ppn->CellAttributes() ?>><?php echo str_replace(array("%v", "%c"), array($Page->periode->GroupViewValue, $Page->periode->FldCaption()), $ReportLanguage->Phrase("RptSumHead")) ?> <span class="ewDirLtr">(<?php echo ewr_FormatNumber($Page->Cnt[1][0],0,-2,-2,-2) ?><?php echo $ReportLanguage->Phrase("RptDtlRec") ?>)</span></td>
+		<td colspan="<?php echo ($Page->GrpColumnCount + $Page->DtlColumnCount) ?>"<?php echo $Page->total_ppn->CellAttributes() ?>><?php echo str_replace(array("%v", "%c"), array($Page->periode_short->GroupViewValue, $Page->periode_short->FldCaption()), $ReportLanguage->Phrase("RptSumHead")) ?> <span class="ewDirLtr">(<?php echo ewr_FormatNumber($Page->Cnt[1][0],0,-2,-2,-2) ?><?php echo $ReportLanguage->Phrase("RptDtlRec") ?>)</span></td>
 <?php } ?>
 	</tr>
 	<tr<?php echo $Page->RowAttributes(); ?>>
 <?php if ($Page->GrpColumnCount > 0) { ?>
-		<td colspan="<?php echo ($Page->GrpColumnCount - 0) ?>"<?php echo $Page->periode->CellAttributes() ?>><?php echo $ReportLanguage->Phrase("RptSum") ?></td>
-<?php } ?>
-<?php if ($Page->tanggal->Visible) { ?>
-		<td data-field="tanggal"<?php echo $Page->periode->CellAttributes() ?>>&nbsp;</td>
+		<td colspan="<?php echo ($Page->GrpColumnCount - 0) ?>"<?php echo $Page->periode_short->CellAttributes() ?>><?php echo $ReportLanguage->Phrase("RptSum") ?></td>
 <?php } ?>
 <?php if ($Page->nama->Visible) { ?>
-		<td data-field="nama"<?php echo $Page->periode->CellAttributes() ?>>&nbsp;</td>
+		<td data-field="nama"<?php echo $Page->periode_short->CellAttributes() ?>>&nbsp;</td>
 <?php } ?>
 <?php if ($Page->no_kwitansi->Visible) { ?>
-		<td data-field="no_kwitansi"<?php echo $Page->periode->CellAttributes() ?>>&nbsp;</td>
+		<td data-field="no_kwitansi"<?php echo $Page->periode_short->CellAttributes() ?>>&nbsp;</td>
 <?php } ?>
 <?php if ($Page->nomor->Visible) { ?>
-		<td data-field="nomor"<?php echo $Page->periode->CellAttributes() ?>>&nbsp;</td>
+		<td data-field="nomor"<?php echo $Page->periode_short->CellAttributes() ?>>&nbsp;</td>
 <?php } ?>
 <?php if ($Page->no_referensi->Visible) { ?>
-		<td data-field="no_referensi"<?php echo $Page->periode->CellAttributes() ?>>&nbsp;</td>
+		<td data-field="no_referensi"<?php echo $Page->periode_short->CellAttributes() ?>>&nbsp;</td>
 <?php } ?>
 <?php if ($Page->nilai_ppn->Visible) { ?>
 		<td data-field="nilai_ppn"<?php echo $Page->total_ppn->CellAttributes() ?>>
@@ -2787,6 +2984,7 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 	if ($Page->ShowHeader)
 		$Page->Page_Breaking($Page->ShowHeader, $Page->PageBreakContent);
 	$Page->GrpCount++;
+	$Page->GrpCounter[0] = 1;
 
 	// Handle EOF
 	if (!$rsgrp || $rsgrp->EOF)
@@ -2798,10 +2996,10 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <tfoot>
 <?php if (($Page->StopGrp - $Page->StartGrp + 1) <> $Page->TotalGrps) { ?>
 <?php
-	$Page->nilai_ppn->Count = $Page->Cnt[0][6];
-	$Page->nilai_ppn->SumValue = $Page->Smry[0][6]; // Load SUM
-	$Page->total_ppn->Count = $Page->Cnt[0][7];
-	$Page->total_ppn->SumValue = $Page->Smry[0][7]; // Load SUM
+	$Page->nilai_ppn->Count = $Page->Cnt[0][5];
+	$Page->nilai_ppn->SumValue = $Page->Smry[0][5]; // Load SUM
+	$Page->total_ppn->Count = $Page->Cnt[0][6];
+	$Page->total_ppn->SumValue = $Page->Smry[0][6]; // Load SUM
 	$Page->ResetAttrs();
 	$Page->RowType = EWR_ROWTYPE_TOTAL;
 	$Page->RowTotalType = EWR_ROWTOTAL_PAGE;
@@ -2809,14 +3007,11 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 	$Page->RowAttrs["class"] = "ewRptPageSummary";
 	$Page->RenderRow();
 ?>
-<?php if ($Page->periode->ShowCompactSummaryFooter) { ?>
+<?php if ($Page->periode_short->ShowCompactSummaryFooter) { ?>
 	<tr<?php echo $Page->RowAttributes(); ?>><td colspan="<?php echo ($Page->GrpColumnCount + $Page->DtlColumnCount) ?>"><?php echo $ReportLanguage->Phrase("RptPageSummary") ?> (<span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptCnt") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><?php echo ewr_FormatNumber($Page->Cnt[0][0],0,-2,-2,-2) ?></span>)</td></tr>
 	<tr<?php echo $Page->RowAttributes(); ?>>
 <?php if ($Page->GrpColumnCount > 0) { ?>
 		<td colspan="<?php echo $Page->GrpColumnCount ?>" class="ewRptGrpAggregate">&nbsp;</td>
-<?php } ?>
-<?php if ($Page->tanggal->Visible) { ?>
-		<td data-field="tanggal"<?php echo $Page->tanggal->CellAttributes() ?>></td>
 <?php } ?>
 <?php if ($Page->nama->Visible) { ?>
 		<td data-field="nama"<?php echo $Page->nama->CellAttributes() ?>></td>
@@ -2843,9 +3038,6 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <?php if ($Page->GrpColumnCount > 0) { ?>
 		<td colspan="<?php echo $Page->GrpColumnCount ?>" class="ewRptGrpAggregate"><?php echo $ReportLanguage->Phrase("RptSum") ?></td>
 <?php } ?>
-<?php if ($Page->tanggal->Visible) { ?>
-		<td data-field="tanggal"<?php echo $Page->tanggal->CellAttributes() ?>>&nbsp;</td>
-<?php } ?>
 <?php if ($Page->nama->Visible) { ?>
 		<td data-field="nama"<?php echo $Page->nama->CellAttributes() ?>>&nbsp;</td>
 <?php } ?>
@@ -2870,10 +3062,10 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 <?php } ?>
 <?php } ?>
 <?php
-	$Page->nilai_ppn->Count = $Page->GrandCnt[6];
-	$Page->nilai_ppn->SumValue = $Page->GrandSmry[6]; // Load SUM
-	$Page->total_ppn->Count = $Page->GrandCnt[7];
-	$Page->total_ppn->SumValue = $Page->GrandSmry[7]; // Load SUM
+	$Page->nilai_ppn->Count = $Page->GrandCnt[5];
+	$Page->nilai_ppn->SumValue = $Page->GrandSmry[5]; // Load SUM
+	$Page->total_ppn->Count = $Page->GrandCnt[6];
+	$Page->total_ppn->SumValue = $Page->GrandSmry[6]; // Load SUM
 	$Page->ResetAttrs();
 	$Page->RowType = EWR_ROWTYPE_TOTAL;
 	$Page->RowTotalType = EWR_ROWTOTAL_GRAND;
@@ -2881,14 +3073,11 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 	$Page->RowAttrs["class"] = "ewRptGrandSummary";
 	$Page->RenderRow();
 ?>
-<?php if ($Page->periode->ShowCompactSummaryFooter) { ?>
+<?php if ($Page->periode_short->ShowCompactSummaryFooter) { ?>
 	<tr<?php echo $Page->RowAttributes() ?>><td colspan="<?php echo ($Page->GrpColumnCount + $Page->DtlColumnCount) ?>"><?php echo $ReportLanguage->Phrase("RptGrandSummary") ?> (<span class="ewAggregateCaption"><?php echo $ReportLanguage->Phrase("RptCnt") ?></span><?php echo $ReportLanguage->Phrase("AggregateEqual") ?><span class="ewAggregateValue"><?php echo ewr_FormatNumber($Page->TotCount,0,-2,-2,-2) ?></span>)</td></tr>
 	<tr<?php echo $Page->RowAttributes() ?>>
 <?php if ($Page->GrpColumnCount > 0) { ?>
 		<td colspan="<?php echo $Page->GrpColumnCount ?>" class="ewRptGrpAggregate">&nbsp;</td>
-<?php } ?>
-<?php if ($Page->tanggal->Visible) { ?>
-		<td data-field="tanggal"<?php echo $Page->tanggal->CellAttributes() ?>></td>
 <?php } ?>
 <?php if ($Page->nama->Visible) { ?>
 		<td data-field="nama"<?php echo $Page->nama->CellAttributes() ?>></td>
@@ -2914,9 +3103,6 @@ while ($rsgrp && !$rsgrp->EOF && $Page->GrpCount <= $Page->DisplayGrps || $Page-
 	<tr<?php echo $Page->RowAttributes() ?>>
 <?php if ($Page->GrpColumnCount > 0) { ?>
 		<td colspan="<?php echo $Page->GrpColumnCount ?>" class="ewRptGrpAggregate"><?php echo $ReportLanguage->Phrase("RptSum") ?></td>
-<?php } ?>
-<?php if ($Page->tanggal->Visible) { ?>
-		<td data-field="tanggal"<?php echo $Page->tanggal->CellAttributes() ?>>&nbsp;</td>
 <?php } ?>
 <?php if ($Page->nama->Visible) { ?>
 		<td data-field="nama"<?php echo $Page->nama->CellAttributes() ?>>&nbsp;</td>

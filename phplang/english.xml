@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ew-language date="2017/2/9" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
+<ew-language date="2017/2/22" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
   <!-- 
 	*** Important Notes:
 	1. Language ID should follow: https://developers.google.com/recaptcha/docs/language,
@@ -1001,6 +1001,12 @@
       <field id="tgl_bayar">
         <phrase id="fldcaption" value="tgl bayar" />
       </field>
+      <field id="tanggal_short">
+        <phrase id="fldcaption" value="tanggal short" />
+      </field>
+      <field id="periode_short">
+        <phrase id="fldcaption" value="periode short" />
+      </field>
     </table>
     <table id="v_rekap_invoice_ppn">
       <phrase id="tblcaption" value="v rekap invoice ppn" />
@@ -1030,6 +1036,12 @@
       </field>
       <field id="periode">
         <phrase id="fldcaption" value="periode" />
+      </field>
+      <field id="tanggal_short">
+        <phrase id="fldcaption" value="tanggal short" />
+      </field>
+      <field id="periode_short">
+        <phrase id="fldcaption" value="periode short" />
       </field>
     </table>
     <table id="v_rekap_hutang">

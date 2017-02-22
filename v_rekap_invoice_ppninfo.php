@@ -16,6 +16,8 @@ class cv_rekap_invoice_ppn extends cTable {
 	var $total_ppn;
 	var $invoice_id;
 	var $periode;
+	var $tanggal_short;
+	var $periode_short;
 
 	//
 	// Table class constructor
@@ -96,6 +98,16 @@ class cv_rekap_invoice_ppn extends cTable {
 		$this->periode->Sortable = TRUE; // Allow sort
 		$this->periode->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EW_DATE_FORMAT"], $Language->Phrase("IncorrectDate"));
 		$this->fields['periode'] = &$this->periode;
+
+		// tanggal_short
+		$this->tanggal_short = new cField('v_rekap_invoice_ppn', 'v_rekap_invoice_ppn', 'x_tanggal_short', 'tanggal_short', '`tanggal_short`', '`tanggal_short`', 200, -1, FALSE, '`tanggal_short`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->tanggal_short->Sortable = TRUE; // Allow sort
+		$this->fields['tanggal_short'] = &$this->tanggal_short;
+
+		// periode_short
+		$this->periode_short = new cField('v_rekap_invoice_ppn', 'v_rekap_invoice_ppn', 'x_periode_short', 'periode_short', '`periode_short`', '`periode_short`', 200, -1, FALSE, '`periode_short`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->periode_short->Sortable = TRUE; // Allow sort
+		$this->fields['periode_short'] = &$this->periode_short;
 	}
 
 	// Set Field Visibility
@@ -587,6 +599,8 @@ class cv_rekap_invoice_ppn extends cTable {
 		$this->total_ppn->setDbValue($rs->fields('total_ppn'));
 		$this->invoice_id->setDbValue($rs->fields('invoice_id'));
 		$this->periode->setDbValue($rs->fields('periode'));
+		$this->tanggal_short->setDbValue($rs->fields('tanggal_short'));
+		$this->periode_short->setDbValue($rs->fields('periode_short'));
 	}
 
 	// Render list row values
@@ -606,6 +620,8 @@ class cv_rekap_invoice_ppn extends cTable {
 		// total_ppn
 		// invoice_id
 		// periode
+		// tanggal_short
+		// periode_short
 		// tanggal
 
 		$this->tanggal->ViewValue = $this->tanggal->CurrentValue;
@@ -644,6 +660,14 @@ class cv_rekap_invoice_ppn extends cTable {
 		$this->periode->ViewValue = $this->periode->CurrentValue;
 		$this->periode->ViewValue = ew_FormatDateTime($this->periode->ViewValue, 0);
 		$this->periode->ViewCustomAttributes = "";
+
+		// tanggal_short
+		$this->tanggal_short->ViewValue = $this->tanggal_short->CurrentValue;
+		$this->tanggal_short->ViewCustomAttributes = "";
+
+		// periode_short
+		$this->periode_short->ViewValue = $this->periode_short->CurrentValue;
+		$this->periode_short->ViewCustomAttributes = "";
 
 		// tanggal
 		$this->tanggal->LinkCustomAttributes = "";
@@ -689,6 +713,16 @@ class cv_rekap_invoice_ppn extends cTable {
 		$this->periode->LinkCustomAttributes = "";
 		$this->periode->HrefValue = "";
 		$this->periode->TooltipValue = "";
+
+		// tanggal_short
+		$this->tanggal_short->LinkCustomAttributes = "";
+		$this->tanggal_short->HrefValue = "";
+		$this->tanggal_short->TooltipValue = "";
+
+		// periode_short
+		$this->periode_short->LinkCustomAttributes = "";
+		$this->periode_short->HrefValue = "";
+		$this->periode_short->TooltipValue = "";
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -757,6 +791,18 @@ class cv_rekap_invoice_ppn extends cTable {
 		$this->periode->EditValue = ew_FormatDateTime($this->periode->CurrentValue, 8);
 		$this->periode->PlaceHolder = ew_RemoveHtml($this->periode->FldCaption());
 
+		// tanggal_short
+		$this->tanggal_short->EditAttrs["class"] = "form-control";
+		$this->tanggal_short->EditCustomAttributes = "";
+		$this->tanggal_short->EditValue = $this->tanggal_short->CurrentValue;
+		$this->tanggal_short->PlaceHolder = ew_RemoveHtml($this->tanggal_short->FldCaption());
+
+		// periode_short
+		$this->periode_short->EditAttrs["class"] = "form-control";
+		$this->periode_short->EditCustomAttributes = "";
+		$this->periode_short->EditValue = $this->periode_short->CurrentValue;
+		$this->periode_short->PlaceHolder = ew_RemoveHtml($this->periode_short->FldCaption());
+
 		// Call Row Rendered event
 		$this->Row_Rendered();
 	}
@@ -793,6 +839,8 @@ class cv_rekap_invoice_ppn extends cTable {
 					if ($this->total_ppn->Exportable) $Doc->ExportCaption($this->total_ppn);
 					if ($this->invoice_id->Exportable) $Doc->ExportCaption($this->invoice_id);
 					if ($this->periode->Exportable) $Doc->ExportCaption($this->periode);
+					if ($this->tanggal_short->Exportable) $Doc->ExportCaption($this->tanggal_short);
+					if ($this->periode_short->Exportable) $Doc->ExportCaption($this->periode_short);
 				} else {
 					if ($this->tanggal->Exportable) $Doc->ExportCaption($this->tanggal);
 					if ($this->nama->Exportable) $Doc->ExportCaption($this->nama);
@@ -803,6 +851,8 @@ class cv_rekap_invoice_ppn extends cTable {
 					if ($this->total_ppn->Exportable) $Doc->ExportCaption($this->total_ppn);
 					if ($this->invoice_id->Exportable) $Doc->ExportCaption($this->invoice_id);
 					if ($this->periode->Exportable) $Doc->ExportCaption($this->periode);
+					if ($this->tanggal_short->Exportable) $Doc->ExportCaption($this->tanggal_short);
+					if ($this->periode_short->Exportable) $Doc->ExportCaption($this->periode_short);
 				}
 				$Doc->EndExportRow();
 			}
@@ -843,6 +893,8 @@ class cv_rekap_invoice_ppn extends cTable {
 						if ($this->total_ppn->Exportable) $Doc->ExportField($this->total_ppn);
 						if ($this->invoice_id->Exportable) $Doc->ExportField($this->invoice_id);
 						if ($this->periode->Exportable) $Doc->ExportField($this->periode);
+						if ($this->tanggal_short->Exportable) $Doc->ExportField($this->tanggal_short);
+						if ($this->periode_short->Exportable) $Doc->ExportField($this->periode_short);
 					} else {
 						if ($this->tanggal->Exportable) $Doc->ExportField($this->tanggal);
 						if ($this->nama->Exportable) $Doc->ExportField($this->nama);
@@ -853,6 +905,8 @@ class cv_rekap_invoice_ppn extends cTable {
 						if ($this->total_ppn->Exportable) $Doc->ExportField($this->total_ppn);
 						if ($this->invoice_id->Exportable) $Doc->ExportField($this->invoice_id);
 						if ($this->periode->Exportable) $Doc->ExportField($this->periode);
+						if ($this->tanggal_short->Exportable) $Doc->ExportField($this->tanggal_short);
+						if ($this->periode_short->Exportable) $Doc->ExportField($this->periode_short);
 					}
 					$Doc->EndExportRow();
 				}
