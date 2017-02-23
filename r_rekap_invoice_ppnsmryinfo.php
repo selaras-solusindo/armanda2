@@ -50,7 +50,7 @@ class crr_rekap_invoice_ppn extends crTableBase {
 		// tanggal_short
 		$this->tanggal_short = new crField('r_rekap_invoice_ppn', 'r_rekap_invoice_ppn', 'x_tanggal_short', 'tanggal_short', '`tanggal_short`', 200, EWR_DATATYPE_STRING, -1);
 		$this->tanggal_short->Sortable = TRUE; // Allow sort
-		$this->tanggal_short->GroupingFieldId = 2;
+		$this->tanggal_short->GroupingFieldId = 3;
 		$this->tanggal_short->ShowGroupHeaderAsRow = $this->ShowGroupHeaderAsRow;
 		$this->tanggal_short->ShowCompactSummaryFooter = $this->ShowCompactSummaryFooter;
 		$this->fields['tanggal_short'] = &$this->tanggal_short;
@@ -73,11 +73,17 @@ class crr_rekap_invoice_ppn extends crTableBase {
 		// tanggal
 		$this->tanggal = new crField('r_rekap_invoice_ppn', 'r_rekap_invoice_ppn', 'x_tanggal', 'tanggal', '`tanggal`', 133, EWR_DATATYPE_DATE, -1);
 		$this->tanggal->Sortable = TRUE; // Allow sort
+		$this->tanggal->GroupingFieldId = 2;
+		$this->tanggal->ShowGroupHeaderAsRow = $this->ShowGroupHeaderAsRow;
+		$this->tanggal->ShowCompactSummaryFooter = $this->ShowCompactSummaryFooter;
 		$this->tanggal->FldDefaultErrMsg = str_replace("%s", $GLOBALS["EWR_DATE_FORMAT"], $ReportLanguage->Phrase("IncorrectDate"));
 		$this->fields['tanggal'] = &$this->tanggal;
 		$this->tanggal->DateFilter = "";
-		$this->tanggal->SqlSelect = "SELECT DISTINCT `tanggal`, `tanggal` AS `DispFld` FROM " . $this->getSqlFrom();
-		$this->tanggal->SqlOrderBy = "`tanggal`";
+		$this->tanggal->SqlSelect = "SELECT DISTINCT `tanggal`, CONCAT(CAST(YEAR(`tanggal`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`tanggal`),2,'0') AS CHAR(2)), '|', CAST(LPAD(DAY(`tanggal`),2,'0') AS CHAR(2))) AS `ew_report_groupvalue` FROM " . $this->getSqlFrom();
+		$this->tanggal->SqlOrderBy = "CONCAT(CAST(YEAR(`tanggal`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`tanggal`),2,'0') AS CHAR(2)), '|', CAST(LPAD(DAY(`tanggal`),2,'0') AS CHAR(2)))";
+		$this->tanggal->FldGroupByType = "d";
+		$this->tanggal->FldGroupInt = "0";
+		$this->tanggal->FldGroupSql = "CONCAT(CAST(YEAR(%s) AS CHAR(4)), '|', CAST(LPAD(MONTH(%s),2,'0') AS CHAR(2)), '|', CAST(LPAD(DAY(%s),2,'0') AS CHAR(2)))";
 
 		// nama
 		$this->nama = new crField('r_rekap_invoice_ppn', 'r_rekap_invoice_ppn', 'x_nama', 'nama', '`nama`', 200, EWR_DATATYPE_STRING, -1);
@@ -284,7 +290,7 @@ class crr_rekap_invoice_ppn extends crTableBase {
 	var $_SqlOrderBy = "";
 
 	function getSqlOrderBy() {
-		return ($this->_SqlOrderBy <> "") ? $this->_SqlOrderBy : "`periode_short` ASC, `tanggal_short` ASC";
+		return ($this->_SqlOrderBy <> "") ? $this->_SqlOrderBy : "`periode_short` ASC, CONCAT(CAST(YEAR(`tanggal`) AS CHAR(4)), '|', CAST(LPAD(MONTH(`tanggal`),2,'0') AS CHAR(2)), '|', CAST(LPAD(DAY(`tanggal`),2,'0') AS CHAR(2))) ASC, `tanggal_short` ASC";
 	}
 
 	function SqlOrderBy() { // For backward compatibility
