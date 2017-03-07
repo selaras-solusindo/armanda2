@@ -322,7 +322,7 @@ $html .= '
 	';
 
 $html .= '<tr><td colspan="2">&nbsp;</td></tr>';
-$html .= '<tr><td>Keterangan</td><td>: '.$keterangan.'</td></tr>';
+$html .= '<tr><td>Keterangan</td><td>: '.nl2br($keterangan).'</td></tr>';
 $html .= '<tr><td colspan="2">&nbsp;</td></tr>';
 $html .= '<tr><td>Terbilang</td><td>: '.$terbilang.' rupiah</td></tr>';
 $html .= '</table>';
